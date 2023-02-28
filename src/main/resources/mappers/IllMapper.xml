@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.IllMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.IllBaseMapper.ResultMap">
+        select * from std_ill where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.IllBaseMapper.ResultMap">
+        select * from std_ill ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.IllBaseMapper.ResultMap">
+        select * from std_ill ${ew.customSqlSegment}
+    </select>
+
+    <select id="searchIll" resultMap="com.zhzx.server.repository.base.IllBaseMapper.ResultMap">
+        select * from std_ill
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and academic_year_semester_id=${academicYearSemesterId}
+        </if>
+        <if test="gradeId != null">
+            and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+        </if>
+        <if test="clazzId != null">
+            and clazz_id = ${clazzId}
+        </if>
+        <if test="week != null">
+            and week = ${week}
+        </if>
+        <if test="registerDateFrom != null and registerDateTo != null">
+            and register_date between str_to_date('${registerDateFrom}','%Y-%m-%d %H:%i:%s') and str_to_date('${registerDateTo}','%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+</mapper>

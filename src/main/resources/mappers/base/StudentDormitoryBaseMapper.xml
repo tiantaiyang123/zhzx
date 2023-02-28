@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StudentDormitoryBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.StudentDormitory">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="student_id" jdbcType="BIGINT" property="studentId" />
+        <result column="dormitory_id" jdbcType="BIGINT" property="dormitoryId" />
+        <result column="bed" jdbcType="VARCHAR" property="bed" />
+        <result column="is_default" jdbcType="VARCHAR" property="isDefault" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.StudentDormitory" extends="BaseResultMap">
+        <association column="dormitory_id" property="dormitory" javaType="com.zhzx.server.domain.Dormitory"
+                     select="com.zhzx.server.repository.DormitoryMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, student_id, dormitory_id, bed, is_default, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.student_id, t.dormitory_id, t.bed, t.is_default, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_student_dormitory (
+            student_id, dormitory_id, bed, is_default
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.studentId, jdbcType=BIGINT}, #{record.dormitoryId, jdbcType=BIGINT}, #{record.bed, jdbcType=VARCHAR}, #{record.isDefault, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.StudentDormitory">
+        update sys_student_dormitory set
+        <trim suffixOverrides=",">
+            student_id = #{et.studentId, jdbcType=BIGINT},
+            dormitory_id = #{et.dormitoryId, jdbcType=BIGINT},
+            bed = #{et.bed, jdbcType=VARCHAR},
+            is_default = #{et.isDefault, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

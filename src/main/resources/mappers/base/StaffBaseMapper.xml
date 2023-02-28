@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StaffBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Staff">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="department" jdbcType="VARCHAR" property="department" />
+        <result column="employee_number" jdbcType="VARCHAR" property="employeeNumber" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="gender" jdbcType="VARCHAR" property="gender" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+        <result column="education" jdbcType="VARCHAR" property="education" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="card_number" jdbcType="VARCHAR" property="cardNumber" />
+        <result column="id_number" jdbcType="VARCHAR" property="idNumber" />
+        <result column="compilation_situation" jdbcType="VARCHAR" property="compilationSituation" />
+        <result column="personnel_situation" jdbcType="VARCHAR" property="personnelSituation" />
+        <result column="is_delete" jdbcType="VARCHAR" property="isDelete" />
+        <result column="function" jdbcType="VARCHAR" property="function" />
+        <result column="honor" jdbcType="VARCHAR" property="honor" />
+        <result column="wx_username" jdbcType="VARCHAR" property="wxUsername" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Staff" extends="BaseResultMap">
+        <collection column="id" property="staffSubjectList" select="queryStaffSubjectById" />
+        <collection column="id" property="staffClazzAdviserList" select="queryStaffClazzAdviserById" />
+        <collection column="id" property="staffLessonTeacherList" select="queryStaffLessonTeacherById" />
+        <collection column="id" property="staffResearchLeaderList" select="queryStaffResearchLeaderById" />
+        <collection column="id" property="staffLessonLeaderList" select="queryStaffLessonLeaderById" />
+        <collection column="id" property="staffGradeLeaderList" select="queryStaffGradeLeaderById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, department, employee_number, name, gender, phone, education, title, card_number, id_number, compilation_situation, personnel_situation, is_delete, function, honor, wx_username, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.department, t.employee_number, t.name, t.gender, t.phone, t.education, t.title, t.card_number, t.id_number, t.compilation_situation, t.personnel_situation, t.is_delete, t.function, t.honor, t.wx_username, t.create_time, t.update_time
+    </sql>
+    <select id="queryStaffSubjectById" resultMap="com.zhzx.server.repository.base.StaffSubjectBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.StaffSubjectBaseMapper.Base_Column_List" />
+        from sys_staff_subject
+        where staff_id = #{id}
+    </select>
+    <select id="queryStaffClazzAdviserById" resultMap="com.zhzx.server.repository.base.StaffClazzAdviserBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.StaffClazzAdviserBaseMapper.Base_Column_List" />
+        from sys_staff_clazz_adviser
+        where staff_id = #{id}
+    </select>
+    <select id="queryStaffLessonTeacherById" resultMap="com.zhzx.server.repository.base.StaffLessonTeacherBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.StaffLessonTeacherBaseMapper.Base_Column_List" />
+        from sys_staff_lesson_teacher
+        where staff_id = #{id}
+    </select>
+    <select id="queryStaffResearchLeaderById" resultMap="com.zhzx.server.repository.base.StaffResearchLeaderBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.StaffResearchLeaderBaseMapper.Base_Column_List" />
+        from sys_staff_research_leader
+        where staff_id = #{id}
+    </select>
+    <select id="queryStaffLessonLeaderById" resultMap="com.zhzx.server.repository.base.StaffLessonLeaderBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.StaffLessonLeaderBaseMapper.Base_Column_List" />
+        from sys_staff_lesson_leader
+        where staff_id = #{id}
+    </select>
+    <select id="queryStaffGradeLeaderById" resultMap="com.zhzx.server.repository.base.StaffGradeLeaderBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.StaffGradeLeaderBaseMapper.Base_Column_List" />
+        from sys_staff_grade_leader
+        where staff_id = #{id}
+    </select>
+    <insert id="batchInsert">
+        insert into sys_staff (
+            department, employee_number, name, gender, phone, education, title, card_number, id_number, compilation_situation, personnel_situation, is_delete, function, honor, wx_username
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.department, jdbcType=VARCHAR}, #{record.employeeNumber, jdbcType=VARCHAR}, #{record.name, jdbcType=VARCHAR}, #{record.gender, jdbcType=VARCHAR}, #{record.phone, jdbcType=VARCHAR}, #{record.education, jdbcType=VARCHAR}, #{record.title, jdbcType=VARCHAR}, #{record.cardNumber, jdbcType=VARCHAR}, #{record.idNumber, jdbcType=VARCHAR}, #{record.compilationSituation, jdbcType=VARCHAR}, #{record.personnelSituation, jdbcType=VARCHAR}, #{record.isDelete, jdbcType=VARCHAR}, #{record.function, jdbcType=VARCHAR}, #{record.honor, jdbcType=VARCHAR}, #{record.wxUsername, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Staff">
+        update sys_staff set
+        <trim suffixOverrides=",">
+            department = #{et.department, jdbcType=VARCHAR},
+            employee_number = #{et.employeeNumber, jdbcType=VARCHAR},
+            name = #{et.name, jdbcType=VARCHAR},
+            gender = #{et.gender, jdbcType=VARCHAR},
+            phone = #{et.phone, jdbcType=VARCHAR},
+            education = #{et.education, jdbcType=VARCHAR},
+            title = #{et.title, jdbcType=VARCHAR},
+            card_number = #{et.cardNumber, jdbcType=VARCHAR},
+            id_number = #{et.idNumber, jdbcType=VARCHAR},
+            compilation_situation = #{et.compilationSituation, jdbcType=VARCHAR},
+            personnel_situation = #{et.personnelSituation, jdbcType=VARCHAR},
+            is_delete = #{et.isDelete, jdbcType=VARCHAR},
+            function = #{et.function, jdbcType=VARCHAR},
+            honor = #{et.honor, jdbcType=VARCHAR},
+            wx_username = #{et.wxUsername, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

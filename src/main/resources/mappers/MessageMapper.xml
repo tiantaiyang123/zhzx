@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.MessageMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.MessageBaseMapper.ResultMap">
+        select * from mes_message where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.MessageBaseMapper.ResultMap">
+        select * from mes_message ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.MessageBaseMapper.ResultMap">
+        select * from mes_message ${ew.customSqlSegment}
+    </select>
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.MessageBaseMapper.ResultMap">
+        select * from mes_message ${ew.customSqlSegment}
+    </select>
+    <insert id="batchInsert">
+        insert into mes_message (
+        message_task_id, name, title,content, sender_id, sender_name, receiver_id, receiver_name,
+        receiver_type, send_time, repeat_send_time,is_send, is_read, is_write,need_write,send_num
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+            (
+            #{record.messageTaskId, jdbcType=BIGINT},
+            #{record.name, jdbcType=VARCHAR},
+            #{record.title, jdbcType=VARCHAR},
+            #{record.content, jdbcType=VARCHAR},
+            #{record.senderId, jdbcType=BIGINT},
+            #{record.senderName, jdbcType=VARCHAR},
+            #{record.receiverId, jdbcType=BIGINT},
+            #{record.receiverName, jdbcType=VARCHAR},
+            #{record.receiverType, jdbcType=VARCHAR},
+            #{record.sendTime, jdbcType=TIMESTAMP},
+            #{record.repeatSendTime, jdbcType=TIMESTAMP},
+            #{record.isSend, jdbcType=VARCHAR},
+            #{record.isRead, jdbcType=VARCHAR},
+            #{record.isWrite, jdbcType=VARCHAR},
+            #{record.needWrite, jdbcType=VARCHAR},
+            #{record.sendNum, jdbcType=BIGINT}
+            )
+        </foreach>
+    </insert>
+
+    <select id="calculateMessage" resultType="java.util.Map">
+        select mm.message_task_id ,mms.title,mms.editor_id as editorId,mms.editor_name as editorName,mms.need_write as needWrite,
+            sum(case mm.is_send when 'YES' then 1 else 0 end) as sendNum,
+            sum(case mm.is_send when 'NO' then 1 else 0 end) as sendErrNum,
+            sum(case mm.is_read when 'YES' then 1 else 0 end) as readNum,
+            sum(case mm.is_write when 'YES' then 1 else 0 end) as writeNum
+        from mes_message mm
+        left join mes_message_task mms on mm.message_task_id = mms.id
+        where mm.repeat_send_time between date_add(#{time}, interval - 5 minute) and #{time}
+        group by mm.message_task_id
+    </select>
+</mapper>

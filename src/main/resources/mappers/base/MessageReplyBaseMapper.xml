@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.MessageReplyBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.MessageReply">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="receiver_id" jdbcType="BIGINT" property="receiverId" />
+        <result column="receiver_name" jdbcType="VARCHAR" property="receiverName" />
+        <result column="receiver_wx_name" jdbcType="VARCHAR" property="receiverWxName" />
+        <result column="reply_type" jdbcType="VARCHAR" property="replyType" />
+        <result column="reply_time" jdbcType="TIMESTAMP" property="replyTime" />
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.MessageReply" extends="BaseResultMap">
+        <result column="reply_content" jdbcType="VARCHAR" property="replyContent" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, receiver_id, receiver_name, receiver_wx_name, reply_content, reply_type, reply_time, created_time, updated_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.receiver_id, t.receiver_name, t.receiver_wx_name, t.reply_content, t.reply_type, t.reply_time, t.created_time, t.updated_time
+    </sql>
+    <sql id="Base_Column_List_Full_With_Prefix">
+        t.id, t.receiver_id, t.receiver_name, t.receiver_wx_name, t.reply_content, t.reply_type, t.reply_time, t.created_time, t.updated_time
+    </sql>
+    <insert id="batchInsert">
+        insert into mes_message_reply (
+            receiver_id, receiver_name, receiver_wx_name, reply_content, reply_type, reply_time
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.receiverId, jdbcType=BIGINT}, #{record.receiverName, jdbcType=VARCHAR}, #{record.receiverWxName, jdbcType=VARCHAR}, #{record.replyContent, jdbcType=VARCHAR}, #{record.replyType, jdbcType=VARCHAR}, #{record.replyTime, jdbcType=TIMESTAMP}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.MessageReply">
+        update mes_message_reply set
+        <trim suffixOverrides=",">
+            receiver_id = #{et.receiverId, jdbcType=BIGINT},
+            receiver_name = #{et.receiverName, jdbcType=VARCHAR},
+            receiver_wx_name = #{et.receiverWxName, jdbcType=VARCHAR},
+            reply_content = #{et.replyContent, jdbcType=VARCHAR},
+            reply_type = #{et.replyType, jdbcType=VARCHAR},
+            reply_time = #{et.replyTime, jdbcType=TIMESTAMP},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.NightStudyAttendanceMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.ResultMap">
+        select * from std_night_study_attendance where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.ResultMap">
+        select * from std_night_study_attendance ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.ResultMap">
+        select * from std_night_study_attendance ${ew.customSqlSegment}
+    </select>
+
+    <sql id="Base_Column_List_Common">
+        id, academic_year_semester_id, week, register_date, clazz_id, stage, should_num, actual_num, classify, summarize, sign, create_time, update_time
+    </sql>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NightStudyAttendance" extends="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.ResultMap">
+        <result column="is_full_attendence" jdbcType="VARCHAR" property="isFullAttendence" />
+    </resultMap>
+
+    <select id="pageDetail" resultMap="ResultMap">
+        select * from
+        (
+            (
+                select
+                       <include refid="Base_Column_List_Common"></include>,
+                       'NO' AS is_full_attendence,
+                        student_id,reason
+                from std_night_study_attendance ${ew.customSqlSegment}
+            )
+            union all
+            (
+                select * from
+                (
+                    select
+                        <include refid="Base_Column_List_Common"></include>,
+                        is_full_attendence,
+                        0 AS `student_id`,'' AS `reason`
+                    from std_night_study_attendance_sub ${ew.customSqlSegment}
+                ) TMP0 where is_full_attendence='YES'
+            )
+        ) TMP1
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="searchNightStudyAttendance" resultMap="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.ResultMap">
+        select * from std_night_study_attendance
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and academic_year_semester_id=${academicYearSemesterId}
+        </if>
+        <if test="schoolyardId != null">
+            and clazz_id in (select id from sys_clazz where schoolyard_id=${schoolyardId})
+        </if>
+        <if test="gradeId != null">
+            and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+        </if>
+        <if test="clazzId != null">
+            and clazz_id = ${clazzId}
+        </if>
+        <if test="week != null">
+            and week = ${week}
+        </if>
+        <if test="stage != null">
+            and stage = ${stage}
+        </if>
+        <if test="registerDateFrom != null and registerDateTo != null">
+            and register_date between str_to_date('${registerDateFrom}','%Y-%m-%d %H:%i:%s') and str_to_date('${registerDateTo}','%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <update id="updateStudentNum">
+        update std_night_study_attendance
+        set
+            should_num = #{shouldStudentCount} ,
+            actual_num = #{actualStudentCount}
+        where to_days(register_date) = to_days(#{time}) and clazz_id = #{clazzId} and stage = #{dutyType}
+    </update>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="getOneByTimeAndClazzId" resultMap="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.BaseResultMap">
+        select * from std_night_study_attendance
+        where to_days(register_date) = to_days(#{time}) and clazz_id = #{clazzId} and stage = #{stage}
+        order by create_time desc
+        limit 1
+    </select>
+
+    <select id="searchNightStatisticsGroupByTime" resultType="java.util.HashMap">
+        select * from (
+            select count(*) as total,
+            sum(case classify when '缺席' then 1 else null end) as absentNum,
+            sum(case stage when 'STAGE_ONE' then 1 else null end) as stageOneTotal,
+            sum(case classify when '缺席' THEN (case stage when 'STAGE_ONE' then 1 else null end) else null end) as stageOneAbsentNum,
+            sum(case stage when 'STAGE_TWO' then 1 else null end) as stageTwoTotal,
+            sum(case classify when '缺席' THEN (case stage when 'STAGE_TWO' then 1 else null end) else null end) as stageTwoAbsentNum,
+            DATE_FORMAT(register_date, '%Y-%m-%d') as registerDate
+            from std_night_study_attendance
+            where 1=1
+            <if test="academicYearSemesterId != null">
+                and academic_year_semester_id=${academicYearSemesterId}
+            </if>
+            <if test="gradeId != null">
+                and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+            </if>
+            <if test="clazzId != null">
+                and clazz_id = ${clazzId}
+            </if>
+            <if test="week != null">
+                and week = ${week}
+            </if>
+            <if test="classifies != null">
+                and classify in (
+                <foreach collection="classifies" item="record" separator=",">
+                    #{record}
+                </foreach>
+                )
+            </if>
+            <if test="registerDateFrom != null and registerDateTo != null">
+                and register_date between #{registerDateFrom} and #{registerDateTo}
+            </if>
+            <if test="stage != null and stage != ''">
+                and stage = #{stage}
+            </if>
+            <if test="orderByClause != null">
+                order by ${orderByClause}
+            </if>
+            group by to_days(register_date)
+        ) a
+    </select>
+
+    <select id="searchNightStatisticsGroupByClazz" resultType="java.util.HashMap">
+        select * from (
+        select count(*) as total,
+        sum(case classify when '缺席' then 1 else null end) as absentNum,
+        DATE_FORMAT(register_date, '%Y-%m-%d') as registerDate,
+        (select `name` from sys_clazz where std_night_study_attendance.clazz_id = sys_clazz.id) as clazzName
+        from std_night_study_attendance
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and academic_year_semester_id=${academicYearSemesterId}
+        </if>
+        <if test="gradeId != null">
+            and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+        </if>
+        <if test="clazzId != null">
+            and clazz_id = ${clazzId}
+        </if>
+        <if test="week != null">
+            and week = ${week}
+        </if>
+        <if test="classifies != null">
+            and classify in (
+            <foreach collection="classifies" item="record" separator=",">
+                #{record}
+            </foreach>
+            )
+        </if>
+        <if test="registerDateFrom != null and registerDateTo != null">
+            and register_date between #{registerDateFrom} and #{registerDateTo}
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+        group by clazz_id
+        ) a
+    </select>
+</mapper>

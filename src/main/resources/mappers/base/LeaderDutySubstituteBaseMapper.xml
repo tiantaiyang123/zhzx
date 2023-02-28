@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.LeaderDutySubstituteBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.LeaderDutySubstitute">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="duty_type" jdbcType="VARCHAR" property="dutyType" />
+        <result column="leader_duty_id" jdbcType="BIGINT" property="leaderDutyId" />
+        <result column="leader_old_id" jdbcType="BIGINT" property="leaderOldId" />
+        <result column="leader_id" jdbcType="BIGINT" property="leaderId" />
+        <result column="is_agree" jdbcType="VARCHAR" property="isAgree" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.LeaderDutySubstitute" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        `id`, `duty_type`, `leader_duty_id`, `leader_old_id`, `leader_id`, `is_agree`
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.`id`, t.`duty_type`, t.`leader_duty_id`, t.`leader_old_id`, t.`leader_id`, t.`is_agree`
+    </sql>
+    <insert id="batchInsert">
+        insert into day_leader_duty_substitute (
+            `duty_type`, `leader_duty_id`, `leader_old_id`, `leader_id`, `is_agree`
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.dutyType, jdbcType=VARCHAR}, #{record.leaderDutyId, jdbcType=BIGINT}, #{record.leaderOldId, jdbcType=BIGINT}, #{record.leaderId, jdbcType=BIGINT}, #{record.isAgree, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.LeaderDutySubstitute">
+        update day_leader_duty_substitute set
+        <trim suffixOverrides=",">
+            duty_type = #{et.dutyType, jdbcType=VARCHAR},
+            leader_duty_id = #{et.leaderDutyId, jdbcType=BIGINT},
+            leader_old_id = #{et.leaderOldId, jdbcType=BIGINT},
+            leader_id = #{et.leaderId, jdbcType=BIGINT},
+            is_agree = #{et.isAgree, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

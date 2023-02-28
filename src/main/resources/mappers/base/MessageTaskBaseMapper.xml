@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.MessageTaskBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.MessageTask">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="message_template_id" jdbcType="BIGINT" property="messageTemplateId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="cron" jdbcType="VARCHAR" property="cron" />
+        <result column="cron_json" jdbcType="VARCHAR" property="cronJson" />
+        <result column="send_method" jdbcType="VARCHAR" property="sendMethod" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="editor_id" jdbcType="BIGINT" property="editorId" />
+        <result column="editor_name" jdbcType="VARCHAR" property="editorName" />
+        <result column="send_type" jdbcType="VARCHAR" property="sendType" />
+        <result column="need_write" jdbcType="VARCHAR" property="needWrite" />
+        <result column="repeat_send" jdbcType="BIGINT" property="repeatSend" />
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.MessageTask" extends="BaseResultMap">
+        <association column="message_template_id" property="messageTemplate" javaType="com.zhzx.server.domain.MessageTemplate"
+                     select="com.zhzx.server.repository.MessageTemplateMapper.selectById" />
+        <collection column="id" property="messageTaskReceiverList" select="queryMessageTaskReceiverById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, message_template_id, name, title, cron, cron_json, send_method, start_time, end_time, editor_id, editor_name, send_type, need_write, repeat_send, created_time, updated_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.message_template_id, t.name, t.title, t.cron, t.cron_json, t.send_method, t.start_time, t.end_time, t.editor_id, t.editor_name, t.send_type, t.need_write, t.repeat_send, t.created_time, t.updated_time
+    </sql>
+    <sql id="Base_Column_List_Full_With_Prefix">
+        t.id, t.message_template_id, t.name, t.title, t.content, t.cron, t.cron_json, t.send_method, t.start_time, t.end_time, t.editor_id, t.editor_name, t.send_type, t.need_write, t.repeat_send, t.created_time, t.updated_time
+    </sql>
+    <select id="queryMessageTaskReceiverById" resultMap="com.zhzx.server.repository.base.MessageTaskReceiverBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.MessageTaskReceiverBaseMapper.Base_Column_List" />
+        from mes_message_task_receiver
+        where message_task_id = #{id}
+    </select>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.MessageTask">
+        update mes_message_task set
+        <trim suffixOverrides=",">
+            message_template_id = #{et.messageTemplateId, jdbcType=BIGINT},
+            name = #{et.name, jdbcType=VARCHAR},
+            title = #{et.title, jdbcType=VARCHAR},
+            content = #{et.content, jdbcType=VARCHAR},
+            cron = #{et.cron, jdbcType=VARCHAR},
+            cron_json = #{et.cronJson, jdbcType=VARCHAR},
+            send_method = #{et.sendMethod, jdbcType=VARCHAR},
+            start_time = #{et.startTime, jdbcType=TIMESTAMP},
+            end_time = #{et.endTime, jdbcType=TIMESTAMP},
+            editor_id = #{et.editorId, jdbcType=BIGINT},
+            editor_name = #{et.editorName, jdbcType=VARCHAR},
+            send_type = #{et.sendType, jdbcType=VARCHAR},
+            need_write = #{et.needWrite, jdbcType=VARCHAR},
+            repeat_send = #{et.repeatSend, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

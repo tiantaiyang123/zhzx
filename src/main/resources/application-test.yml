@@ -1,0 +1,55 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+      enabled: true
+  application:
+    name: server-dev
+  datasource:
+    mysql:
+      jdbc-url: jdbc:mysql://localhost:3306/zhzx_prod?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=false&allowMultiQueries=true
+      username: root
+      password: 123456
+    mssql:
+      jdbc-url: jdbc:sqlserver://10.100.10.111:1433;DatabaseName=AsiaCardserver
+      username: EKT
+      password: 1qaz!QAZ
+  resources:
+    static-locations: classpath:static/templates/
+web:
+  upload-path: /home/zhzx-server/file/upload
+card:
+  consume-record: http://10.100.10.114:8080/ascardapi/api/v1/trans
+upload:
+  SYSTEM_TYPE: LINUX
+  BASE_URL: 39.105.20.167
+  FTP_PORT: 21
+  DOMAIN_URL: http://1.15.119.160:8088
+  DOMAIN_URL_FTP: http://39.105.20.167:21
+  COMMON_PATH: zhzx/tmg
+  USER_NAME: haha
+  PASS_WORD: haha
+  HOME_DIR_FTP: /home/tomcat-image/webapps
+  HOME_DIR: /home/tomcat-image/webapps
+# hasor
+# 是否开启 Dataway 后台管理界面（必选：默认false）
+HASOR_DATAQL_DATAWAY_ADMIN: true
+
+wx:
+  appId: wx7eb20e66c3f76593
+  chengguo_secret: 5xOeiEC20AA20nuLLJgsA94Ot6fTY5VRGPkRScuV7es
+  zhiban_secret: W8nIAcorja8PoD_HohN8f15omjiztkblu4wC3MH4k5c
+  course_secret: Vc5Be0HcVB_WiQPFQ2fo6kdjxSnBikdRae5e7JRYpOc
+  njzzb_secret: lEj-4etey6vngFpc7KXTWuJ7pmGM6whZc57ZwuBLK_I
+  message_appId: wx7eb20e66c3f76593
+  mail_list_secret: NrWm7eO8Oi1Ux7Tnw1A-qBAipYhhkHzWEJVeZZ45vhY  #家校通讯录
+  message_secret: Ir15A6_SrSYpw565YjJoEKFISSvZvQjR3W257aXEZkk   #家校应用
+  bench_secret: pPQDoVyVoLK9QfOmGN497bFHnDQA0TB2mZbwaXh8Yrs
+  agentId: 1000049
+  resp:
+    token: j4byZpKL3VMZXC4IcsQClIfcuvf
+    encodingAESKey: TRoUnUhPaR8M6qXbkMw6MG95AbsX5uruI2iRjKQYnwA
+academic:
+  year_one_start: 9-1
+  year_two_start: 2-1

@@ -1,0 +1,146 @@
+truncate table sys_authority;
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_LARGE','展示大屏','main.large',1,'');
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_FILE','文章管理','main.file',2,'');
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_MESSAGE','消息管理','main.message',3,'');
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_MESSAGE_MINE','我的消息','main.message.mine',1,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_MESSAGE_MINE' and b.name='AUTH_MESSAGE';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_MESSAGE_CENTER','消息发布','main.message.center',2,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_MESSAGE_CENTER' and b.name='AUTH_MESSAGE';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_MESSAGE_GROUP','教师分组','main.message.group',3,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_MESSAGE_GROUP' and b.name='AUTH_MESSAGE';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_MESSAGE_SENDER','发送人员','main.message.sender',4,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_MESSAGE_SENDER' and b.name='AUTH_MESSAGE';
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY','一日常规管理','main.day',4,'');
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_TEACHER_DUTY','值班教师','main.day.teacher_duty',1,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_TEACHER_DUTY' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_LEADER_DUTY','值班领导','main.day.leader_duty',2,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_LEADER_DUTY' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_SOUTH_GATE','南大门准备情况','main.day.south_gate',3,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_SOUTH_GATE' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_BREAKFAST','早餐情况','main.day.break_fast',4,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_BREAKFAST' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_LUNCH','中餐情况','main.day.lunch',5,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_LUNCH' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_DINING','晚餐情况','main.day.dining',6,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_DINING' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_MORNING_READING','早读情况','main.day.morning_reading',7,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_MORNING_READING' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_BREAK_ACTIVITY','大课间活动情况','main.day.break_activity',8,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_BREAK_ACTIVITY' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_TEACHING_AREA','教学区秩序','main.day.teaching_area',9,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_TEACHING_AREA' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_NOON_SPORT_AREA','午班运动区秩序','main.day.noon_sport_area',10,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_NOON_SPORT_AREA' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_NIGHT_SPORT_AREA','晚班运动区秩序','main.day.night_sport_area',11,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_NIGHT_SPORT_AREA' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_GO_OUT','走读生提前出门情况','main.day.go_out',12,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_GO_OUT' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_NIGHT_STUDY_DUTY','晚自习值班情况','main.day.night_study_duty',13,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_NIGHT_STUDY_DUTY' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_INCIDENT','偶发事件','main.day.incident',14,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_INCIDENT' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_COMMENT_JWC','意见与建议-教务处','main.day.comment_jwc',15,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_COMMENT_JWC' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_COMMENT_XZS','意见与建议-校长室','main.day.comment_xzs',16,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_COMMENT_XZS' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_COMMENT_BM','意见与建议-部门','main.day.comment_bm',17,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_COMMENT_BM' and b.name='AUTH_DAY';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_DAY_COMMENT_NJZ','意见与建议-年级组','main.day.comment_njz',18,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_DAY_COMMENT_NJZ' and b.name='AUTH_DAY';
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT','学生管理','main.student',5,'');
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT_CLAZZ_LOG_REPORT','教学日志填报','main.student.clazz_log_report',1,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_STUDENT_CLAZZ_LOG_REPORT' and b.name='AUTH_STUDENT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT_CLAZZ_LOG_QUERY','教学日志查询','main.student.clazz_log_query',2,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_STUDENT_CLAZZ_LOG_QUERY' and b.name='AUTH_STUDENT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT_CLAZZ_LOG_AUDIT','教学日志审核','main.student.clazz_log_audit',3,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_STUDENT_CLAZZ_LOG_AUDIT' and b.name='AUTH_STUDENT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT_DAILY','日常考勤登记','main.student.daily',4,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_STUDENT_DAILY' and b.name='AUTH_STUDENT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT_DAILY_QUERY','日常考勤汇总','main.student.daily_query',5,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_STUDENT_DAILY_QUERY' and b.name='AUTH_STUDENT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT_NIGHT_STUDY','晚自习考勤登记','main.student.night_study',6,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_STUDENT_NIGHT_STUDY' and b.name='AUTH_STUDENT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT_NIGHT_STUDY_QUERY','晚自习考勤汇总','main.student.night_study_query',7,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_STUDENT_NIGHT_STUDY_QUERY' and b.name='AUTH_STUDENT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT_ILL','因病缺课登记','main.student.ill',8,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_STUDENT_ILL' and b.name='AUTH_STUDENT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_STUDENT_ILL_QUERY','因病缺课汇总','main.student.ill_query',9,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_STUDENT_ILL_QUERY' and b.name='AUTH_STUDENT';
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM','成绩管理','main.exam',6,'');
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_CLASSIFY','考试分类设置','main.exam.classify',1,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_CLASSIFY' and b.name='AUTH_EXAM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_SETTING','考试设置','main.exam.setting',2,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_SETTING' and b.name='AUTH_EXAM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_ACADEMIC_LEVEL','学业等级设置','main.exam.academic_level',3,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_ACADEMIC_LEVEL' and b.name='AUTH_EXAM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_GOAL','考试目标设置','main.exam.goal',4,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_GOAL' and b.name='AUTH_EXAM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_SCORE_ENTRY','成绩录入','main.exam.score_entry',5,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_SCORE_ENTRY' and b.name='AUTH_EXAM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_CLAZZ_STATISTICS','班级统计','main.exam.clazz_statistics',6,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_CLAZZ_STATISTICS' and b.name='AUTH_EXAM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_SUBJECT_STATISTICS','学科统计','main.exam.subject_statistics',7,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_SUBJECT_STATISTICS' and b.name='AUTH_EXAM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_GRADE_GOAL','目标达成','main.exam.grade_goal',8,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_GRADE_GOAL' and b.name='AUTH_EXAM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_CLAZZ_RANK','班级排名','main.exam.clazz_rank',9,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_CLAZZ_RANK' and b.name='AUTH_EXAM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_EXAM_SUBJECT_RANK','分科排名','main.exam.subject_rank',10,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_EXAM_SUBJECT_RANK' and b.name='AUTH_EXAM';
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_TEACHING_RESULT','成果管理','main.teaching_result',7,'');
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_TEACHING_RESULT_MINE','我的成果','main.teaching_result.mine',1,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_TEACHING_RESULT_MINE' and b.name='AUTH_TEACHING_RESULT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_TEACHING_RESULT_AUDIT','审核列表','main.teaching_result.audit',2,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_TEACHING_RESULT_AUDIT' and b.name='AUTH_TEACHING_RESULT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_TEACHING_RESULT_REPORT','成果填报','main.teaching_result.report',3,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_TEACHING_RESULT_REPORT' and b.name='AUTH_TEACHING_RESULT';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_TEACHING_RESULT_QUERY','成果查询','main.teaching_result.query',4,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_TEACHING_RESULT_QUERY' and b.name='AUTH_TEACHING_RESULT';
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM','系统设置','main.system',8,'setting');
+
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_USER','用户管理','main.system.user',1,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_USER' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_ROLE','角色管理','main.system.role',2,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_ROLE' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_AUTHORITY','权限管理','main.system.authority',3,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_AUTHORITY' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_ACADEMIC_YEAR_SEMESTER','学年学期','main.system.academic_year_semester',4,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_ACADEMIC_YEAR_SEMESTER' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_DEPARTMENT','部门设置','main.system.department',5,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_DEPARTMENT' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_STAFF','教职工设置','main.system.staff',6,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_STAFF' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_SUBJECT','科目设置','main.system.subject',7,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_SUBJECT' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_GRADE','年级设置','main.system.grade',8,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_GRADE' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_CLAZZ','班级设置','main.system.clazz',9,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_CLAZZ' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_DORMITORY','宿舍设置','main.system.dormitory',10,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_DORMITORY' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_STUDENT','学生设置','main.system.student',11,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_STUDENT' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_LABEL','标签设置','main.system.label',12,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_LABEL' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_COURSE','课程设置','main.system.course',13,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_COURSE' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_FUNCTION_DEPARTMENT','职能部门设置','main.system.function_department',14,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_FUNCTION_DEPARTMENT' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_SETTINGS','系统参数配置','main.system.setting',15,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_SETTINGS' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_RESULT_CLASSIFY','成果分类设置','main.system.teaching_result_classify',16,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_RESULT_CLASSIFY' and b.name='AUTH_SYSTEM';
+insert sys_authority (type,name,title,path,sort_order,icon) values ('MENU','AUTH_SYSTEM_USER_HITS','点击量统计','main.system.user_hits',17,'');
+update sys_authority a, sys_authority b set a.parent_id=b.id where a.name='AUTH_SYSTEM_USER_HITS' and b.name='AUTH_SYSTEM';

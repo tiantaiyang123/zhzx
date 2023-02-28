@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.RoleAuthorityBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.RoleAuthority">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="role_id" jdbcType="BIGINT" property="roleId" />
+        <result column="authority_id" jdbcType="BIGINT" property="authorityId" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.RoleAuthority" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, role_id, authority_id
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.role_id, t.authority_id
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_role_authority (
+            role_id, authority_id
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.roleId, jdbcType=BIGINT}, #{record.authorityId, jdbcType=BIGINT}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.RoleAuthority">
+        update sys_role_authority set
+        <trim suffixOverrides=",">
+            role_id = #{et.roleId, jdbcType=BIGINT},
+            authority_id = #{et.authorityId, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

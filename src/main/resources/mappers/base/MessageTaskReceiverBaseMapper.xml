@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.MessageTaskReceiverBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.MessageTaskReceiver">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="message_task_id" jdbcType="BIGINT" property="messageTaskId" />
+        <result column="receiver_id" jdbcType="BIGINT" property="receiverId" />
+        <result column="receiver_name" jdbcType="VARCHAR" property="receiverName" />
+        <result column="receiver_type" jdbcType="VARCHAR" property="receiverType" />
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.MessageTaskReceiver" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, message_task_id, receiver_id, receiver_name, receiver_type, created_time, updated_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.message_task_id, t.receiver_id, t.receiver_name, t.receiver_type, t.created_time, t.updated_time
+    </sql>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.MessageTaskReceiver">
+        update mes_message_task_receiver set
+        <trim suffixOverrides=",">
+            message_task_id = #{et.messageTaskId, jdbcType=BIGINT},
+            receiver_id = #{et.receiverId, jdbcType=BIGINT},
+            receiver_name = #{et.receiverName, jdbcType=VARCHAR},
+            receiver_type = #{et.receiverType, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

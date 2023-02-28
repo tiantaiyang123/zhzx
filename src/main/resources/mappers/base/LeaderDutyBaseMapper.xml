@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.LeaderDutyBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.LeaderDuty">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="schoolyard_id" jdbcType="BIGINT" property="schoolyardId" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="duty_type" jdbcType="VARCHAR" property="dutyType" />
+        <result column="leader_id" jdbcType="BIGINT" property="leaderId" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.LeaderDuty" extends="BaseResultMap">
+        <association column="leader_id" property="leader" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+        <association column="schoolyard_id" property="schoolyard" javaType="com.zhzx.server.domain.Schoolyard"
+                     select="com.zhzx.server.repository.SchoolyardMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, schoolyard_id, start_time, end_time, duty_type, leader_id, phone, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.schoolyard_id, t.start_time, t.end_time, t.duty_type, t.leader_id, t.phone, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into day_leader_duty (
+            schoolyard_id, start_time, end_time, duty_type, leader_id, phone
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.schoolyardId, jdbcType=BIGINT}, #{record.startTime, jdbcType=TIMESTAMP}, #{record.endTime, jdbcType=TIMESTAMP}, #{record.dutyType, jdbcType=VARCHAR}, #{record.leaderId, jdbcType=BIGINT}, #{record.phone, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.LeaderDuty">
+        update day_leader_duty set
+        <trim suffixOverrides=",">
+            schoolyard_id = #{et.schoolyardId, jdbcType=BIGINT},
+            start_time = #{et.startTime, jdbcType=TIMESTAMP},
+            end_time = #{et.endTime, jdbcType=TIMESTAMP},
+            duty_type = #{et.dutyType, jdbcType=VARCHAR},
+            leader_id = #{et.leaderId, jdbcType=BIGINT},
+            phone = #{et.phone, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

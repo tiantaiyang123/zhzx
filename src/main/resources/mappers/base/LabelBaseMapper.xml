@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.LabelBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Label">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="classify" jdbcType="VARCHAR" property="classify" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Label" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, classify, name
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.classify, t.name
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_label (
+            classify, name
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.classify, jdbcType=VARCHAR}, #{record.name, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Label">
+        update sys_label set
+        <trim suffixOverrides=",">
+            classify = #{et.classify, jdbcType=VARCHAR},
+            name = #{et.name, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamScoreReportBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamScoreReport">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="student_id" jdbcType="BIGINT" property="studentId" />
+        <result column="subject_id" jdbcType="BIGINT" property="subjectId" />
+        <result column="usual_score" jdbcType="BIGINT" property="usualScore" />
+        <result column="mid_score" jdbcType="BIGINT" property="midScore" />
+        <result column="end_score" jdbcType="BIGINT" property="endScore" />
+        <result column="total_score" jdbcType="BIGINT" property="totalScore" />
+        <result column="editor_id" jdbcType="BIGINT" property="editorId" />
+        <result column="editor_name" jdbcType="VARCHAR" property="editorName" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamScoreReport" extends="BaseResultMap">
+        <association column="student_id" property="student" javaType="com.zhzx.server.domain.Student"
+                     select="com.zhzx.server.repository.StudentMapper.selectById" />
+        <association column="subject_id" property="subject" javaType="com.zhzx.server.domain.Subject"
+                     select="com.zhzx.server.repository.SubjectMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, clazz_id, student_id, subject_id, usual_score, mid_score, end_score, total_score, editor_id, editor_name, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.clazz_id, t.student_id, t.subject_id, t.usual_score, t.mid_score, t.end_score, t.total_score, t.editor_id, t.editor_name, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into dat_exam_score_report (
+            clazz_id, student_id, subject_id, usual_score, mid_score, end_score, total_score, editor_id, editor_name
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.clazzId, jdbcType=BIGINT}, #{record.studentId, jdbcType=BIGINT}, #{record.subjectId, jdbcType=BIGINT}, #{record.usualScore, jdbcType=BIGINT}, #{record.midScore, jdbcType=BIGINT}, #{record.endScore, jdbcType=BIGINT}, #{record.totalScore, jdbcType=BIGINT}, #{record.editorId, jdbcType=BIGINT}, #{record.editorName, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamScoreReport">
+        update dat_exam_score_report set
+        <trim suffixOverrides=",">
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+            student_id = #{et.studentId, jdbcType=BIGINT},
+            subject_id = #{et.subjectId, jdbcType=BIGINT},
+            usual_score = #{et.usualScore, jdbcType=BIGINT},
+            mid_score = #{et.midScore, jdbcType=BIGINT},
+            end_score = #{et.endScore, jdbcType=BIGINT},
+            total_score = #{et.totalScore, jdbcType=BIGINT},
+            editor_id = #{et.editorId, jdbcType=BIGINT},
+            editor_name = #{et.editorName, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

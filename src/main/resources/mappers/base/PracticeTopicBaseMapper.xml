@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.PracticeTopicBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.PracticeTopic">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="practice_id" jdbcType="BIGINT" property="practiceId" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="topic_name" jdbcType="VARCHAR" property="topicName" />
+        <result column="topic_number" jdbcType="INTEGER" property="topicNumber" />
+        <result column="topic_type" jdbcType="VARCHAR" property="topicType" />
+        <result column="score" jdbcType="DECIMAL" property="score" />
+        <result column="difficulty" jdbcType="DECIMAL" property="difficulty" />
+        <result column="distinguish" jdbcType="DECIMAL" property="distinguish" />
+        <result column="grade_average" jdbcType="DECIMAL" property="gradeAverage" />
+        <result column="grade_rate" jdbcType="DECIMAL" property="gradeRate" />
+        <result column="average" jdbcType="DECIMAL" property="average" />
+        <result column="rate" jdbcType="DECIMAL" property="rate" />
+        <result column="rank" jdbcType="INTEGER" property="rank" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.PracticeTopic" extends="BaseResultMap">
+        <association column="practice_id" property="practice" javaType="com.zhzx.server.domain.Practice"
+                     select="com.zhzx.server.repository.PracticeMapper.selectById" />
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.ClazzMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, practice_id, clazz_id, topic_name, topic_number, topic_type, score, difficulty, distinguish, grade_average, grade_rate, average, rate, rank, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.practice_id, t.clazz_id, t.topic_name, t.topic_number, t.topic_type, t.score, t.difficulty, t.distinguish, t.grade_average, t.grade_rate, t.average, t.rate, t.rank, t.create_time, t.update_time
+    </sql>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.PracticeTopic">
+        update dat_practice_topic set
+        <trim suffixOverrides=",">
+            practice_id = #{et.practiceId, jdbcType=BIGINT},
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+            topic_name = #{et.topicName, jdbcType=VARCHAR},
+            topic_number = #{et.topicNumber, jdbcType=INTEGER},
+            topic_type = #{et.topicType, jdbcType=VARCHAR},
+            score = #{et.score, jdbcType=DECIMAL},
+            difficulty = #{et.difficulty, jdbcType=DECIMAL},
+            distinguish = #{et.distinguish, jdbcType=DECIMAL},
+            grade_average = #{et.gradeAverage, jdbcType=DECIMAL},
+            grade_rate = #{et.gradeRate, jdbcType=DECIMAL},
+            average = #{et.average, jdbcType=DECIMAL},
+            rate = #{et.rate, jdbcType=DECIMAL},
+            rank = #{et.rank, jdbcType=INTEGER},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

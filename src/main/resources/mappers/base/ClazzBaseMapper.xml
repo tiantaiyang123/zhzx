@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ClazzBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Clazz">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="schoolyard_id" jdbcType="BIGINT" property="schoolyardId" />
+        <result column="academic_year_semester_id" jdbcType="BIGINT" property="academicYearSemesterId" />
+        <result column="grade_id" jdbcType="BIGINT" property="gradeId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="student_count" jdbcType="INTEGER" property="studentCount" />
+        <result column="start_year" jdbcType="INTEGER" property="startYear" />
+        <result column="head_teacher" jdbcType="VARCHAR" property="headTeacher" />
+        <result column="clazz_nature" jdbcType="VARCHAR" property="clazzNature" />
+        <result column="clazz_division" jdbcType="VARCHAR" property="clazzDivision" />
+        <result column="subject_level" jdbcType="VARCHAR" property="subjectLevel" />
+        <result column="clazz_level" jdbcType="VARCHAR" property="clazzLevel" />
+        <result column="night_stage_one_num" jdbcType="BIGINT" property="nightStageOneNum" />
+        <result column="night_stage_two_num" jdbcType="BIGINT" property="nightStageTwoNum" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Clazz" extends="BaseResultMap">
+        <result column="simpleDivision" jdbcType="VARCHAR" property="simpleDivision" />
+        <association column="schoolyard_id" property="schoolyard" javaType="com.zhzx.server.domain.Schoolyard"
+                     select="com.zhzx.server.repository.SchoolyardMapper.selectById" />
+        <association column="academic_year_semester_id" property="academicYearSemester" javaType="com.zhzx.server.domain.AcademicYearSemester"
+                     select="com.zhzx.server.repository.AcademicYearSemesterMapper.selectById" />
+        <association column="grade_id" property="grade" javaType="com.zhzx.server.domain.Grade"
+                     select="com.zhzx.server.repository.GradeMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, schoolyard_id, academic_year_semester_id, grade_id, name, student_count, start_year, head_teacher, clazz_nature, clazz_division, subject_level, clazz_level, night_stage_one_num, night_stage_two_num, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.schoolyard_id, t.academic_year_semester_id, t.grade_id, t.name, t.student_count, t.start_year, t.head_teacher, t.clazz_nature, t.clazz_division, t.subject_level, t.clazz_level, t.night_stage_one_num, t.night_stage_two_num, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_clazz (
+        schoolyard_id, academic_year_semester_id, grade_id, name, student_count, start_year, head_teacher, clazz_nature, clazz_division, subject_level, clazz_level, night_stage_one_num, night_stage_two_num
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+            (
+            #{record.schoolyardId, jdbcType=BIGINT}, #{record.academicYearSemesterId, jdbcType=BIGINT}, #{record.gradeId, jdbcType=BIGINT}, #{record.name, jdbcType=VARCHAR}, #{record.studentCount, jdbcType=INTEGER}, #{record.startYear, jdbcType=INTEGER}, #{record.headTeacher, jdbcType=VARCHAR}, #{record.clazzNature, jdbcType=VARCHAR}, #{record.clazzDivision, jdbcType=VARCHAR}, #{record.subjectLevel, jdbcType=VARCHAR}, #{record.clazzLevel, jdbcType=VARCHAR}, #{record.nightStageOneNum, jdbcType=BIGINT}, #{record.nightStageTwoNum, jdbcType=BIGINT}
+            )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Clazz">
+        update sys_clazz set
+        <trim suffixOverrides=",">
+            schoolyard_id = #{et.schoolyardId, jdbcType=BIGINT},
+            academic_year_semester_id = #{et.academicYearSemesterId, jdbcType=BIGINT},
+            grade_id = #{et.gradeId, jdbcType=BIGINT},
+            name = #{et.name, jdbcType=VARCHAR},
+            student_count = #{et.studentCount, jdbcType=INTEGER},
+            start_year = #{et.startYear, jdbcType=INTEGER},
+            head_teacher = #{et.headTeacher, jdbcType=VARCHAR},
+            clazz_nature = #{et.clazzNature, jdbcType=VARCHAR},
+            clazz_division = #{et.clazzDivision, jdbcType=VARCHAR},
+            subject_level = #{et.subjectLevel, jdbcType=VARCHAR},
+            clazz_level = #{et.clazzLevel, jdbcType=VARCHAR},
+            night_stage_one_num = #{et.nightStageOneNum, jdbcType=BIGINT},
+            night_stage_two_num = #{et.nightStageTwoNum, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

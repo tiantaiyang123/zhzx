@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamGoalNaturalTemplateBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamGoalNaturalTemplate">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="grade_id" jdbcType="BIGINT" property="gradeId" />
+        <result column="subject_id" jdbcType="BIGINT" property="subjectId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="setting_type" jdbcType="VARCHAR" property="settingType" />
+        <result column="academy_ratio_a" jdbcType="BIGINT" property="academyRatioA" />
+        <result column="academy_ratio_b" jdbcType="BIGINT" property="academyRatioB" />
+        <result column="academy_ratio_c" jdbcType="BIGINT" property="academyRatioC" />
+        <result column="academy_ratio_d" jdbcType="BIGINT" property="academyRatioD" />
+        <result column="academy_ratio_e" jdbcType="BIGINT" property="academyRatioE" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamGoalNaturalTemplate" extends="BaseResultMap">
+        <association column="subject_id" property="subject" javaType="com.zhzx.server.domain.Subject"
+                     select="com.zhzx.server.repository.SubjectMapper.selectById" />
+        <association column="grade_id" property="grade" javaType="com.zhzx.server.domain.Grade"
+                     select="com.zhzx.server.repository.GradeMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, grade_id, subject_id, name, setting_type, academy_ratio_a, academy_ratio_b, academy_ratio_c, academy_ratio_d, academy_ratio_e, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.grade_id, t.subject_id, t.name, t.setting_type, t.academy_ratio_a, t.academy_ratio_b, t.academy_ratio_c, t.academy_ratio_d, t.academy_ratio_e, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into dat_exam_goal_natural_template (
+        grade_id, subject_id, name, setting_type, academy_ratio_a, academy_ratio_b, academy_ratio_c, academy_ratio_d, academy_ratio_e
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+            (
+            #{record.gradeId, jdbcType=BIGINT}, #{record.subjectId, jdbcType=BIGINT}, #{record.name, jdbcType=VARCHAR}, #{record.settingType, jdbcType=VARCHAR}, #{record.academyRatioA, jdbcType=BIGINT}, #{record.academyRatioB, jdbcType=BIGINT}, #{record.academyRatioC, jdbcType=BIGINT}, #{record.academyRatioD, jdbcType=BIGINT}, #{record.academyRatioE, jdbcType=BIGINT}
+            )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamGoalNaturalTemplate">
+        update dat_exam_goal_natural_template set
+        <trim suffixOverrides=",">
+            grade_id = #{et.gradeId, jdbcType=BIGINT},
+            subject_id = #{et.subjectId, jdbcType=BIGINT},
+            name = #{et.name, jdbcType=VARCHAR},
+            setting_type = #{et.settingType, jdbcType=VARCHAR},
+            academy_ratio_a = #{et.academyRatioA, jdbcType=BIGINT},
+            academy_ratio_b = #{et.academyRatioB, jdbcType=BIGINT},
+            academy_ratio_c = #{et.academyRatioC, jdbcType=BIGINT},
+            academy_ratio_d = #{et.academyRatioD, jdbcType=BIGINT},
+            academy_ratio_e = #{et.academyRatioE, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

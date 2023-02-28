@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.CommentTaskBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.CommentTask">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="comment_process_id" jdbcType="BIGINT" property="commentProcessId" />
+        <result column="sort_order" jdbcType="INTEGER" property="sortOrder" />
+        <result column="function_department_id" jdbcType="BIGINT" property="functionDepartmentId" />
+        <result column="principal" jdbcType="VARCHAR" property="principal" />
+        <result column="content" jdbcType="VARCHAR" property="content" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.CommentTask" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, comment_process_id, sort_order, function_department_id, principal, content, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.comment_process_id, t.sort_order, t.function_department_id, t.principal, t.content, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert"  keyColumn="id" keyProperty="id">
+        insert into day_comment_task (
+            comment_process_id, sort_order, function_department_id, principal, content
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.commentProcessId, jdbcType=BIGINT}, #{record.sortOrder, jdbcType=INTEGER}, #{record.functionDepartmentId, jdbcType=BIGINT}, #{record.principal, jdbcType=VARCHAR}, #{record.content, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.CommentTask">
+        update day_comment_task set
+        <trim suffixOverrides=",">
+            comment_process_id = #{et.commentProcessId, jdbcType=BIGINT},
+            sort_order = #{et.sortOrder, jdbcType=INTEGER},
+            function_department_id = #{et.functionDepartmentId, jdbcType=BIGINT},
+            principal = #{et.principal, jdbcType=VARCHAR},
+            content = #{et.content, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

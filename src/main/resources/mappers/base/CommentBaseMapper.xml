@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.CommentBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Comment">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="schoolyard_id" jdbcType="BIGINT" property="schoolyardId" />
+        <result column="classify" jdbcType="VARCHAR" property="classify" />
+        <result column="item_name" jdbcType="VARCHAR" property="itemName" />
+        <result column="daily_routine_id" jdbcType="BIGINT" property="dailyRoutineId" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="editor" jdbcType="VARCHAR" property="editor" />
+        <result column="content" jdbcType="VARCHAR" property="content" />
+        <result column="state" jdbcType="VARCHAR" property="state" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Comment" extends="BaseResultMap">
+        <association column="schoolyard_id" property="schoolyard" javaType="com.zhzx.server.domain.Schoolyard"
+                     select="com.zhzx.server.repository.SchoolyardMapper.selectById" />
+        <collection column="id" property="commentImagesList" select="queryCommentImagesById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, schoolyard_id, classify, item_name, daily_routine_id, start_time, end_time, editor, content, state, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.schoolyard_id, t.classify, t.item_name, t.daily_routine_id, t.start_time, t.end_time, t.editor, t.content, t.state, t.create_time, t.update_time
+    </sql>
+    <select id="queryCommentImagesById" resultMap="com.zhzx.server.repository.base.CommentImagesBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.CommentImagesBaseMapper.Base_Column_List" />
+        from day_comment_images
+        where comment_id = #{id}
+    </select>
+    <insert id="batchInsert">
+        insert into day_comment (
+            schoolyard_id, classify, item_name, daily_routine_id, start_time, end_time, editor, content, state
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.schoolyardId, jdbcType=BIGINT}, #{record.classify, jdbcType=VARCHAR}, #{record.itemName, jdbcType=VARCHAR}, #{record.dailyRoutineId, jdbcType=BIGINT}, #{record.startTime, jdbcType=TIMESTAMP}, #{record.endTime, jdbcType=TIMESTAMP}, #{record.editor, jdbcType=VARCHAR}, #{record.content, jdbcType=VARCHAR}, #{record.state, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Comment">
+        update day_comment set
+        <trim suffixOverrides=",">
+            schoolyard_id = #{et.schoolyardId, jdbcType=BIGINT},
+            classify = #{et.classify, jdbcType=VARCHAR},
+            item_name = #{et.itemName, jdbcType=VARCHAR},
+            daily_routine_id = #{et.dailyRoutineId, jdbcType=BIGINT},
+            start_time = #{et.startTime, jdbcType=TIMESTAMP},
+            end_time = #{et.endTime, jdbcType=TIMESTAMP},
+            editor = #{et.editor, jdbcType=VARCHAR},
+            content = #{et.content, jdbcType=VARCHAR},
+            state = #{et.state, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

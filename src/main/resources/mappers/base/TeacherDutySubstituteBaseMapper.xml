@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.TeacherDutySubstituteBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.TeacherDutySubstitute">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teacher_duty_id" jdbcType="BIGINT" property="teacherDutyId" />
+        <result column="teacher_old_id" jdbcType="BIGINT" property="teacherOldId" />
+        <result column="teacher_id" jdbcType="BIGINT" property="teacherId" />
+        <result column="is_agree" jdbcType="VARCHAR" property="isAgree" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.TeacherDutySubstitute" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        `id`, `teacher_duty_id`, `teacher_old_id`, `teacher_id`, `is_agree`
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.`id`, t.`teacher_duty_id`, t.`teacher_old_id`, t.`teacher_id`, t.`is_agree`
+    </sql>
+    <insert id="batchInsert">
+        insert into day_teacher_duty_substitute (
+            `teacher_duty_id`, `teacher_old_id`, `teacher_id`, `is_agree`
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.teacherDutyId, jdbcType=BIGINT}, #{record.teacherOldId, jdbcType=BIGINT}, #{record.teacherId, jdbcType=BIGINT}, #{record.isAgree, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.TeacherDutySubstitute">
+        update day_teacher_duty_substitute set
+        <trim suffixOverrides=",">
+            teacher_duty_id = #{et.teacherDutyId, jdbcType=BIGINT},
+            teacher_old_id = #{et.teacherOldId, jdbcType=BIGINT},
+            teacher_id = #{et.teacherId, jdbcType=BIGINT},
+            is_agree = #{et.isAgree, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

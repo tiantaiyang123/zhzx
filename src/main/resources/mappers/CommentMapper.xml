@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.CommentMapper">
+
+    <resultMap id="ResultCommentDtoMap" type="com.zhzx.server.dto.CommentDto" extends="com.zhzx.server.repository.base.CommentBaseMapper.ResultMap">
+        <collection property="departmentList" columnPrefix="gd_" resultMap="com.zhzx.server.repository.base.FunctionDepartmentBaseMapper.BaseResultMap" >
+            <constructor>
+                <arg column="departmentList"/>
+            </constructor>
+        </collection>
+    </resultMap>
+    <resultMap id="DeanCommentDto" type="com.zhzx.server.dto.CommentDto" extends="com.zhzx.server.repository.base.CommentBaseMapper.BaseResultMap">
+        <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName" />
+        <collection column="id" property="commentProcessDtoList" select="queryCommentProcess" />
+    </resultMap>
+    <resultMap id="CommentProcessDto" type="com.zhzx.server.dto.CommentProcessDto" extends="com.zhzx.server.repository.base.CommentProcessBaseMapper.BaseResultMap">
+        <collection column="id" property="commentTaskDtoList" select="queryCommentTask" />
+    </resultMap>
+    <resultMap id="CommentTaskDto" type="com.zhzx.server.dto.CommentTaskDto" extends="com.zhzx.server.repository.base.CommentTaskBaseMapper.BaseResultMap">
+    </resultMap>
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.CommentBaseMapper.ResultMap">
+        select * from day_comment where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.CommentBaseMapper.ResultMap">
+        select * from day_comment ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.CommentBaseMapper.ResultMap">
+        select * from day_comment ${ew.customSqlSegment}
+    </select>
+    <select id="selectListDto" resultMap="ResultCommentDtoMap">
+        select
+        dc.id ,dc.item_name  ,dc.content ,dc.classify,sfd.name as gd_name,sfd.id as gd_id,sfd.parent_id as gd_parent_id,dc.state
+        from day_comment dc
+        left join day_comment_process dcp on dc.id = dcp.comment_id
+        left join day_comment_task dct on dcp.id = dct.comment_process_id
+        left join sys_function_department sfd on sfd.id = dct.function_department_id ${ew.customSqlSegment}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.CommentBaseMapper.ResultMap">
+        select * from day_comment ${ew.customSqlSegment}
+    </select>
+
+    <resultMap id="NightDutyComments" type="com.zhzx.server.dto.CommentNightDutyDto">
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <association property="advisor" column="clazz_id" javaType="com.zhzx.server.domain.Staff" select="selectAdvisorByClazzId"/>
+        <collection property="commentList" columnPrefix="dc_" resultMap="com.zhzx.server.repository.base.CommentBaseMapper.BaseResultMap">
+            <constructor>
+                <arg column="commentList"/>
+            </constructor>
+        </collection>
+    </resultMap>
+    <select id="selectAdvisorByClazzId" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.BaseResultMap" parameterType="java.lang.Long">
+        select
+        ss.*
+        from sys_staff ss
+        left join sys_staff_clazz_adviser ssca on ss.id = ssca.staff_id
+        where ssca.is_current = 'YES' and ssca.clazz_id=#{value}
+        limit 1
+    </select>
+    <select id="getNightDutyComments" resultMap="NightDutyComments">
+        select
+        dtdc.clazz_id,
+        dc.content as dc_content, dc.editor as dc_editor
+        from day_teacher_duty dtd
+        left join day_teacher_duty_clazz dtdc on dtd.id = dtdc.teacher_duty_id
+        left join day_comment dc on dc.daily_routine_id = dtdc.id
+        where to_days(dtd.start_time)=to_days(now()) and dtd.duty_type in ('STAGE_ONE', 'STAGE_TWO') and dc.classify = 'DAY_NIGHT_STUDY'
+    </select>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="deanPageDetail" resultMap="DeanCommentDto">
+        select *, (select a.name from sys_schoolyard a where a.id=schoolyard_id) as schoolyardName
+        from day_comment
+        ${ew.customSqlSegment}
+    </select>
+    <select id="queryCommentProcess" resultMap="CommentProcessDto">
+        select *
+        from day_comment_process
+        where comment_id = #{id}
+    </select>
+    <select id="queryCommentTask" resultMap="CommentTaskDto">
+        select *
+        from day_comment_task
+        where comment_process_id = #{id}
+    </select>
+    <delete id="removeById" >
+        delete  day_comment ,
+        day_comment_process,
+        day_comment_task
+        from day_comment
+        left join day_comment_process on day_comment.id = day_comment_process.comment_id
+        left join day_comment_task on day_comment_task.comment_process_id = day_comment_process.id
+        where day_comment.id = #{id}
+    </delete>
+
+    <delete id="removeProcessByCommentId" >
+        delete
+        day_comment_process,
+        day_comment_task
+        from day_comment
+        left join day_comment_process on day_comment.id = day_comment_process.comment_id
+        left join day_comment_task on day_comment_task.comment_process_id = day_comment_process.id
+        where day_comment.id = #{id}
+    </delete>
+    <delete id="removeByIds" >
+        delete  day_comment ,
+        day_comment_process,
+        day_comment_task
+        from day_comment
+        left join day_comment_process on day_comment.id = day_comment_process.comment_id
+        left join day_comment_task on day_comment_task.comment_process_id = day_comment_process.id
+        where day_comment.id in
+        <foreach item="item" collection="ids" separator="," open="(" close=")" index="">
+            #{item, jdbcType=BIGINT}
+        </foreach>
+    </delete>
+</mapper>

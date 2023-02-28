@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.TeachingResultWkhjBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.TeachingResultWkhj">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teaching_result_id" jdbcType="BIGINT" property="teachingResultId" />
+        <result column="wkmc" jdbcType="VARCHAR" property="wkmc" />
+        <result column="hdmc" jdbcType="VARCHAR" property="hdmc" />
+        <result column="hjmc" jdbcType="VARCHAR" property="hjmc" />
+        <result column="zzdw" jdbcType="VARCHAR" property="zzdw" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.TeachingResultWkhj" extends="BaseResultMap">
+        <association column="teaching_result_id" property="teachingResult" javaType="com.zhzx.server.domain.TeachingResult"
+                     select="com.zhzx.server.repository.TeachingResultMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, teaching_result_id, wkmc, hdmc, hjmc, zzdw
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.teaching_result_id, t.wkmc, t.hdmc, t.hjmc, t.zzdw
+    </sql>
+    <insert id="batchInsert">
+        insert into tmg_teaching_result_wkhj (
+            teaching_result_id, wkmc, hdmc, hjmc, zzdw
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.teachingResultId, jdbcType=BIGINT}, #{record.wkmc, jdbcType=VARCHAR}, #{record.hdmc, jdbcType=VARCHAR}, #{record.hjmc, jdbcType=VARCHAR}, #{record.zzdw, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.TeachingResultWkhj">
+        update tmg_teaching_result_wkhj set
+        <trim suffixOverrides=",">
+            teaching_result_id = #{et.teachingResultId, jdbcType=BIGINT},
+            wkmc = #{et.wkmc, jdbcType=VARCHAR},
+            hdmc = #{et.hdmc, jdbcType=VARCHAR},
+            hjmc = #{et.hjmc, jdbcType=VARCHAR},
+            zzdw = #{et.zzdw, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

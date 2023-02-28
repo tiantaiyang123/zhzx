@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.MorningReadingBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.MorningReading">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="schoolyard_id" jdbcType="BIGINT" property="schoolyardId" />
+        <result column="leader_duty_id" jdbcType="BIGINT" property="leaderDutyId" />
+        <result column="reading_order1" jdbcType="VARCHAR" property="readingOrder1" />
+        <result column="evaluation_level1" jdbcType="VARCHAR" property="evaluationLevel1" />
+        <result column="reading_order2" jdbcType="VARCHAR" property="readingOrder2" />
+        <result column="evaluation_level2" jdbcType="VARCHAR" property="evaluationLevel2" />
+        <result column="reading_order3" jdbcType="VARCHAR" property="readingOrder3" />
+        <result column="evaluation_level3" jdbcType="VARCHAR" property="evaluationLevel3" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="check_time" jdbcType="TIMESTAMP" property="checkTime" />
+        <result column="has_contingency" jdbcType="VARCHAR" property="hasContingency" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.MorningReading" extends="BaseResultMap">
+        <association column="schoolyard_id" property="schoolyard" javaType="com.zhzx.server.domain.Schoolyard"
+                     select="com.zhzx.server.repository.SchoolyardMapper.selectById" />
+        <collection column="id" property="morningReadingImagesList" select="queryMorningReadingImagesById" />
+        <collection column="id" property="incidentList" select="queryIncidentById" />
+        <collection column="id" property="commentList" select="queryCommentById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, schoolyard_id, leader_duty_id, reading_order1, evaluation_level1, reading_order2, evaluation_level2, reading_order3, evaluation_level3, start_time, end_time, check_time, has_contingency, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.schoolyard_id, t.leader_duty_id, t.reading_order1, t.evaluation_level1, t.reading_order2, t.evaluation_level2, t.reading_order3, t.evaluation_level3, t.start_time, t.end_time, t.check_time, t.has_contingency, t.create_time, t.update_time
+    </sql>
+    <select id="queryMorningReadingImagesById" resultMap="com.zhzx.server.repository.base.MorningReadingImagesBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.MorningReadingImagesBaseMapper.Base_Column_List" />
+        from day_morning_reading_images
+        where morning_reading_id = #{id}
+    </select>
+    <select id="queryIncidentById" resultMap="com.zhzx.server.repository.base.IncidentBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.IncidentBaseMapper.Base_Column_List" />
+        from day_incident
+        where daily_routine_id = #{id} and classify like concat('%','DAY_MORNING_READING','%')
+    </select>
+    <select id="queryCommentById" resultMap="com.zhzx.server.repository.CommentMapper.ResultCommentDtoMap">
+        select
+        dc.id ,dc.item_name  ,dc.content ,dc.classify,sfd.name as gd_name,dc.state,sfd.parent_id as gd_parent_id
+        from day_comment dc
+        left join day_comment_process dcp on dc.id = dcp.comment_id
+        left join day_comment_task dct on dcp.id = dct.comment_process_id
+        left join sys_function_department sfd on sfd.id = dct.function_department_id
+        where daily_routine_id = #{id} and classify like concat('%','DAY_MORNING_READING','%')
+    </select>
+    <insert id="batchInsert">
+        insert into day_morning_reading (
+            schoolyard_id, leader_duty_id, reading_order1, evaluation_level1, reading_order2, evaluation_level2, reading_order3, evaluation_level3, start_time, end_time, check_time, has_contingency
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.schoolyardId, jdbcType=BIGINT}, #{record.leaderDutyId, jdbcType=BIGINT}, #{record.readingOrder1, jdbcType=VARCHAR}, #{record.evaluationLevel1, jdbcType=VARCHAR}, #{record.readingOrder2, jdbcType=VARCHAR}, #{record.evaluationLevel2, jdbcType=VARCHAR}, #{record.readingOrder3, jdbcType=VARCHAR}, #{record.evaluationLevel3, jdbcType=VARCHAR}, #{record.startTime, jdbcType=TIMESTAMP}, #{record.endTime, jdbcType=TIMESTAMP}, #{record.checkTime, jdbcType=TIMESTAMP}, #{record.hasContingency, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.MorningReading">
+        update day_morning_reading set
+        <trim suffixOverrides=",">
+            schoolyard_id = #{et.schoolyardId, jdbcType=BIGINT},
+            leader_duty_id = #{et.leaderDutyId, jdbcType=BIGINT},
+            reading_order1 = #{et.readingOrder1, jdbcType=VARCHAR},
+            evaluation_level1 = #{et.evaluationLevel1, jdbcType=VARCHAR},
+            reading_order2 = #{et.readingOrder2, jdbcType=VARCHAR},
+            evaluation_level2 = #{et.evaluationLevel2, jdbcType=VARCHAR},
+            reading_order3 = #{et.readingOrder3, jdbcType=VARCHAR},
+            evaluation_level3 = #{et.evaluationLevel3, jdbcType=VARCHAR},
+            start_time = #{et.startTime, jdbcType=TIMESTAMP},
+            end_time = #{et.endTime, jdbcType=TIMESTAMP},
+            check_time = #{et.checkTime, jdbcType=TIMESTAMP},
+            has_contingency = #{et.hasContingency, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

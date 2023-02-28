@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.NightStudyAttendanceSubMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.NightStudyAttendanceSubBaseMapper.ResultMap">
+        select * from std_night_study_attendance_sub where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.NightStudyAttendanceSubBaseMapper.ResultMap">
+        select * from std_night_study_attendance_sub ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.NightStudyAttendanceSubBaseMapper.ResultMap">
+        select * from std_night_study_attendance_sub ${ew.customSqlSegment}
+    </select>
+
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NightStudyAttendanceSub" extends="com.zhzx.server.repository.base.NightStudyAttendanceSubBaseMapper.ResultMap">
+        <result column="day_time" jdbcType="TIMESTAMP" property="dayTime" />
+        <discriminator javaType="com.zhzx.server.enums.YesNoEnum" column="is_full_attendence">
+            <case value = "NO" resultMap="ResultMap">
+                <collection property="nightStudyAttendanceList" column="{registerDate=register_date, clazzId=clazz_id, stageP=stage}" select="selectAbsentDetail" />
+            </case>
+        </discriminator>
+    </resultMap>
+    <resultMap id="ResultMapDetail" type="com.zhzx.server.domain.NightStudyAttendance" extends="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.BaseResultMap">
+        <association column="student_id" property="student" javaType="com.zhzx.server.domain.Student" select="com.zhzx.server.repository.StudentMapper.selectById" />
+    </resultMap>
+    <select id="selectAbsentDetail" resultMap="ResultMapDetail">
+        select * from std_night_study_attendance
+        where to_days(register_date)=to_days(#{registerDate}) and clazz_id=#{clazzId} and stage=#{stageP}
+    </select>
+    <select id="selectListNightAttendance" resultMap="ResultMap">
+        select *, date(register_date) as day_time from std_night_study_attendance_sub
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and academic_year_semester_id = ${academicYearSemesterId}
+        </if>
+        <if test="gradeId != null">
+            and clazz_id in (select id from sys_clazz where grade_id = ${gradeId})
+        </if>
+        <if test="schoolyardId != null">
+            and clazz_id in (select id from sys_clazz where schoolyard_id = ${schoolyardId})
+        </if>
+        <if test="clazzId != null">
+            and clazz_id = ${clazzId}
+        </if>
+        <if test="startTime != null">
+            and to_days(register_date) <![CDATA[>=]]> to_days(#{startTime})
+        </if>
+        <if test="endTime != null">
+            and to_days(register_date) <![CDATA[<=]]> to_days(#{endTime})
+        </if>
+        order by to_days(register_date)
+    </select>
+</mapper>

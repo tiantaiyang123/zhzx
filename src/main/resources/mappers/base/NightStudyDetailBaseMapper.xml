@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.NightStudyDetailBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.NightStudyDetail">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="night_study_id" jdbcType="BIGINT" property="nightStudyId" />
+        <result column="classify" jdbcType="VARCHAR" property="classify" />
+        <result column="student_id" jdbcType="BIGINT" property="studentId" />
+        <result column="reason" jdbcType="VARCHAR" property="reason" />
+        <result column="is_notice" jdbcType="VARCHAR" property="isNotice" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NightStudyDetail" extends="BaseResultMap">
+        <association column="student_id" property="student" javaType="com.zhzx.server.domain.Student"
+                     select="com.zhzx.server.repository.StudentMapper.selectById" />
+        <collection column="id" property="nightStudyDetailImageList" select="queryNightStudyDetailImageById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, night_study_id, classify, student_id, reason, is_notice
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.night_study_id, t.classify, t.student_id, t.reason, t.is_notice
+    </sql>
+    <select id="queryNightStudyDetailImageById" resultMap="com.zhzx.server.repository.base.NightStudyDetailImageBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.NightStudyDetailImageBaseMapper.Base_Column_List" />
+        from day_night_study_detail_image
+        where night_study_detail_id = #{id}
+    </select>
+    <insert id="batchInsert">
+        insert into day_night_study_detail (
+            night_study_id, classify, student_id, reason, is_notice
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.nightStudyId, jdbcType=BIGINT}, #{record.classify, jdbcType=VARCHAR}, #{record.studentId, jdbcType=BIGINT}, #{record.reason, jdbcType=VARCHAR}, #{record.isNotice, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.NightStudyDetail">
+        update day_night_study_detail set
+        <trim suffixOverrides=",">
+            night_study_id = #{et.nightStudyId, jdbcType=BIGINT},
+            classify = #{et.classify, jdbcType=VARCHAR},
+            student_id = #{et.studentId, jdbcType=BIGINT},
+            reason = #{et.reason, jdbcType=VARCHAR},
+            is_notice = #{et.isNotice, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

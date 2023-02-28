@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ClazzTeachingLogOperationBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ClazzTeachingLogOperation">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="clazz_teaching_log_id" jdbcType="BIGINT" property="clazzTeachingLogId" />
+        <result column="subject_id" jdbcType="BIGINT" property="subjectId" />
+        <result column="duration" jdbcType="VARCHAR" property="duration" />
+        <result column="operation_date" jdbcType="TIMESTAMP" property="operationDate" />
+        <result column="operation_time" jdbcType="INTEGER" property="operationTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ClazzTeachingLogOperation" extends="BaseResultMap">
+        <association column="subject_id" property="subject" javaType="com.zhzx.server.domain.Subject"
+                     select="com.zhzx.server.repository.SubjectMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, clazz_teaching_log_id, subject_id, duration, operation_date, operation_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.clazz_teaching_log_id, t.subject_id, t.duration, t.operation_date, t.operation_time
+    </sql>
+    <insert id="batchInsert">
+        insert into std_clazz_teaching_log_operation (
+            clazz_teaching_log_id, subject_id, duration, operation_date, operation_time
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.clazzTeachingLogId, jdbcType=BIGINT}, #{record.subjectId, jdbcType=BIGINT}, #{record.duration, jdbcType=VARCHAR}, #{record.operationDate, jdbcType=TIMESTAMP}, #{record.operationTime, jdbcType=INTEGER}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ClazzTeachingLogOperation">
+        update std_clazz_teaching_log_operation set
+        <trim suffixOverrides=",">
+            clazz_teaching_log_id = #{et.clazzTeachingLogId, jdbcType=BIGINT},
+            subject_id = #{et.subjectId, jdbcType=BIGINT},
+            duration = #{et.duration, jdbcType=VARCHAR},
+            operation_date = #{et.operationDate, jdbcType=TIMESTAMP},
+            operation_time = #{et.operationTime, jdbcType=INTEGER},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

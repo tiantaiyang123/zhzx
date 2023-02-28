@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.TeachingResultDeclarationClassifyBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.TeachingResultDeclarationClassify">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="parent_id" jdbcType="BIGINT" property="parentId" />
+        <result column="sort_order" jdbcType="BIGINT" property="sortOrder" />
+        <result column="editor_id" jdbcType="BIGINT" property="editorId" />
+        <result column="editor_name" jdbcType="VARCHAR" property="editorName" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.TeachingResultDeclarationClassify" extends="BaseResultMap">
+        <association column="parent_id" property="parent" javaType="com.zhzx.server.domain.TeachingResultDeclarationClassify"
+                     select="com.zhzx.server.repository.TeachingResultDeclarationClassifyMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, name, parent_id, sort_order, editor_id, editor_name, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.name, t.parent_id, t.sort_order, t.editor_id, t.editor_name, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_teaching_result_declaration_classify (
+            name, parent_id, sort_order, editor_id, editor_name
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.name, jdbcType=VARCHAR}, #{record.parentId, jdbcType=BIGINT}, #{record.sortOrder, jdbcType=BIGINT}, #{record.editorId, jdbcType=BIGINT}, #{record.editorName, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.TeachingResultDeclarationClassify">
+        update sys_teaching_result_declaration_classify set
+        <trim suffixOverrides=",">
+            name = #{et.name, jdbcType=VARCHAR},
+            parent_id = #{et.parentId, jdbcType=BIGINT},
+            sort_order = #{et.sortOrder, jdbcType=BIGINT},
+            editor_id = #{et.editorId, jdbcType=BIGINT},
+            editor_name = #{et.editorName, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

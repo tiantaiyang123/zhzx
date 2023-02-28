@@ -1,0 +1,975 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ExamResultMapper">
+    <sql id="Base_Column_List_To_Bean">
+        t.id AS id,
+        t.exam_id AS examId,
+        t.clazz_id AS clazzId,
+        t.student_id AS studentId,
+        t.total_score AS totalScore,
+        t.total_weighted_score AS totalWeightedScore,
+        t.chinese_score AS chineseScore,
+        t.math_score AS mathScore,
+        t.english_score AS englishScore,
+        t.physics_score AS physicsScore,
+        t.chemistry_score AS chemistryScore,
+        t.chemistry_weighted_score AS chemistryWeightedScore,
+        t.biology_score AS biologyScore,
+        t.biology_weighted_score AS biologyWeightedScore,
+        t.history_score AS historyScore,
+        t.politics_score AS politicsScore,
+        t.politics_weighted_score AS politicsWeightedScore,
+        t.geography_score AS geographyScore,
+        t.geography_weighted_score AS geographyWeightedScore,
+        t.create_time AS createTime,
+        t.update_time AS updateTime
+    </sql>
+
+    <update id="updateWeightedScore" parameterType="java.util.List">
+        <foreach collection="entity" item="et" index="index" separator=";" open="" close="">
+            update dat_exam_result set
+                total_weighted_score = #{et.totalWeightedScore, jdbcType=DECIMAL},
+                chemistry_weighted_score = #{et.chemistryWeightedScore, jdbcType=DECIMAL},
+                biology_weighted_score = #{et.biologyWeightedScore, jdbcType=DECIMAL},
+                politics_weighted_score = #{et.politicsWeightedScore, jdbcType=DECIMAL},
+                geography_weighted_score = #{et.geographyWeightedScore, jdbcType=DECIMAL},
+                update_time = #{et.updateTime, jdbcType=TIMESTAMP}
+            where id = #{et.id}
+        </foreach>
+    </update>
+
+    <update id="updateRank" parameterType="java.util.List">
+        <foreach collection="entity" item="et" index="index" separator=";" open="" close="">
+            update dat_exam_result set
+            clazz_rank = #{et.clazzRank, jdbcType=INTEGER},
+            grade_rank = #{et.gradeRank, jdbcType=INTEGER},
+            other = #{et.other, jdbcType=VARCHAR}
+            where id = #{et.id}
+        </foreach>
+    </update>
+
+    <select id="subjectJoinCount" resultType="map">
+        select
+            sum(if(tmp2.chinese_score <![CDATA[<>]]> 0, 1, 0)) AS chineseJoin,
+            sum(if(tmp2.math_score <![CDATA[<>]]> 0, 1, 0)) AS mathJoin,
+            sum(if(tmp2.english_score <![CDATA[<>]]> 0, 1, 0)) AS englishJoin,
+            sum(if(tmp2.physics_score <![CDATA[<>]]> 0, 1, 0)) AS physicsJoin,
+            sum(if(tmp2.chemistry_score <![CDATA[<>]]> 0, 1, 0)) AS chemistryJoin,
+            sum(if(tmp2.history_score <![CDATA[<>]]> 0, 1, 0)) AS historyJoin,
+            sum(if(tmp2.biology_score <![CDATA[<>]]> 0, 1, 0)) AS biologyJoin,
+            sum(if(tmp2.geography_score <![CDATA[<>]]> 0, 1, 0)) AS geographyJoin,
+            sum(if(tmp2.politics_score <![CDATA[<>]]> 0, 1, 0)) AS politicsJoin
+        from dat_exam_result tmp2
+        left join sys_clazz sc on tmp2.clazz_id=sc.id
+        where tmp2.exam_id=#{examId} and sc.clazz_nature=#{clazzNatureEnum}
+    </select>
+
+    <select id="clazzSubjectAnalyse" resultType="com.zhzx.server.dto.exam.ExamClazzAnalyseClazzAvgDto">
+        select
+            de.id AS examId,
+            de.name AS examName,
+            t1.name AS clazzName,
+            round(sum(chinese_score)/greatest(count(chinese_score<![CDATA[>]]>0 or null),1),1) AS chineseAvg,
+                round(sum(math_score)/greatest(count(math_score<![CDATA[>]]>0 or null),1),1) AS mathAvg,
+                round(sum(english_score)/greatest(count(english_score<![CDATA[>]]>0 or null),1),1) AS englishAvg,
+                round(sum(physics_score)/greatest(count(physics_score<![CDATA[>]]>0 or null),1),1) AS physicsAvg,
+                round(sum(chemistry_score)/greatest(count(chemistry_score<![CDATA[>]]>0 or null),1),1) AS chemistryAvg,
+                round(sum(biology_score)/greatest(count(biology_score<![CDATA[>]]>0 or null),1),1) AS biologyAvg,
+                round(sum(history_score)/greatest(count(history_score<![CDATA[>]]>0 or null),1),1) AS historyAvg,
+                round(sum(politics_score)/greatest(count(politics_score<![CDATA[>]]>0 or null),1),1) AS politicsAvg,
+                round(sum(geography_score)/greatest(count(geography_score<![CDATA[>]]>0 or null),1),1) AS geographyAvg
+        from dat_exam_result t
+        left join dat_exam de on t.exam_id=de.id
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        left join sys_academic_year_semester t2 on t2.id=de.academic_year_semester_id
+        where t2.year=#{year}
+        and de.schoolyard_id=#{schoolyardId} and de.is_publish='YES'
+        group by t.exam_id,t.clazz_id
+        order by de.exam_end_date asc
+    </select>
+
+    <select id="studentAnalyse" resultType="com.zhzx.server.dto.exam.ExamClazzAnalyseClazzAndStudentDto">
+        select
+        de.name AS `name`,de.exam_subjects AS examSubjects,det.name AS type,de.exam_end_date examEndDate, de.id AS examId,
+        t.total_score AS totalScore, t.total_weighted_score AS totalWeightedScore,
+        t.chinese_score AS chineseScore, t.math_score AS mathScore, t.english_score AS englishScore,
+        t.physics_score AS physicsScore, t.history_score AS historyScore,
+        t.chemistry_score AS chemistryScore, t.chemistry_weighted_score AS chemistryWeightedScore,
+        t.biology_score AS biologyScore, t.biology_weighted_score AS biologyWeightedScore,
+        t.politics_score AS politicsScore, t.politics_weighted_score AS politicsWeightedScore,
+        t.geography_score AS geographyScore, t.geography_weighted_score AS geographyWeightedScore,
+        t.other AS other,
+        t1.clazz_nature AS clazzNature
+        from dat_exam_result t
+        left join dat_exam de on t.exam_id=de.id
+        left join dat_exam_type det on det.id=de.exam_type_id
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        where de.academic_year_semester_id=#{academicYearSemesterId} and de.schoolyard_id=#{schoolyardId} and de.is_publish='YES'
+        and t.clazz_id=#{clazzId} and t.student_id=#{studentId}
+        order by de.exam_start_date asc
+    </select>
+
+    <select id="studentAnalysePager" resultType="com.zhzx.server.dto.exam.ExamClazzAnalyseClazzAndStudentDto">
+        select
+            de.name AS `name`,de.exam_subjects AS examSubjects,det.name AS type,de.exam_end_date examEndDate, de.id AS examId,
+            t.total_score AS totalScore, t.total_weighted_score AS totalWeightedScore,
+            t.chinese_score AS chineseScore, t.math_score AS mathScore, t.english_score AS englishScore,
+            t.physics_score AS physicsScore, t.history_score AS historyScore,
+            t.chemistry_score AS chemistryScore, t.chemistry_weighted_score AS chemistryWeightedScore,
+            t.biology_score AS biologyScore, t.biology_weighted_score AS biologyWeightedScore,
+            t.politics_score AS politicsScore, t.politics_weighted_score AS politicsWeightedScore,
+            t.geography_score AS geographyScore, t.geography_weighted_score AS geographyWeightedScore,
+            t.other AS other,
+            t1.clazz_nature AS clazzNature
+        from dat_exam_result t
+        left join dat_exam de on t.exam_id=de.id
+        left join dat_exam_type det on det.id=de.exam_type_id
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        where de.schoolyard_id=#{schoolyardId} and t.other is not null and t.other <![CDATA[!=]]> '' and t.student_id=#{studentId}
+        and de.id in (select depr.exam_id from dat_exam_publish_relation depr where depr.exam_publish_id=${examPublishId})
+        order by de.exam_start_date asc
+    </select>
+
+    <select id="getSimpleResult" resultType="com.zhzx.server.dto.exam.ExamResultSimpleDto">
+        select
+        t2.name AS studentName,t2.id AS studentId,
+        t1.clazz_level AS clazzLevel,
+        (select ifnull(group_concat(ss.name order by ss.name),'') from sys_subject ss where ss.is_main='YES' and ss.has_weight='YES' and find_in_set(ss.id, t1.clazz_division)<![CDATA[>]]>0) AS otherDivision,
+        t1.id AS clazzId, t1.clazz_nature AS clazzNature, t1.name AS clazzName, t1.student_count AS studentCount,
+        t.total_score AS totalScore, t.total_weighted_score AS totalWeightedScore,
+        t.chinese_score AS chineseScore, t.math_score AS mathScore, t.english_score AS englishScore,
+        t.physics_score AS physicsScore, t.history_score AS historyScore,
+        t.chemistry_score AS chemistryScore, t.chemistry_weighted_score AS chemistryWeightedScore,
+        t.biology_score AS biologyScore, t.biology_weighted_score AS biologyWeightedScore,
+        t.politics_score AS politicsScore, t.politics_weighted_score AS politicsWeightedScore,
+        t.geography_score AS geographyScore, t.geography_weighted_score AS geographyWeightedScore,
+        t.other AS other,
+        (t.chinese_score + t.math_score + t.english_score) AS threeTotalScore,
+        if (t1.clazz_nature = 'OTHER', 0, t.chinese_score + t.math_score + t.english_score + t.physics_score + t.history_score) AS fourTotalScore
+        from dat_exam_result t
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        left join sys_student t2 on t.student_id=t2.id
+        where 1=1
+        <if test="examId == null and clazzId == null">
+            and 1=2
+        </if>
+        <if test="examId != null">
+            and t.exam_id=#{examId}
+        </if>
+        <if test="clazzId != null">
+            and t.clazz_id=#{clazzId}
+        </if>
+        order by clazzId
+    </select>
+
+    <select id="getSimpleResult1" resultType="map">
+        select
+        t2.name AS studentName,t2.id AS studentId,
+        t1.clazz_level AS clazzLevel,
+        (select ifnull(group_concat(ss.name order by ss.name),'') from sys_subject ss where ss.is_main='YES' and ss.has_weight='YES' and find_in_set(ss.id, t1.clazz_division)<![CDATA[>]]>0) AS otherDivision,
+        t1.id AS clazzId, t1.clazz_nature AS clazzNature, t1.name AS clazzName, t1.student_count AS studentCount,
+        t.total_score AS totalScore, t.total_weighted_score AS totalWeightedScore,
+        t.chinese_score AS chineseScore, t.math_score AS mathScore, t.english_score AS englishScore,
+        t.physics_score AS physicsScore, t.history_score AS historyScore,
+        t.chemistry_score AS chemistryScore, t.chemistry_weighted_score AS chemistryWeightedScore,
+        t.biology_score AS biologyScore, t.biology_weighted_score AS biologyWeightedScore,
+        t.politics_score AS politicsScore, t.politics_weighted_score AS politicsWeightedScore,
+        t.geography_score AS geographyScore, t.geography_weighted_score AS geographyWeightedScore,
+        t.other AS other
+        from dat_exam_result t
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        left join sys_student t2 on t.student_id=t2.id
+        where 1=1
+        <if test="examId == null and clazzId == null">
+            and 1=2
+        </if>
+        <if test="examId != null">
+            and t.exam_id=#{examId}
+        </if>
+        <if test="clazzId != null">
+            and t.clazz_id=#{clazzId}
+        </if>
+        <if test="clazzNature != null and clazzNature != ''">
+            and t1.clazz_nature=#{clazzNature}
+        </if>
+        order by clazzId
+    </select>
+
+    <select id="getSimpleResultByList" resultType="com.zhzx.server.dto.exam.ExamResultSimpleDto">
+        select
+        t2.name AS studentName,t2.id AS studentId,
+        t1.clazz_level AS clazzLevel,
+        (select ifnull(group_concat(ss.name order by ss.name),'') from sys_subject ss where ss.is_main='YES' and ss.has_weight='YES' and find_in_set(ss.id, t1.clazz_division)<![CDATA[>]]>0) AS otherDivision,
+        t1.id AS clazzId, t1.clazz_nature AS clazzNature, t1.name AS clazzName, t1.student_count AS studentCount,t1.clazz_division AS clazzDivision,
+        t.total_score AS totalScore, t.total_weighted_score AS totalWeightedScore,
+        t.chinese_score AS chineseScore, t.math_score AS mathScore, t.english_score AS englishScore,
+        t.physics_score AS physicsScore, t.history_score AS historyScore,
+        t.chemistry_score AS chemistryScore, t.chemistry_weighted_score AS chemistryWeightedScore,
+        t.biology_score AS biologyScore, t.biology_weighted_score AS biologyWeightedScore,
+        t.politics_score AS politicsScore, t.politics_weighted_score AS politicsWeightedScore,
+        t.geography_score AS geographyScore, t.geography_weighted_score AS geographyWeightedScore,
+        t.other AS other
+        from dat_exam_result t
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        left join sys_student t2 on t.student_id=t2.id
+        where 1=1
+        and t.exam_id=#{examId}
+        <if test="examId == null and entity == null">
+            and 1=2
+        </if>
+        <if test="entity != null and entity.size > 0">
+            and t.clazz_id in
+            <foreach collection="entity" separator="," open="(" close=")" item="item" index="index">#{item}</foreach>
+        </if>
+    </select>
+
+    <select id="getExamCard" resultMap="com.zhzx.server.repository.base.ExamResultBaseMapper.ResultMap">
+        select * from dat_exam_result
+        left join dat_exam t1 on exam_id=t1.id
+        where student_id=#{studentId} and t1.is_publish='YES'
+        and clazz_id=(select clazz_id from sys_student_clazz where student_id=#{studentId} order by id desc limit 1)
+        <if test="examId != null">
+        and t1.id=#{examId}
+        </if>
+        <choose>
+            <when test="academicYearSemesterId != null">
+                and t1.academic_year_semester_id=#{academicYearSemesterId}
+            </when>
+            <otherwise>
+                and t1.academic_year_semester_id=(select id from sys_academic_year_semester where is_default='YES' limit 1)
+            </otherwise>
+        </choose>
+        order by t1.exam_end_date
+    </select>
+
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.ExamResultBaseMapper.ResultMap">
+        select * from dat_exam_result where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.ExamResultBaseMapper.ResultMap">
+        select * from dat_exam_result ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.ExamResultBaseMapper.ResultMap">
+        select * from dat_exam_result ${ew.customSqlSegment}
+    </select>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.ExamResultBaseMapper.ResultMap">
+        select * from dat_exam_result ${ew.customSqlSegment}
+    </select>
+
+    <select id="searchExamResult" resultMap="com.zhzx.server.repository.base.ExamResultBaseMapper.ResultMap">
+        select * from dat_exam_result
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and clazz_id in (select id from sys_clazz where academic_year_semester_id=${academicYearSemesterId})
+        </if>
+        <if test="gradeId != null">
+            and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+        </if>
+        <if test="clazzId != null">
+            and clazz_id = ${clazzId}
+        </if>
+        <if test="studentId != null">
+            and student_id = ${studentId}
+        </if>
+        <if test="examId != null">
+            and exam_id = ${examId}
+        </if>
+        <if test="studentName != null">
+            and student_id in (select id from sys_student where name like '${studentName}')
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="searchExamResultGrade" resultType="map">
+        select * from
+        (select
+        <include refid="Base_Column_List_To_Bean"></include>,
+        t.other AS other,
+        t.clazz_rank AS clazzRank,
+        t.grade_rank AS gradeRank,
+        t1.name AS clazzName,
+        t2.name AS studentName,
+        t2.order_number AS orderNumber,
+        t2.student_number AS studentNumber
+        from dat_exam_result t
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        left join sys_student t2 on t.student_id=t2.id
+        where
+        exam_id = #{examId}
+        and t1.clazz_nature=#{clazzNature}
+        <if test="studentName != null">
+            and t2.name like '${studentName}'
+        </if>
+        <if test="entity != null and entity.size > 0">
+            and t.clazz_id in
+            <foreach collection="entity" separator="," open="(" close=")" item="item" index="index">#{item}</foreach>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+        limit 0,${limitNum}
+        ) t
+    </select>
+    <select id="searchExamResultClazz" resultType="map">
+        select
+        <include refid="Base_Column_List_To_Bean"></include>,
+        t.other AS other,
+        t.clazz_rank AS clazzRank,
+        t.grade_rank AS gradeRank,
+        t1.name AS clazzName,
+        t2.name AS studentName,
+        t2.order_number AS orderNumber,
+        t2.student_number AS studentNumber,
+        length(t2.student_number) AS len
+        from dat_exam_result t
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        left join sys_student t2 on t.student_id=t2.id
+        where clazz_id in
+        <foreach collection="clazzId" separator="," open="(" close=")" item="item" index="index">#{item}</foreach>
+        and exam_id = #{examId}
+        <if test="studentName != null">
+            and t2.name like '${studentName}'
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="searchExamResultStudent" resultType="map">
+        select
+        <include refid="Base_Column_List_To_Bean"></include>,
+        t.other AS other,
+        t3.academic_year_semester_id AS academicYearSemesterId,
+        t.clazz_rank AS clazzRank,
+        t.grade_rank AS gradeRank,
+        t1.name AS clazzName,
+        t2.name AS studentName,
+        t2.order_number AS orderNumber,
+        t2.student_number AS studentNumber,
+        length(t2.student_number) AS len
+        from dat_exam_result t
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        left join sys_student t2 on t.student_id=t2.id
+        left join dat_exam t3 on t3.id=t.exam_id
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and t1.academic_year_semester_id=${academicYearSemesterId}
+        </if>
+        <if test="gradeId != null">
+            and t1.grade_id=${gradeId}
+        </if>
+        <if test="clazzId != null">
+            and t.clazz_id = ${clazzId}
+        </if>
+        <if test="studentId != null">
+            and t.student_id = ${studentId}
+        </if>
+        <if test="examId != null">
+            and t.exam_id = ${examId}
+        </if>
+        <if test="studentName != null">
+            and t2.name like '${studentName}'
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="studentScorePager" resultType="map">
+        select
+        <include refid="Base_Column_List_To_Bean"></include>,
+        t.other AS other,
+        t.academicYearSemesterId AS academicYearSemesterId,
+        t.clazz_rank AS clazzRank,
+        t.grade_rank AS gradeRank,
+        t1.name AS clazzName,
+        t2.name AS studentName,
+        t2.order_number AS orderNumber,
+        t2.student_number AS studentNumber
+        from
+        (
+            select der.*, t3.academic_year_semester_id AS academicYearSemesterId from dat_exam_result der
+            left join dat_exam t3 on t3.id=der.exam_id
+            where 1=1
+            <if test="schoolyardId != null">
+                and t3.schoolyard_id=${schoolyardId}
+            </if>
+            <if test="gradeId != null">
+                and t3.grade_id=${gradeId}
+            </if>
+            <if test="examPublishId != null">
+                and t.id in (select depr.exam_id from dat_exam_publish_relation depr where depr.exam_publish_id=${examPublishId})
+            </if>
+        ) t
+        left join sys_clazz t1 on t.clazz_id=t1.id
+        left join sys_student t2 on t.student_id=t2.id
+        where 1=1
+        <if test="clazzIds != null and clazzIds.size()>0">
+            and t.clazz_id in
+            <foreach collection="clazzIds" separator="," open="(" close=")" item="item" index="index">#{item}</foreach>
+        </if>
+        <if test="studentName != null">
+            and t2.name like concat('%',#{studentName},'%')
+        </if>
+    </select>
+    <select id="searchExamResultCard" resultMap="com.zhzx.server.repository.base.ExamResultBaseMapper.ResultMap">
+        select t.* from dat_exam_result t
+        left join dat_exam t1 on t.exam_id=t1.id
+        where 1=1
+        <if test="studentId != null">
+            and student_id = ${studentId}
+        </if>
+        <if test="examPublishId != null">
+            and t.exam_id in (select depr.exam_id from dat_exam_publish_relation depr where depr.exam_publish_id=${examPublishId})
+        </if>
+        order by t1.exam_end_date desc
+    </select>
+    <select id="getExamPrePager" resultType="com.zhzx.server.dto.exam.ExamPreDto" parameterType="java.lang.Long">
+        select
+            t.student_id AS studentId,
+            t3.clazz_nature AS nature,
+            t.total_score AS totalScore,
+            t.total_weighted_score AS totalWeightedScore
+        from dat_exam_result t
+        left join sys_clazz t3 on t3.id = t.clazz_id
+        where t.exam_id = (select id from dat_exam where create_time <![CDATA[<]]> (select t2.create_time from dat_exam t2 where t2.id=#{examId}) order by create_time desc limit 1)
+    </select>
+    <select id="gradeAverage" resultType="map">
+        select
+        round(sum(chinese_score)/greatest(count(chinese_score<![CDATA[>]]>0 or null),1),1) AS chineseAvgNj,
+        round(sum(math_score)/greatest(count(math_score<![CDATA[>]]>0 or null),1),1) AS mathAvgNj,
+        round(sum(english_score)/greatest(count(english_score<![CDATA[>]]>0 or null),1),1) AS englishAvgNj,
+        round(sum(physics_score)/greatest(count(physics_score<![CDATA[>]]>0 or null),1),1) AS physicsAvgNj,
+        round(sum(chemistry_score)/greatest(count(chemistry_score<![CDATA[>]]>0 or null),1),1) AS chemistryAvgNj,
+        round(sum(chemistry_weighted_score)/greatest(count(chemistry_weighted_score<![CDATA[>]]>0 or null),1),1) AS chemistryWeightedAvgNj,
+        round(sum(biology_score)/greatest(count(biology_score<![CDATA[>]]>0 or null),1),1) AS biologyAvgNj,
+        round(sum(biology_weighted_score)/greatest(count(biology_weighted_score<![CDATA[>]]>0 or null),1),1) AS biologyWeightedAvgNj,
+        round(sum(history_score)/greatest(count(history_score<![CDATA[>]]>0 or null),1),1) AS historyAvgNj,
+        round(sum(politics_score)/greatest(count(politics_score<![CDATA[>]]>0 or null),1),1) AS politicsAvgNj,
+        round(sum(politics_weighted_score)/greatest(count(politics_weighted_score<![CDATA[>]]>0 or null),1),1) AS politicsWeightedAvgNj,
+        round(sum(geography_score)/greatest(count(geography_score<![CDATA[>]]>0 or null),1),1) AS geographyAvgNj,
+        round(sum(geography_weighted_score)/greatest(count(geography_weighted_score<![CDATA[>]]>0 or null),1),1) AS geographyWeightedAvgNj,
+        round(sum(total_score)/greatest(count(total_score<![CDATA[>]]>0 or null),1),1) AS totalAvgNj,
+        round(sum(total_weighted_score)/greatest(count(total_weighted_score<![CDATA[>]]>0 or null),1),1) AS totalWeightedAvgNj,
+        count(1) AS joinCount
+        from dat_exam_result
+        left join sys_clazz sc on sc.id=clazz_id
+        where exam_id=#{examId}
+        <if test="clazzNature != null and clazzNature !=''">
+        and sc.clazz_nature=#{clazzNature}
+        </if>
+    </select>
+    <select id="gradeAnalyseClazz" resultType="com.zhzx.server.dto.exam.ExamGradeAnalyseClazzSituationDto" parameterType="java.lang.Long">
+        select t1.name AS `name`, t1.id AS id, t1.clazz_nature AS clazzNature, t1.student_count AS studentCount,t1.head_teacher AS headTeacher,
+               ifnull(t1.clazz_level,'') AS clazzLevel,
+               (select ifnull(group_concat(ss.name order by ss.name),'') from sys_subject ss where ss.is_main='YES' and ss.has_weight='YES' and find_in_set(ss.id, t1.clazz_division)<![CDATA[>]]>0) AS otherDivision,
+               count(1) AS joinCount,
+                round(sum(chinese_score)/greatest(count(chinese_score<![CDATA[>]]>0 or null),1),1) AS chineseAvg,
+                round(sum(math_score)/greatest(count(math_score<![CDATA[>]]>0 or null),1),1) AS mathAvg,
+                round(sum(english_score)/greatest(count(english_score<![CDATA[>]]>0 or null),1),1) AS englishAvg,
+                round(sum(physics_score)/greatest(count(physics_score<![CDATA[>]]>0 or null),1),1) AS physicsAvg,
+                round(sum(chemistry_score)/greatest(count(chemistry_score<![CDATA[>]]>0 or null),1),1) AS chemistryAvg,
+                round(sum(chemistry_weighted_score)/greatest(count(chemistry_weighted_score<![CDATA[>]]>0 or null),1),1) AS chemistryWeightedAvg,
+                round(sum(biology_score)/greatest(count(biology_score<![CDATA[>]]>0 or null),1),1) AS biologyAvg,
+                round(sum(biology_weighted_score)/greatest(count(biology_weighted_score<![CDATA[>]]>0 or null),1),1) AS biologyWeightedAvg,
+                round(sum(history_score)/greatest(count(history_score<![CDATA[>]]>0 or null),1),1) AS historyAvg,
+                round(sum(politics_score)/greatest(count(politics_score<![CDATA[>]]>0 or null),1),1) AS politicsAvg,
+                round(sum(politics_weighted_score)/greatest(count(politics_weighted_score<![CDATA[>]]>0 or null),1),1) AS politicsWeightedAvg,
+                round(sum(geography_score)/greatest(count(geography_score<![CDATA[>]]>0 or null),1),1) AS geographyAvg,
+                round(sum(geography_weighted_score)/greatest(count(geography_weighted_score<![CDATA[>]]>0 or null),1),1) AS geographyWeightedAvg,
+                round(sum(total_score)/greatest(count(total_score<![CDATA[>]]>0 or null),1),1) AS totalAvg,
+                round(sum(total_weighted_score)/greatest(count(total_weighted_score<![CDATA[>]]>0 or null),1),1) AS totalWeightedAvg
+        from dat_exam_result t3
+        left join sys_clazz t1 on t3.clazz_id=t1.id
+        where t3.exam_id = #{value}
+        group by t1.id
+    </select>
+    <select id="clazzTrendStation" resultType="com.zhzx.server.dto.exam.ExamGradeAnalyseClazzSituationDto">
+        select t1.name AS `name`, t1.id AS id, t1.clazz_nature AS clazzNature, t1.student_count AS studentCount,
+               (select ifnull(group_concat(id order by id),'') from sys_subject where is_main='YES' and find_in_set(id, t1.clazz_division)<![CDATA[<=]]>0) AS otherDivision,
+               count(1) AS joinCount,
+                round(sum(chinese_score)/greatest(count(chinese_score<![CDATA[>]]>0 or null),1),1) AS chineseAvg,
+                round(sum(math_score)/greatest(count(math_score<![CDATA[>]]>0 or null),1),1) AS mathAvg,
+                round(sum(english_score)/greatest(count(english_score<![CDATA[>]]>0 or null),1),1) AS englishAvg,
+                round(sum(physics_score)/greatest(count(physics_score<![CDATA[>]]>0 or null),1),1) AS physicsAvg,
+                round(sum(chemistry_score)/greatest(count(chemistry_score<![CDATA[>]]>0 or null),1),1) AS chemistryAvg,
+                round(sum(chemistry_weighted_score)/greatest(count(chemistry_weighted_score<![CDATA[>]]>0 or null),1),1) AS chemistryWeightedAvg,
+                round(sum(biology_score)/greatest(count(biology_score<![CDATA[>]]>0 or null),1),1) AS biologyAvg,
+                round(sum(biology_weighted_score)/greatest(count(biology_weighted_score<![CDATA[>]]>0 or null),1),1) AS biologyWeightedAvg,
+                round(sum(history_score)/greatest(count(history_score<![CDATA[>]]>0 or null),1),1) AS historyAvg,
+                round(sum(politics_score)/greatest(count(politics_score<![CDATA[>]]>0 or null),1),1) AS politicsAvg,
+                round(sum(politics_weighted_score)/greatest(count(politics_weighted_score<![CDATA[>]]>0 or null),1),1) AS politicsWeightedAvg,
+                round(sum(geography_score)/greatest(count(geography_score<![CDATA[>]]>0 or null),1),1) AS geographyAvg,
+                round(sum(geography_weighted_score)/greatest(count(geography_weighted_score<![CDATA[>]]>0 or null),1),1) AS geographyWeightedAvg,
+                round(sum(total_score)/greatest(count(total_score<![CDATA[>]]>0 or null),1),1) AS totalAvg,
+                round(sum(total_weighted_score)/greatest(count(total_weighted_score<![CDATA[>]]>0 or null),1),1) AS totalWeightedAvg,
+               t3.exam_id AS examId
+        from dat_exam_result t3
+        left join dat_exam t2 on t2.id=t3.exam_id
+        left join sys_clazz t1 on t3.clazz_id=t1.id
+        where t3.exam_id in
+        <foreach collection="entity" separator="," open="(" close=")" item="item" index="index">#{item}</foreach>
+        group by examId,t1.id
+        order by t2.exam_end_date
+    </select>
+    <select id="getAllNatureByExam" resultType="java.lang.String">
+        select
+        distinct(t.clazz_nature)
+        from sys_clazz t left join dat_exam t1
+        on t1.academic_year_semester_id = t.academic_year_semester_id and t.grade_id=t1.grade_id
+        where t1.id=#{examId}
+        order by t.id
+    </select>
+    <select id = "selectWeightedScoreBySubject" resultType="com.zhzx.server.dto.exam.ExamCalculateWeightedScoreDto">
+        select
+        <include refid="Base_Column_List_To_Bean"></include>,
+        (select ifnull(group_concat(subject_alias order by id),'') from sys_subject where is_main='YES' and has_weight='YES' and find_in_set(id, t1.clazz_division) > 0) AS weightedSubjects
+        from dat_exam_result t
+        left join sys_clazz t1 on t1.id=t.clazz_id
+        where t.exam_id=#{examId}
+    </select>
+
+    <select id="queryExamResultByPage" resultType="java.util.Map">
+        select
+        <include refid="Base_Column_List_To_Bean"></include>,
+        t1.name AS studentName,
+        t3.name AS className
+        from dat_exam_result t
+        left join dat_exam tt1
+        on tt1.id=t.exam_id
+        left join sys_student t1
+        on t1.id = t.student_id
+        left join sys_clazz t3
+        on t3.grade_id = tt1.grade_id
+        left join sys_student_clazz t2
+        on t2.student_id = t1.id and t2.clazz_id=t3.id
+        ${ew.customSqlSegment}
+    </select>
+    <select id="queryExamResultPager" resultType="com.zhzx.server.dto.exam.ExamPagerDto">
+        select * from
+        (
+        select
+        <include refid="Base_Column_List_To_Bean"></include>,
+        t1.name AS studentName,
+        t1.student_number AS studentNumber,
+        t1.gender AS gender,
+        t1.student_type AS studentType,
+        t3.name AS className,
+        t3.clazz_nature AS nature
+        from dat_exam_result t
+        left join sys_clazz t3 on t3.id = t.clazz_id
+        left join sys_student t1 on t1.id = t.student_id
+        where 1 = 1
+        <if test="entity.examId == null">
+            and 1 = 2
+        </if>
+        <if test="entity.examId != null">
+            and t.exam_id=#{entity.examId}
+        </if>
+        <if test="entity.clazzId != null">
+            and t.clazz_id=#{entity.clazzId}
+        </if>
+        <if test="entity.gender != null">
+            and t1.gender=#{entity.gender}
+        </if>
+        <if test="entity.studentType != null">
+            and t1.student_type=#{entity.studentType}
+        </if>
+        <if test="entity.pagerType != null">
+            and t3.clazz_nature=#{entity.pagerType}
+        </if>
+        ) a
+        <if test="entity.orderByClause != null and entity.orderByClause != ''">
+            order by ${entity.orderByClause}
+        </if>
+    </select>
+    <select id="getGradeAnalyseAE" parameterType="java.util.Map" resultType="java.util.Map">
+        select t1.name AS '班级', (case #{subjectName}
+                                     when '语文' then (sum(if(t5.chinese_score >= #{score}, 1, 0)))
+                                     when '数学' then (sum(if(t5.math_score >= #{score}, 1, 0)))
+                                     when '英语' then (sum(if(t5.english_score >= #{score}, 1, 0)))
+                                     when '物理' then (sum(if(t5.physics_score >= #{score}, 1, 0)))
+                                     when '化学' then (sum(if(t5.chemistry_score >= #{score}, 1, 0)))
+                                     when '政治' then (sum(if(t5.politics_score >= #{score}, 1, 0)))
+                                     when '历史' then (sum(if(t5.history_score >= #{score}, 1, 0)))
+                                     when '地理' then (sum(if(t5.geography_score >= #{score}, 1, 0)))
+                                     when '生物' then (sum(if(t5.biology_score >= #{score}, 1, 0)))
+                                     else (sum(if(t5.total_score >= #{score}, 1, 0)))
+            end) AS #{columnName}
+        from sys_clazz t1
+        right join dat_exam_result t5 on t5.clazz_id = t1.id
+        where t5.exam_id=#{examId}
+          <if test="subjectName != '总分'">
+              and find_in_set(#{subjectName},
+              (
+              select group_concat(t3.name) from sys_clazz_teacher t3 where t3.clazz_id = t1.id
+              )
+              ) > 0
+          </if>
+          <if test="clazzNature != null and clazzNature != ''">
+              and t1.clazz_nature=#{clazzNature}
+          </if>
+        group by t1.id
+        order by t1.id
+    </select>
+    <select id="getGradeAnalyseBE" parameterType="java.util.Map" resultType="java.util.Map">
+        select t1.name AS '班级',
+               t1.clazz_nature AS '班级性质',
+               t1.student_count AS '总人数', count(1) AS '参考数',
+               cast(
+               (case #{subjectName}
+                    when '语文' then avg(t5.chinese_score)
+                    when '数学' then avg(t5.math_score)
+                    when '英语' then avg(t5.english_score)
+                    when '物理' then avg(t5.physics_score)
+                    when '化学' then avg(t5.chemistry_score)
+                    when '政治' then avg(t5.politics_score)
+                    when '历史' then avg(t5.history_score)
+                    when '地理' then avg(t5.geography_score)
+                    when '生物' then avg(t5.biology_score)
+                    else avg(t5.total_score)
+            end) AS decimal (4, 1)) AS '均分',
+            (case #{subjectName}
+                               when '语文' then (sum(if(t5.chinese_score <![CDATA[<=]]> #{score}, 1, 0)))
+                               when '数学' then (sum(if(t5.math_score <![CDATA[<=]]> #{score}, 1, 0)))
+                               when '英语' then (sum(if(t5.english_score <![CDATA[<=]]> #{score}, 1, 0)))
+                               when '物理' then (sum(if(t5.physics_score <![CDATA[<=]]> #{score}, 1, 0)))
+                               when '化学' then (sum(if(t5.chemistry_score <![CDATA[<=]]> #{score}, 1, 0)))
+                               when '政治' then (sum(if(t5.politics_score <![CDATA[<=]]> #{score}, 1, 0)))
+                               when '历史' then (sum(if(t5.history_score <![CDATA[<=]]> #{score}, 1, 0)))
+                               when '地理' then (sum(if(t5.geography_score <![CDATA[<=]]> #{score}, 1, 0)))
+                               when '生物' then (sum(if(t5.biology_score <![CDATA[<=]]> #{score}, 1, 0)))
+                               else (sum(if(t5.total_score <![CDATA[<=]]> #{score}, 1, 0)))
+            end) AS #{columnName}
+        from sys_clazz t1
+        right join dat_exam_result t5 on t5.clazz_id = t1.id
+        where t5.exam_id=#{examId}
+        <if test="subjectName != '总分'">
+            and find_in_set(#{subjectName},
+            (
+            select group_concat(t3.name) from sys_clazz_teacher t3 where t3.clazz_id = t1.id
+            )
+            ) > 0
+        </if>
+        <if test="clazzNature != null and clazzNature != ''">
+            and t1.clazz_nature=#{clazzNature}
+        </if>
+        group by t1.id
+        order by t1.id
+    </select>
+    <select id="getGradeAnalyseBT" parameterType="java.util.Map" resultType="java.util.Map">
+        select t1.name AS '班级', (case #{subjectName}
+                                     when '语文' then (sum(if(t5.chinese_score between #{scoreL} and #{scoreR}, 1, 0)))
+                                     when '数学' then (sum(if(t5.math_score between #{scoreL} and #{scoreR}, 1, 0)))
+                                     when '英语' then (sum(if(t5.english_score between #{scoreL} and #{scoreR}, 1, 0)))
+                                     when '物理' then (sum(if(t5.physics_score between #{scoreL} and #{scoreR}, 1, 0)))
+                                     when '化学' then (sum(if(t5.chemistry_score between #{scoreL} and #{scoreR}, 1, 0)))
+                                     when '政治' then (sum(if(t5.politics_score between #{scoreL} and #{scoreR}, 1, 0)))
+                                     when '历史' then (sum(if(t5.history_score between #{scoreL} and #{scoreR}, 1, 0)))
+                                     when '地理' then (sum(if(t5.geography_score between #{scoreL} and #{scoreR}, 1, 0)))
+                                     when '生物' then (sum(if(t5.biology_score between #{scoreL} and #{scoreR}, 1, 0)))
+                                     else (sum(if(t5.total_score between #{scoreL} and #{scoreR}, 1, 0)))
+            end) AS #{columnName}
+        from sys_clazz t1
+        right join dat_exam_result t5 on t5.clazz_id = t1.id
+        where t5.exam_id=#{examId}
+        <if test="subjectName != '总分'">
+            and find_in_set(#{subjectName},
+            (
+            select group_concat(t3.name) from sys_clazz_teacher t3 where t3.clazz_id = t1.id
+            )
+            ) > 0
+        </if>
+        <if test="clazzNature != null and clazzNature != ''">
+            and t1.clazz_nature=#{clazzNature}
+        </if>
+        group by t1.id
+        order by t1.id
+    </select>
+    <select id="getSubjectConditionFromExam" resultType="map">
+        select
+        ifnull(tmp1.subjects,"") AS subjects,
+        ifnull(tmp1.teachers,"") AS teachers,
+        ifnull(tmp1.aliases,"") AS aliases,
+        ifnull(tmp1.scores,0) AS scores,
+        sum(if(tmp2.chinese_score <![CDATA[<>]]> 0, 1, 0)) AS chineseJoin,
+        sum(if(tmp2.math_score <![CDATA[<>]]> 0, 1, 0)) AS mathJoin,
+        sum(if(tmp2.english_score <![CDATA[<>]]> 0, 1, 0)) AS englishJoin,
+        sum(if(tmp2.physics_score <![CDATA[<>]]> 0, 1, 0)) AS physicsJoin,
+        sum(if(tmp2.chemistry_score <![CDATA[<>]]> 0, 1, 0)) AS chemistryJoin,
+        sum(if(tmp2.history_score <![CDATA[<>]]> 0, 1, 0)) AS historyJoin,
+        sum(if(tmp2.biology_score <![CDATA[<>]]> 0, 1, 0)) AS biologyJoin,
+        sum(if(tmp2.geography_score <![CDATA[<>]]> 0, 1, 0)) AS geographyJoin,
+        sum(if(tmp2.politics_score <![CDATA[<>]]> 0, 1, 0)) AS politicsJoin,
+        sum(if(tmp2.chinese_score <![CDATA[<]]> 127.5, 0, 1)) AS chineseYx,
+        sum(if(tmp2.math_score <![CDATA[<]]> 127.5, 0, 1)) AS mathYx,
+        sum(if(tmp2.english_score <![CDATA[<]]> 102, 0, 1)) AS englishYx,
+        sum(if(tmp2.physics_score <![CDATA[<]]> 85, 0, 1)) AS physicsYx,
+        sum(if(tmp2.chemistry_score <![CDATA[<]]> 85, 0, 1)) AS chemistryYx,
+        sum(if(tmp2.history_score <![CDATA[<]]> 85, 0, 1)) AS historyYx,
+        sum(if(tmp2.biology_score <![CDATA[<]]> 85, 0, 1)) AS biologyYx,
+        sum(if(tmp2.geography_score <![CDATA[<]]> 85, 0, 1)) AS geographyYx,
+        sum(if(tmp2.politics_score <![CDATA[<]]> 85, 0, 1)) AS politicsYx,
+        sum(if(tmp2.chinese_score <![CDATA[<]]> 90, 0, 1)) AS chineseJg,
+        sum(if(tmp2.math_score <![CDATA[<]]> 90, 0, 1)) AS mathJg,
+        sum(if(tmp2.english_score <![CDATA[<]]> 90, 0, 1)) AS englishJg,
+        sum(if(tmp2.physics_score <![CDATA[<]]> 60, 0, 1)) AS physicsJg,
+        sum(if(tmp2.chemistry_score <![CDATA[<]]> 60, 0, 1)) AS chemistryJg,
+        sum(if(tmp2.history_score <![CDATA[<]]> 60, 0, 1)) AS historyJg,
+        sum(if(tmp2.biology_score <![CDATA[<]]> 60, 0, 1)) AS biologyJg,
+        sum(if(tmp2.geography_score <![CDATA[<]]> 60, 0, 1)) AS geographyJg,
+        sum(if(tmp2.politics_score <![CDATA[<]]> 60, 0, 1)) AS politicsJg,
+        max(tmp2.chinese_score) AS chineseMax,
+        max(tmp2.math_score) AS mathMax,
+        max(tmp2.english_score) AS englishMax,
+        max(tmp2.physics_score) AS physicsMax,
+        max(tmp2.chemistry_score) AS chemistryMax,
+        max(tmp2.history_score) AS historyMax,
+        max(tmp2.biology_score) AS biologyMax,
+        max(tmp2.geography_score) AS geographyMax,
+        max(tmp2.politics_score) AS politicsMax,
+        min(tmp2.chinese_score) AS chineseMin,
+        min(tmp2.math_score) AS mathMin,
+        min(tmp2.english_score) AS englishMin,
+        min(tmp2.physics_score) AS physicsMin,
+        min(tmp2.chemistry_score) AS chemistryMin,
+        min(tmp2.history_score) AS historyMin,
+        min(tmp2.biology_score) AS biologyMin,
+        min(tmp2.geography_score) AS geographyMin,
+        min(tmp2.politics_score) AS politicsMin,
+        cast(avg(tmp2.chinese_score) AS decimal(4, 1)) AS chineseAvg,
+        cast(avg(tmp2.math_score) AS decimal(4, 1)) AS mathAvg,
+        cast(avg(tmp2.english_score) AS decimal(4, 1)) AS englishAvg,
+        cast(avg(tmp2.physics_score) AS decimal(4, 1)) AS physicsAvg,
+        cast(avg(tmp2.chemistry_score) AS decimal(4, 1)) AS chemistryAvg,
+        cast(avg(tmp2.history_score) AS decimal(4, 1)) AS historyAvg,
+        cast(avg(tmp2.biology_score) AS decimal(4, 1)) AS biologyAvg,
+        cast(avg(tmp2.geography_score) AS decimal(4, 1)) AS geographyAvg,
+        cast(avg(tmp2.politics_score) AS decimal(4, 1)) AS politicsAvg
+        from
+            (
+                select
+                    group_concat(t.name order by t.id) AS subjects,
+                    group_concat(t.teacher order by t.id separator '*') AS teachers,
+                    group_concat(t3.subject_alias order by t.id) AS aliases,
+                    group_concat(t3.max_score order by t.id) AS scores,
+                    t.clazz_id AS clazz_id
+                from sys_clazz_teacher t
+                left join sys_subject t3 on t3.name=t.name
+                where t.clazz_id=#{clazzId} and find_in_set(t3.id, (select clazz_division from sys_clazz where id=#{clazzId})) > 0
+                and t3.is_main='YES'
+            ) tmp1
+        left join dat_exam_result tmp2 on tmp2.clazz_id=tmp1.clazz_id
+        where tmp2.exam_id=#{examId}
+    </select>
+    <select id="getStudentConditionFour" resultType="com.zhzx.server.dto.exam.ExamClazzAnalyseClazzAndStudentDto">
+        select
+               <include refid="Base_Column_List_To_Bean"></include>,
+                t2.name AS `name`,
+                t.threeTotal AS threeTotal,
+                t.fourTotal AS fourTotal,
+                (
+                    select cast(avg(der1.chinese_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS chineseAvg,
+                (
+                    select cast(avg(der1.math_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS mathAvg,
+                (
+                    select cast(avg(der1.english_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS englishAvg,
+                (
+                    select cast(avg(der1.physics_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS physicsAvg,
+                (
+                    select cast(avg(der1.chemistry_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS chemistryAvg,
+                (
+                    select cast(avg(der1.chemistry_weighted_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS chemistryWeightedAvg,
+                (
+                    select cast(avg(der1.history_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS historyAvg,
+                (
+                    select cast(avg(der1.biology_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS biologyAvg,
+                (
+                    select cast(avg(der1.biology_weighted_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS biologyWeightedAvg,
+                (
+                    select cast(avg(der1.geography_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS geographyAvg,
+                (
+                    select cast(avg(der1.geography_weighted_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS geographyWeightedAvg,
+                (
+                    select cast(avg(der1.politics_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS politicsAvg,
+                (
+                    select cast(avg(der1.politics_weighted_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS politicsWeightedAvg,
+                (
+                    select cast(avg(der1.chinese_score + der1.math_score + der1.english_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS threeTotalAvg,
+                (
+                    select cast(avg(if(#{clazzNature}='OTHER', 0, der1.chinese_score + der1.math_score + der1.english_score + if(#{clazzNature}='SCIENCE', der1.physics_score, der1.history_score))) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS fourTotalAvg,
+                (
+                    select cast(avg(der1.total_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS totalAvg,
+                (
+                    select cast(avg(der1.total_weighted_score) AS decimal(4, 1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                ) AS totalWeightedAvg,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.chinese_score > t.chinese_score
+                ) AS chineseRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.math_score > t.math_score
+                ) AS mathRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.english_score > t.english_score
+                ) AS englishRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.physics_score > t.physics_score
+                ) AS physicsRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.chemistry_score > t.chemistry_score
+                ) AS chemistryRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.chemistry_weighted_score > t.chemistry_weighted_score
+                ) AS chemistryWeightedRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.history_score > t.history_score
+                ) AS historyRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.biology_score > t.biology_score
+                ) AS biologyRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.biology_weighted_score > t.biology_weighted_score
+                ) AS biologyWeightedRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.politics_score > t.politics_score
+                ) AS politicsRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.politics_weighted_score > t.politics_weighted_score
+                ) AS politicsWeightedRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.geography_score > t.geography_score
+                ) AS geographyRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.geography_weighted_score > t.geography_weighted_score
+                ) AS geographyWeightedRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.total_score > t.total_score
+                ) AS totalRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.total_weighted_score > t.total_weighted_score
+                ) AS totalWeightedRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId} and der1.chinese_score + der1.math_score + der1.english_score > t.threeTotal
+                ) AS threeTotalRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    where der1.exam_id=t.exam_id and der1.clazz_id=#{clazzId}
+                    and if(#{clazzNature}='OTHER', 0, der1.chinese_score + der1.math_score + der1.english_score + if(#{clazzNature}='SCIENCE', der1.physics_score, der1.history_score)) > t.fourTotal
+                ) AS fourTotalRankBj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    left join sys_clazz sc on sc.id=der1.clazz_id
+                    where der1.exam_id=t.exam_id and sc.clazz_nature=#{clazzNature}
+                    and der1.total_score > t.total_score
+                ) AS totalRankNj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    left join sys_clazz sc on sc.id=der1.clazz_id
+                    where der1.exam_id=t.exam_id and sc.clazz_nature=#{clazzNature}
+                    and der1.total_weighted_score > t.total_weighted_score
+                ) AS totalWeightedRankNj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    left join sys_clazz sc on sc.id=der1.clazz_id
+                    where der1.exam_id=t.exam_id and sc.clazz_nature=#{clazzNature}
+                    and der1.chinese_score + der1.math_score + der1.english_score > t.threeTotal
+                ) AS threeTotalRankNj,
+                (
+                    select (1 + count(1)) from dat_exam_result der1
+                    left join sys_clazz sc on sc.id=der1.clazz_id
+                    where der1.exam_id=t.exam_id and sc.clazz_nature=#{clazzNature}
+                    and if(#{clazzNature}='OTHER', 0, der1.chinese_score + der1.math_score + der1.english_score + if(#{clazzNature}='SCIENCE', der1.physics_score, der1.history_score)) > t.fourTotal
+                ) AS fourTotalRankNj
+        from
+            (
+                select
+                tt.*,
+                tt.chinese_score + tt.math_score + tt.english_score AS threeTotal,
+                if(#{clazzNature}='OTHER', 0, tt.chinese_score + tt.math_score + tt.english_score + if(#{clazzNature}='SCIENCE',tt.physics_score, tt.history_score)) AS fourTotal
+                from dat_exam_result tt
+            ) t
+        left join dat_exam t2 on t2.id=t.exam_id
+        where t.student_id=#{studentId}
+        and t2.exam_end_date <![CDATA[<=]]>
+        (
+        select t3.exam_end_date from dat_exam t3 where t3.id=#{examId}
+        )
+        order by t2.exam_end_date
+        limit 0,6
+    </select>
+
+<!--    <select id="getClazzAndStudentList" resultType="java.lang.String">-->
+<!--        select concat(cast(c.id as char), ',', cast(a.id as char), ',', c.name, ',', a.name) as col from sys_student a-->
+<!--            left join sys_student_clazz b on a.id = b.student_id-->
+<!--            left join sys_clazz c on b.clazz_id = c.id-->
+<!--            left join dat_exam d on c.grade_id = d.grade_id-->
+<!--        where d.id = ${examId} order by c.name-->
+<!--    </select>-->
+
+    <select id="getClazzAndStudentList" resultType="java.lang.String">
+        select concat(cast(c.id as char), ',', cast(a.id as char), ',', c.name, ',', a.name) as col
+        from
+        (
+            select student_id, max(id) as id from sys_student_clazz
+            where clazz_id in
+            (select sc.id from sys_clazz sc where concat(sc.grade_id,'_',sc.academic_year_semester_id)=(select concat(de.grade_id,'_',de.academic_year_semester_id)from dat_exam de where de.id=${examId}))
+            group by student_id
+        ) t2
+        left join sys_student_clazz b on b.id = t2.id
+        left join sys_clazz c on b.clazz_id = c.id
+        left join sys_student a on a.id=b.student_id
+        order by c.name
+    </select>
+</mapper>

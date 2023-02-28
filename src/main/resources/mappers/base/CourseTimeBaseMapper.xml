@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.CourseTimeBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.CourseTime">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="grade_id" jdbcType="BIGINT" property="gradeId" />
+        <result column="sort_order" jdbcType="INTEGER" property="sortOrder" />
+        <result column="start_time" jdbcType="VARCHAR" property="startTime" />
+        <result column="end_time" jdbcType="VARCHAR" property="endTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.CourseTime" extends="BaseResultMap">
+        <association column="grade_id" property="grade" javaType="com.zhzx.server.domain.Grade"
+                     select="com.zhzx.server.repository.GradeMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, grade_id, sort_order, start_time, end_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.grade_id, t.sort_order, t.start_time, t.end_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_course_time (
+            grade_id, sort_order, start_time, end_time
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.gradeId, jdbcType=BIGINT}, #{record.sortOrder, jdbcType=INTEGER}, #{record.startTime, jdbcType=VARCHAR}, #{record.endTime, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.CourseTime">
+        update sys_course_time set
+        <trim suffixOverrides=",">
+            grade_id = #{et.gradeId, jdbcType=BIGINT},
+            sort_order = #{et.sortOrder, jdbcType=INTEGER},
+            start_time = #{et.startTime, jdbcType=VARCHAR},
+            end_time = #{et.endTime, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

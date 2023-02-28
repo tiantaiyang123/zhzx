@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.NightStudyDutyClazzBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.NightStudyDutyClazz">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="night_study_duty_id" jdbcType="BIGINT" property="nightStudyDutyId" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="teacher" jdbcType="VARCHAR" property="teacher" />
+        <result column="should_student_count" jdbcType="INTEGER" property="shouldStudentCount" />
+        <result column="actual_student_count" jdbcType="INTEGER" property="actualStudentCount" />
+        <result column="score" jdbcType="INTEGER" property="score" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NightStudyDutyClazz" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, night_study_duty_id, clazz_id, teacher, should_student_count, actual_student_count, score
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.night_study_duty_id, t.clazz_id, t.teacher, t.should_student_count, t.actual_student_count, t.score
+    </sql>
+    <insert id="batchInsert" parameterType="com.zhzx.server.domain.NightStudyDutyClazz" keyColumn="id" keyProperty="id">
+        insert into day_night_study_duty_clazz (
+            night_study_duty_id, clazz_id, teacher, should_student_count, actual_student_count, score
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.nightStudyDutyId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.teacher, jdbcType=VARCHAR}, #{record.shouldStudentCount, jdbcType=INTEGER}, #{record.actualStudentCount, jdbcType=INTEGER}, #{record.score, jdbcType=INTEGER}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.NightStudyDutyClazz">
+        update day_night_study_duty_clazz set
+        <trim suffixOverrides=",">
+            night_study_duty_id = #{et.nightStudyDutyId, jdbcType=BIGINT},
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+            teacher = #{et.teacher, jdbcType=VARCHAR},
+            should_student_count = #{et.shouldStudentCount, jdbcType=INTEGER},
+            actual_student_count = #{et.actualStudentCount, jdbcType=INTEGER},
+            score = #{et.score, jdbcType=INTEGER},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ExamGoalTemplateSubMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.ExamGoalTemplateSubBaseMapper.ResultMap">
+        select * from dat_exam_goal_template_sub where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.ExamGoalTemplateSubBaseMapper.ResultMap">
+        select * from dat_exam_goal_template_sub ${ew.customSqlSegment} LIMIT 1
+    </select>
+</mapper>

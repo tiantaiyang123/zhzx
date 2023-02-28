@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.TeachingResultBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.TeachingResult">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teacher_id" jdbcType="BIGINT" property="teacherId" />
+        <result column="result_classify_id" jdbcType="BIGINT" property="resultClassifyId" />
+        <result column="result_date" jdbcType="VARCHAR" property="resultDate" />
+        <result column="academic_year_semester_id" jdbcType="BIGINT" property="academicYearSemesterId" />
+        <result column="year" jdbcType="VARCHAR" property="year" />
+        <result column="semester" jdbcType="VARCHAR" property="semester" />
+        <result column="level" jdbcType="VARCHAR" property="level" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="reviewer_id" jdbcType="BIGINT" property="reviewerId" />
+        <result column="state" jdbcType="VARCHAR" property="state" />
+        <result column="reason" jdbcType="VARCHAR" property="reason" />
+        <result column="editor_id" jdbcType="BIGINT" property="editorId" />
+        <result column="editor_name" jdbcType="VARCHAR" property="editorName" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.TeachingResult" extends="BaseResultMap">
+        <association column="teacher_id" property="teacher" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+        <association column="result_classify_id" property="resultClassify" javaType="com.zhzx.server.domain.TeachingResultClassify"
+                     select="com.zhzx.server.repository.TeachingResultClassifyMapper.selectById" />
+        <association column="academic_year_semester_id" property="academicYearSemester" javaType="com.zhzx.server.domain.AcademicYearSemester"
+                     select="com.zhzx.server.repository.AcademicYearSemesterMapper.selectById" />
+        <association column="reviewer_id" property="reviewer" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+        <collection column="id" property="teachingResultAttachmentList" select="queryTeachingResultAttachmentById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, teacher_id, result_classify_id, result_date, academic_year_semester_id, year, semester, level, name, reviewer_id, state, reason, editor_id, editor_name, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.teacher_id, t.result_classify_id, t.result_date, t.academic_year_semester_id, t.year, t.semester, t.level, t.name, t.reviewer_id, t.state, t.reason, t.editor_id, t.editor_name, t.create_time, t.update_time
+    </sql>
+    <select id="queryTeachingResultAttachmentById" resultMap="com.zhzx.server.repository.base.TeachingResultAttachmentBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.TeachingResultAttachmentBaseMapper.Base_Column_List" />
+        from tmg_teaching_result_attachment
+        where teaching_result_id = #{id}
+    </select>
+    <insert id="batchInsert">
+        insert into tmg_teaching_result (
+            teacher_id, result_classify_id, result_date, academic_year_semester_id, year, semester, level, name, reviewer_id, state, reason, editor_id, editor_name
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.teacherId, jdbcType=BIGINT}, #{record.resultClassifyId, jdbcType=BIGINT}, #{record.resultDate, jdbcType=VARCHAR}, #{record.academicYearSemesterId, jdbcType=BIGINT}, #{record.year, jdbcType=VARCHAR}, #{record.semester, jdbcType=VARCHAR}, #{record.level, jdbcType=VARCHAR}, #{record.name, jdbcType=VARCHAR}, #{record.reviewerId, jdbcType=BIGINT}, #{record.state, jdbcType=VARCHAR}, #{record.reason, jdbcType=VARCHAR}, #{record.editorId, jdbcType=BIGINT}, #{record.editorName, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.TeachingResult">
+        update tmg_teaching_result set
+        <trim suffixOverrides=",">
+            teacher_id = #{et.teacherId, jdbcType=BIGINT},
+            result_classify_id = #{et.resultClassifyId, jdbcType=BIGINT},
+            result_date = #{et.resultDate, jdbcType=VARCHAR},
+            academic_year_semester_id = #{et.academicYearSemesterId, jdbcType=BIGINT},
+            year = #{et.year, jdbcType=VARCHAR},
+            semester = #{et.semester, jdbcType=VARCHAR},
+            level = #{et.level, jdbcType=VARCHAR},
+            name = #{et.name, jdbcType=VARCHAR},
+            reviewer_id = #{et.reviewerId, jdbcType=BIGINT},
+            state = #{et.state, jdbcType=VARCHAR},
+            reason = #{et.reason, jdbcType=VARCHAR},
+            editor_id = #{et.editorId, jdbcType=BIGINT},
+            editor_name = #{et.editorName, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

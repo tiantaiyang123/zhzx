@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Exam">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="schoolyard_id" jdbcType="BIGINT" property="schoolyardId" />
+        <result column="academic_year_semester_id" jdbcType="BIGINT" property="academicYearSemesterId" />
+        <result column="grade_id" jdbcType="BIGINT" property="gradeId" />
+        <result column="exam_goal_template_id" jdbcType="BIGINT" property="examGoalTemplateId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="exam_type_id" jdbcType="BIGINT" property="examTypeId" />
+        <result column="exam_subjects" jdbcType="VARCHAR" property="examSubjects" />
+        <result column="exam_start_date" jdbcType="VARCHAR" property="examStartDate" />
+        <result column="exam_end_date" jdbcType="VARCHAR" property="examEndDate" />
+        <result column="academy_ratio_update_time" jdbcType="TIMESTAMP" property="academyRatioUpdateTime" />
+        <result column="is_publish" jdbcType="VARCHAR" property="isPublish" />
+        <result column="is_teacher_seen" jdbcType="VARCHAR" property="isTeacherSeen" />
+        <result column="cal_natural_score" jdbcType="VARCHAR" property="calNaturalScore" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Exam" extends="BaseResultMap">
+        <association column="academic_year_semester_id" property="academicYearSemester" javaType="com.zhzx.server.domain.AcademicYearSemester"
+                     select="com.zhzx.server.repository.AcademicYearSemesterMapper.selectById" />
+        <association column="grade_id" property="grade" javaType="com.zhzx.server.domain.Grade"
+                     select="com.zhzx.server.repository.GradeMapper.selectById" />
+        <association column="exam_type_id" property="examType" javaType="com.zhzx.server.domain.ExamType"
+                     select="com.zhzx.server.repository.ExamTypeMapper.selectById" />
+        <association column="exam_goal_template_id" property="examGoalTemplate" javaType="com.zhzx.server.domain.ExamGoalTemplate"
+                     select="com.zhzx.server.repository.ExamGoalTemplateMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, schoolyard_id, academic_year_semester_id, grade_id, exam_goal_template_id, name, exam_type_id, exam_subjects, exam_start_date, exam_end_date, academy_ratio_update_time, is_publish, is_teacher_seen, cal_natural_score, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.schoolyard_id, t.academic_year_semester_id, t.grade_id, t.exam_goal_template_id, t.name, t.exam_type_id, t.exam_subjects, t.exam_start_date, t.exam_end_date, t.academy_ratio_update_time, t.is_publish, t.is_teacher_seen, t.cal_natural_score, t.create_time, t.update_time
+    </sql>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Exam">
+        update dat_exam set
+        <trim suffixOverrides=",">
+            schoolyard_id = #{et.schoolyardId, jdbcType=BIGINT},
+            academic_year_semester_id = #{et.academicYearSemesterId, jdbcType=BIGINT},
+            grade_id = #{et.gradeId, jdbcType=BIGINT},
+            exam_goal_template_id = #{et.examGoalTemplateId, jdbcType=BIGINT},
+            name = #{et.name, jdbcType=VARCHAR},
+            exam_type_id = #{et.examTypeId, jdbcType=BIGINT},
+            exam_subjects = #{et.examSubjects, jdbcType=VARCHAR},
+            exam_start_date = #{et.examStartDate, jdbcType=VARCHAR},
+            exam_end_date = #{et.examEndDate, jdbcType=VARCHAR},
+            academy_ratio_update_time = #{et.academyRatioUpdateTime, jdbcType=TIMESTAMP},
+            is_publish = #{et.isPublish, jdbcType=VARCHAR},
+            is_teacher_seen = #{et.isTeacherSeen, jdbcType=VARCHAR},
+            cal_natural_score = #{et.calNaturalScore, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.IncidentMapper">
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Incident" extends="com.zhzx.server.repository.base.IncidentBaseMapper.ResultMap">
+        <result column="leaderName" jdbcType="VARCHAR" property="leaderName" />
+    </resultMap>
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.IncidentBaseMapper.ResultMap">
+        select * from day_incident where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.IncidentBaseMapper.ResultMap">
+        select * from day_incident ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.IncidentBaseMapper.ResultMap">
+        select * from day_incident ${ew.customSqlSegment}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.IncidentBaseMapper.ResultMap">
+        select * from day_incident ${ew.customSqlSegment}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="pageDetail" resultMap="ResultMap">
+        select t.*,
+        (case t.classify
+        when 'DAY_NIGHT_STUDY' then(
+        select group_concat(ss.name ,",",ifnull(dtd.start_time,t.create_time) ,"," ,ifnull(dtd.end_time ,t.create_time))
+        from day_night_study  dns
+        left join day_teacher_duty_clazz dtdc on dns.teacher_duty_clazz_id = dtdc.id
+        left join day_teacher_duty dtd on dtd.id = dtdc.teacher_duty_id
+        left join sys_staff ss on ss.id = dtd.teacher_id
+        where dns.id =t.daily_routine_id
+        )
+        when 'DAY_SOUTH_GATE' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_south_gate dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_BREAKFAST' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_breakfast dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_MORNING_READING_1' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_morning_reading dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_MORNING_READING_2' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_morning_reading dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_MORNING_READING_3' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_morning_reading dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_BREAK_ACTIVITY' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_break_activity dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_LUNCH' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_lunch dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_TEACHING_AREA_1' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_teaching_area dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_TEACHING_AREA_2' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_teaching_area dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_TEACHING_AREA_3' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_teaching_area dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_NOON_SPORT_AREA' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_noon_sport_area dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_DINNER' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_dinner dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_GO_OUT' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_go_out dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_NIGHT_SPORT_AREA' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_night_sport_area dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id = t.daily_routine_id
+        )
+        when 'DAY_NIGHT_STUDY_DUTY' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_night_study_duty dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        when 'DAY_OTHER_1' then (
+        select group_concat(ss.name ,",",ifnull(dld.start_time ,t.create_time),",",ifnull(dld.end_time ,t.create_time))
+        from day_leader_duty dld
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dld.id =t.daily_routine_id
+        )
+        when 'DAY_OTHER_2' then (
+        select group_concat(ss.name ,",",ifnull(dsg.start_time ,t.create_time),",",ifnull(dsg.end_time ,t.create_time))
+        from day_night_study_duty dsg
+        left join day_leader_duty dld on dsg.leader_duty_id = dld.id
+        left join sys_staff ss on ss.id = dld.leader_id
+        where dsg.id =t.daily_routine_id
+        )
+        end
+        ) as leaderName
+        from day_incident t
+        where 1=1
+        <if test="schoolyardId != null">
+            and t.schoolyard_id = #{schoolyardId}
+        </if>
+        <!--<if test="leader != null and leader != ''">-->
+            <!--and leaderName like concat('%',#{leader},'%')-->
+        <!--</if>-->
+        <!--<if test="startTime != null ">-->
+            <!--and to_days(substring(leaderName, -38, 18))  <![CDATA[ <= ]]> to_days(#{endTime})-->
+        <!--</if>-->
+        <!--<if test="endTime != null ">-->
+            <!--and to_days(substring_index(leaderName, ',', -2))  <![CDATA[ <= ]]> to_days(#{endTime})-->
+        <!--</if>-->
+        order by substring_index(leaderName, ',', -2) desc
+    </select>
+</mapper>

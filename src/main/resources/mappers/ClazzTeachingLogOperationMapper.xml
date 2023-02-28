@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ClazzTeachingLogOperationMapper">
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ClazzTeachingLogOperation" extends="com.zhzx.server.repository.base.ClazzTeachingLogOperationBaseMapper.ResultMap">
+
+    </resultMap>
+    <resultMap id="ListResultMap" type="com.zhzx.server.domain.ClazzTeachingLogOperation" extends="com.zhzx.server.repository.base.ClazzTeachingLogOperationBaseMapper.BaseResultMap">
+
+    </resultMap>
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="ResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.ClazzTeachingLogOperationBaseMapper.Base_Column_List" />
+        from std_clazz_teaching_log_operation
+        where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="ResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.ClazzTeachingLogOperationBaseMapper.Base_Column_List" />
+        from std_clazz_teaching_log_operation
+        ${ew.customSqlSegment}
+        LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="ListResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.ClazzTeachingLogOperationBaseMapper.Base_Column_List" />
+        from std_clazz_teaching_log_operation
+        ${ew.customSqlSegment}
+    </select>
+
+    <resultMap id="YResultMap" type="com.zhzx.server.vo.ClazzTeachingLogOperationVo" extends="com.zhzx.server.repository.base.ClazzTeachingLogOperationBaseMapper.ResultMap">
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.ClazzMapper.selectById" />
+    </resultMap>
+    <select id="pageDetail" resultMap="YResultMap">
+        select sctlo.*, sctl.clazz_id as clazz_id
+        from std_clazz_teaching_log_operation sctlo
+        left join std_clazz_teaching_log sctl on sctlo.clazz_teaching_log_id=sctl.id
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and sctl.academic_year_semester_id=${academicYearSemesterId}
+        </if>
+        <if test="schoolyardId != null">
+            and sctl.clazz_id in (select id from sys_clazz where schoolyard_id=${schoolyardId})
+        </if>
+        <if test="gradeId != null">
+            and sctl.clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+        </if>
+        <if test="clazzId != null">
+            and sctl.clazz_id = ${clazzId}
+        </if>
+        <if test="week != null">
+            and sctl.week = ${week}
+        </if>
+        <if test="startTime != null">
+            and to_days(sctlo.operation_date) <![CDATA[>=]]> to_days(#{startTime})
+        </if>
+        <if test="endTime != null">
+            and to_days(sctlo.operation_date) <![CDATA[<=]]> to_days(#{endTime})
+        </if>
+    </select>
+
+</mapper>

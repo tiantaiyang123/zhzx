@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ClazzTeachingLogSubjectsMapper">
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ClazzTeachingLogSubjects" extends="com.zhzx.server.repository.base.ClazzTeachingLogSubjectsBaseMapper.ResultMap">
+
+    </resultMap>
+    <resultMap id="ListResultMap" type="com.zhzx.server.domain.ClazzTeachingLogSubjects" extends="com.zhzx.server.repository.base.ClazzTeachingLogSubjectsBaseMapper.BaseResultMap">
+
+    </resultMap>
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="ResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.ClazzTeachingLogSubjectsBaseMapper.Base_Column_List" />
+        from std_clazz_teaching_log_subjects
+        where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="ResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.ClazzTeachingLogSubjectsBaseMapper.Base_Column_List" />
+        from std_clazz_teaching_log_subjects
+        ${ew.customSqlSegment}
+        LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="ListResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.ClazzTeachingLogSubjectsBaseMapper.Base_Column_List" />
+        from std_clazz_teaching_log_subjects
+        ${ew.customSqlSegment}
+    </select>
+
+    <resultMap id="AuditResultMap" type="com.zhzx.server.vo.ClazzTeachingLogSubjectsVo" extends="com.zhzx.server.repository.base.ClazzTeachingLogSubjectsBaseMapper.ResultMap">
+        <result column="academic_year_semester_id" jdbcType="BIGINT" property="academicYearSemesterId" />
+        <result column="week" jdbcType="INTEGER" property="week" />
+        <result column="register_date" jdbcType="TIMESTAMP" property="registerDate" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="should_num" jdbcType="INTEGER" property="shouldNum" />
+        <result column="actual_num" jdbcType="INTEGER" property="actualNum" />
+        <association column="academic_year_semester_id" property="academicYearSemester" javaType="com.zhzx.server.domain.AcademicYearSemester"
+                     select="com.zhzx.server.repository.AcademicYearSemesterMapper.selectById" />
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.ClazzMapper.selectById" />
+    </resultMap>
+    <select id="listAuditPage" resultMap="AuditResultMap">
+        select b.academic_year_semester_id, b.week, b.register_date, b.clazz_id, b.remark, b.should_num, b.actual_num, a.*
+        from std_clazz_teaching_log_subjects a left join std_clazz_teaching_log b on b.id = a.clazz_teaching_log_id
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and b.academic_year_semester_id = ${academicYearSemesterId}
+        </if>
+        <if test="gradeId != null">
+            and b.clazz_id in (select id from sys_clazz where grade_id = ${gradeId})
+        </if>
+        <if test="clazzId != null">
+            and b.clazz_id = ${clazzId}
+        </if>
+        <if test="week != null">
+            and b.week = ${week}
+        </if>
+        <if test="state != null">
+            and a.state = '${state}'
+        </if>
+        <if test="startTime != null">
+            and to_days(b.register_date) <![CDATA[>=]]> to_days(#{startTime})
+        </if>
+        <if test="endTime != null">
+            and to_days(b.register_date) <![CDATA[<=]]> to_days(#{endTime})
+        </if>
+        order by b.academic_year_semester_id, b.week, b.register_date, b.clazz_id, a.sort_order
+    </select>
+</mapper>

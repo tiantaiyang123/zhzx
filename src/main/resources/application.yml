@@ -1,0 +1,113 @@
+spring:
+  application:
+    name: server
+  profiles:
+    active: test
+  jackson:
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+  main:
+    allow-bean-definition-overriding: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+  datasource:
+    initialization-mode: never
+    mssql:
+      read-only: true
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      minimum-idle: 10
+      max-lifetime: 1200000
+      idle-timeout: 600000
+      data-source-properties: {initialization-mode: never}
+    mysql:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      maximum-pool-size: 250
+      connection-timeout: 60000
+      minimum-idle: 10
+      max-lifetime: 1800000
+      data-source-properties: {initialization-mode: never}
+      idle-timeout: 600000
+    #    type: com.zaxxer.hikari.HikariDataSource
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    initialization-mode: never
+#    hikari:
+#      maximum-pool-size: 2
+#      connection-timeout: 600000
+#      minimum-idle: 10
+#      max-lifetime: 540000
+    minIdle: 3
+    initialSize: 1
+    initial-size: 1
+    max-active: 20
+    min-idle: 1
+    max-wait: 6000
+    maxLifetime: 120000L
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    validation-query: SELECT 'x'
+    test-on-borrow: false
+    test-on-return: false
+    test-while-idle: true
+    filters: stat,wall,log4j
+server:
+  port: ${port:8088}
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    context-path: /
+mybatis-plus:
+  mssql:
+    mapper-locations: classpath*:msmappers/**/*.xml
+    type-aliases-package: com.zhzx.server.msdomain
+    configuration:
+      use-generated-keys: true
+      map-underscore-to-camel-case: true
+      lazy-loading-enabled: true
+      aggressive-lazy-loading: false
+  mysql:
+    mapper-locations: classpath*:mappers/**/*.xml
+    type-aliases-package: com.zhzx.server.domain
+    configuration:
+      use-generated-keys: true
+      map-underscore-to-camel-case: true
+      lazy-loading-enabled: true
+      aggressive-lazy-loading: false
+#  mapper-locations: classpath*:mappers/**/*.xml
+#  type-aliases-package: com.zhzx.server.domain
+#  configuration:
+#    use-generated-keys: true
+#    map-underscore-to-camel-case: true
+#    lazy-loading-enabled: true
+#    aggressive-lazy-loading: false
+#  global-config:
+#    db-column-underline: true
+#    db-config:
+#      logic-delete-value: YES # 逻辑已删除值(默认为 1)
+#      logic-not-delete-value: NO # 逻辑未删除值(默认为 0)
+jwt:
+  secret: +_+1234567890*
+# hasor
+# 认证配置
+hasor:
+  dataway:
+    auth:
+      ignore-path:
+        - /hasor/api/test**
+# 是否启用 Dataway 功能（必选：默认false）
+HASOR_DATAQL_DATAWAY: true
+# 是否开启 Dataway 后台管理界面（必选：默认false）
+HASOR_DATAQL_DATAWAY_ADMIN: false
+# dataway  API工作路径（可选，默认：/api/）
+HASOR_DATAQL_DATAWAY_API_URL: /hasor/api/
+# dataway-ui 的工作路径（可选，默认：/interface-ui/）
+HASOR_DATAQL_DATAWAY_UI_URL: /hasor/interface-ui/
+# SQL执行器方言设置（可选，建议设置）
+HASOR_DATAQL_FX_PAGE_DIALECT: mysql
+

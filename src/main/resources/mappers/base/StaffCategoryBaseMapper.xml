@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StaffCategoryBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.StaffCategory">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="parent_id" jdbcType="BIGINT" property="parentId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="create_subordinate" jdbcType="VARCHAR" property="createSubordinate" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.StaffCategory" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, parent_id, name, remark, create_subordinate, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.parent_id, t.name, t.remark, t.create_subordinate, t.create_time, t.update_time
+    </sql>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.StaffCategory">
+        update sys_staff_category set
+        <trim suffixOverrides=",">
+            parent_id = #{et.parentId, jdbcType=BIGINT},
+            name = #{et.name, jdbcType=VARCHAR},
+            remark = #{et.remark, jdbcType=VARCHAR},
+            create_subordinate = #{et.createSubordinate, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

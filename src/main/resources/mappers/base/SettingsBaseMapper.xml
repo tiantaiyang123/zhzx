@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.SettingsBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Settings">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="code" jdbcType="VARCHAR" property="code" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Settings" extends="BaseResultMap">
+        <result column="params" jdbcType="VARCHAR" property="params" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, code, remark
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.code, t.remark
+    </sql>
+    <sql id="Base_Column_List_Full_With_Prefix">
+        t.id, t.code, t.remark, t.params
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_settings (
+            code, remark, params
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.code, jdbcType=VARCHAR}, #{record.remark, jdbcType=VARCHAR}, #{record.params, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Settings">
+        update sys_settings set
+        <trim suffixOverrides=",">
+            code = #{et.code, jdbcType=VARCHAR},
+            remark = #{et.remark, jdbcType=VARCHAR},
+            params = #{et.params, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

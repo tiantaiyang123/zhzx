@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamResultBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamResult">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="exam_id" jdbcType="BIGINT" property="examId" />
+        <result column="student_id" jdbcType="BIGINT" property="studentId" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="total_score" jdbcType="DECIMAL" property="totalScore" />
+        <result column="total_weighted_score" jdbcType="DECIMAL" property="totalWeightedScore" />
+        <result column="chinese_score" jdbcType="DECIMAL" property="chineseScore" />
+        <result column="math_score" jdbcType="DECIMAL" property="mathScore" />
+        <result column="english_score" jdbcType="DECIMAL" property="englishScore" />
+        <result column="physics_score" jdbcType="DECIMAL" property="physicsScore" />
+        <result column="chemistry_score" jdbcType="DECIMAL" property="chemistryScore" />
+        <result column="chemistry_weighted_score" jdbcType="DECIMAL" property="chemistryWeightedScore" />
+        <result column="biology_score" jdbcType="DECIMAL" property="biologyScore" />
+        <result column="biology_weighted_score" jdbcType="DECIMAL" property="biologyWeightedScore" />
+        <result column="history_score" jdbcType="DECIMAL" property="historyScore" />
+        <result column="politics_score" jdbcType="DECIMAL" property="politicsScore" />
+        <result column="politics_weighted_score" jdbcType="DECIMAL" property="politicsWeightedScore" />
+        <result column="geography_score" jdbcType="DECIMAL" property="geographyScore" />
+        <result column="geography_weighted_score" jdbcType="DECIMAL" property="geographyWeightedScore" />
+        <result column="clazz_rank" jdbcType="INTEGER" property="clazzRank" />
+        <result column="grade_rank" jdbcType="INTEGER" property="gradeRank" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamResult" extends="BaseResultMap">
+        <result column="other" jdbcType="VARCHAR" property="other" />
+        <association column="exam_id" property="exam" javaType="com.zhzx.server.domain.Exam"
+                     select="com.zhzx.server.repository.ExamMapper.selectById" />
+        <association column="student_id" property="student" javaType="com.zhzx.server.domain.Student"
+                     select="com.zhzx.server.repository.StudentMapper.selectById" />
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.ClazzMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, exam_id, student_id, clazz_id, total_score, total_weighted_score, chinese_score, math_score, english_score, physics_score, chemistry_score, chemistry_weighted_score, biology_score, biology_weighted_score, history_score, politics_score, politics_weighted_score, geography_score, geography_weighted_score, clazz_rank, grade_rank, other, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.exam_id, t.student_id, t.clazz_id, t.total_score, t.total_weighted_score, t.chinese_score, t.math_score, t.english_score, t.physics_score, t.chemistry_score, t.chemistry_weighted_score, t.biology_score, t.biology_weighted_score, t.history_score, t.politics_score, t.politics_weighted_score, t.geography_score, t.geography_weighted_score, t.clazz_rank, t.grade_rank, t.other, t.create_time, t.update_time
+    </sql>
+    <sql id="Base_Column_List_Full_With_Prefix">
+        t.id, t.exam_id, t.student_id, t.clazz_id, t.total_score, t.total_weighted_score, t.chinese_score, t.math_score, t.english_score, t.physics_score, t.chemistry_score, t.chemistry_weighted_score, t.biology_score, t.biology_weighted_score, t.history_score, t.politics_score, t.politics_weighted_score, t.geography_score, t.geography_weighted_score, t.clazz_rank, t.grade_rank, t.other, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into dat_exam_result (
+            exam_id, student_id, clazz_id, total_score, total_weighted_score, chinese_score, math_score, english_score, physics_score, chemistry_score, chemistry_weighted_score, biology_score, biology_weighted_score, history_score, politics_score, politics_weighted_score, geography_score, geography_weighted_score, clazz_rank, grade_rank, other
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.examId, jdbcType=BIGINT}, #{record.studentId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.totalScore, jdbcType=DECIMAL}, #{record.totalWeightedScore, jdbcType=DECIMAL}, #{record.chineseScore, jdbcType=DECIMAL}, #{record.mathScore, jdbcType=DECIMAL}, #{record.englishScore, jdbcType=DECIMAL}, #{record.physicsScore, jdbcType=DECIMAL}, #{record.chemistryScore, jdbcType=DECIMAL}, #{record.chemistryWeightedScore, jdbcType=DECIMAL}, #{record.biologyScore, jdbcType=DECIMAL}, #{record.biologyWeightedScore, jdbcType=DECIMAL}, #{record.historyScore, jdbcType=DECIMAL}, #{record.politicsScore, jdbcType=DECIMAL}, #{record.politicsWeightedScore, jdbcType=DECIMAL}, #{record.geographyScore, jdbcType=DECIMAL}, #{record.geographyWeightedScore, jdbcType=DECIMAL}, #{record.clazzRank, jdbcType=INTEGER}, #{record.gradeRank, jdbcType=INTEGER}, #{record.other, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamResult">
+        update dat_exam_result set
+        <trim suffixOverrides=",">
+            exam_id = #{et.examId, jdbcType=BIGINT},
+            student_id = #{et.studentId, jdbcType=BIGINT},
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+            total_score = #{et.totalScore, jdbcType=DECIMAL},
+            total_weighted_score = #{et.totalWeightedScore, jdbcType=DECIMAL},
+            chinese_score = #{et.chineseScore, jdbcType=DECIMAL},
+            math_score = #{et.mathScore, jdbcType=DECIMAL},
+            english_score = #{et.englishScore, jdbcType=DECIMAL},
+            physics_score = #{et.physicsScore, jdbcType=DECIMAL},
+            chemistry_score = #{et.chemistryScore, jdbcType=DECIMAL},
+            chemistry_weighted_score = #{et.chemistryWeightedScore, jdbcType=DECIMAL},
+            biology_score = #{et.biologyScore, jdbcType=DECIMAL},
+            biology_weighted_score = #{et.biologyWeightedScore, jdbcType=DECIMAL},
+            history_score = #{et.historyScore, jdbcType=DECIMAL},
+            politics_score = #{et.politicsScore, jdbcType=DECIMAL},
+            politics_weighted_score = #{et.politicsWeightedScore, jdbcType=DECIMAL},
+            geography_score = #{et.geographyScore, jdbcType=DECIMAL},
+            geography_weighted_score = #{et.geographyWeightedScore, jdbcType=DECIMAL},
+            clazz_rank = #{et.clazzRank, jdbcType=INTEGER},
+            grade_rank = #{et.gradeRank, jdbcType=INTEGER},
+            other = #{et.other, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

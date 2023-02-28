@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ExamMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.ExamBaseMapper.ResultMap">
+        select * from dat_exam where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.ExamBaseMapper.ResultMap">
+        select * from dat_exam ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.ExamBaseMapper.ResultMap">
+        select * from dat_exam ${ew.customSqlSegment}
+    </select>
+
+    <select id="getList" resultMap="com.zhzx.server.repository.base.ExamBaseMapper.ResultMap">
+        select * from dat_exam
+        <if test="schoolyardId==null and academicYear==null and gradeId==null">
+            where 1=2
+        </if>
+        <if test="schoolyardId!=null or academicYear!=null or gradeId!=null">
+            where grade_id in (select id from sys_grade where 1=1
+            <if test="schoolyardId!=null">
+                and schoolyard_id=${schoolyardId}
+            </if>
+            <if test="academicYear!=null">
+                and academic_year='${academicYear}'
+            </if>
+            <if test="gradeId!=null">
+                and grade_id=${gradeId}
+            </if>
+            )
+        </if>
+    </select>
+
+    <select id="selectByPageDetail" resultType="map">
+        select
+            t.id AS id,
+            t.grade_id AS gradeId,
+            t.academic_year_semester_id AS academicYearSemesterId,
+            t.name AS `name`,
+            (
+                select ifnull
+                    (group_concat(distinct sc.clazz_nature),
+                    (select group_concat(distinct sc1.clazz_nature) from sys_clazz sc1 where sc1.academic_year_semester_id=academicYearSemesterId and sc1.grade_id=gradeId) )
+                from sys_clazz sc where sc.id in
+                (select clazz_id from dat_exam_result where exam_id=t.id group by clazz_id)
+            ) as natures
+        from dat_exam t
+        where 1=1
+        <if test="entity.gradeId != null">
+            and t.grade_id=#{entity.gradeId}
+        </if>
+        <if test="entity.academicYearSemesterId != null">
+            and t.academic_year_semester_id=#{entity.academicYearSemesterId}
+        </if>
+        <if test="entity.schoolyardId != null">
+            and t.schoolyard_id=#{entity.schoolyardId}
+        </if>
+        <if test="orderByClause != null and orderByClause != ''">
+            order by ${orderByClause}
+        </if>
+    </select>
+
+    <select id="getExamBySemmsterAndYard" parameterType="java.util.Map" resultType="com.zhzx.server.vo.ExamVo">
+        select
+            t.id AS id,
+            t.name AS `name`,
+            t.grade_id AS gradeId,
+            t1.name AS gradeName,
+            if((select count(1) from sys_clazz t2 where t2.grade_id=t.grade_id and t2.academic_year_semester_id=#{academicYear}
+                  and t2.clazz_nature <![CDATA[<>]]> 'OTHER') = 0, 0, 1) AS hasNature
+        from dat_exam t
+        left join sys_grade t1 on t1.id=t.grade_id
+        where t.schoolyard_id = #{schoolyardId} and t.academic_year_semester_id = #{academicYear}
+        order by t.exam_start_date
+    </select>
+</mapper>

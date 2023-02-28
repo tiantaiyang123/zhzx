@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.AcademicYearSemesterBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.AcademicYearSemester">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="year" jdbcType="VARCHAR" property="year" />
+        <result column="semester" jdbcType="VARCHAR" property="semester" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="is_default" jdbcType="VARCHAR" property="isDefault" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.AcademicYearSemester" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, year, semester, start_time, end_time, is_default, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.year, t.semester, t.start_time, t.end_time, t.is_default, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_academic_year_semester (
+            year, semester, start_time, end_time, is_default
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.year, jdbcType=VARCHAR}, #{record.semester, jdbcType=VARCHAR}, #{record.startTime, jdbcType=TIMESTAMP}, #{record.endTime, jdbcType=TIMESTAMP}, #{record.isDefault, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.AcademicYearSemester">
+        update sys_academic_year_semester set
+        <trim suffixOverrides=",">
+            year = #{et.year, jdbcType=VARCHAR},
+            semester = #{et.semester, jdbcType=VARCHAR},
+            start_time = #{et.startTime, jdbcType=TIMESTAMP},
+            end_time = #{et.endTime, jdbcType=TIMESTAMP},
+            is_default = #{et.isDefault, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.CommentProcessMapper">
+    <resultMap id="ResultMap" type="com.zhzx.server.dto.CommentProcessDto" extends="com.zhzx.server.repository.base.CommentProcessBaseMapper.BaseResultMap">
+        <result column="infoFillPeople" jdbcType="VARCHAR" property="infoFillPeople" />
+        <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName" />
+        <result column="classify" jdbcType="VARCHAR" property="classify" />
+        <result column="commentContent" jdbcType="VARCHAR" property="commentContent" />
+        <result column="start_time" jdbcType="VARCHAR" property="startTime" />
+        <result column="end_time" jdbcType="VARCHAR" property="endTime" />
+        <collection property="commentTaskDtoList" columnPrefix="dct_"  resultMap="com.zhzx.server.repository.CommentTaskMapper.ResultMap" >
+            <constructor>
+                <arg column="commentTaskDtoList"/>
+            </constructor>
+        </collection>
+    </resultMap>
+
+
+
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.CommentProcessBaseMapper.ResultMap">
+        select * from day_comment_process where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.CommentProcessBaseMapper.ResultMap">
+        select * from day_comment_process ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <select id="headmasterPageDetail" resultMap="ResultMap">
+        select
+          (select a.name from sys_schoolyard a where a.id=dc.schoolyard_id) as schoolyardName,
+          dc.editor as infoFillPeople,dc.start_time,dc.end_time,dc.content as commentContent ,
+          dc.classify as classify,dcp.need_instruction ,dcp.instructions ,dcp.state ,dcp.id ,dcp.create_time,dcp.comment_id,
+          dct.principal as dct_principal,dct.content as dct_content ,sfd.name as dct_functionDepartmentName,dct.function_department_id as dct_function_department_id
+        from day_comment_process dcp
+        left join day_comment dc on dc.id = dcp.comment_id
+        left join day_comment_task dct on dct.comment_process_id = dcp.id
+        left join sys_function_department sfd on sfd.id = dct.function_department_id
+        ${ew.customSqlSegment}
+    </select>
+</mapper>

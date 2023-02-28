@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.NightStudyDutyMapper">
+    <resultMap id="TeacherNightRoutineResultMap" type="com.zhzx.server.dto.LeaderNightStudyDutyDto" extends="com.zhzx.server.repository.base.NightStudyDutyBaseMapper.BaseResultMap">
+        <association column="leaderId" property="staff" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+        <association column="schoolyardId" property="schoolyard" javaType="com.zhzx.server.domain.Schoolyard"
+                     select="com.zhzx.server.repository.SchoolyardMapper.selectById" />
+        <collection property="nightDutyClassDtoList" columnPrefix="sc_"  resultMap="TeacherNightRoutineResultMap_class">
+            <constructor>
+                <arg column="teacherDutyClazzList"/>
+            </constructor>
+        </collection>
+        <collection column="id" property="nightStudyDutyGradeImages" select="queryImageList" />
+        <collection column="id" property="comment" select="queryCommentById" />
+        <collection column="id" property="incidentList" select="queryIncidentById" />
+    </resultMap>
+
+    <resultMap id="TeacherNightRoutineResultMap_class" type="com.zhzx.server.dto.NightDutyClassDto" >
+        <result column="nightStudyDutyClazzId" jdbcType="BIGINT" property="nightStudyDutyClazzId" />
+        <result column="gradeName" jdbcType="VARCHAR" property="gradeName" />
+        <result column="clazzName" jdbcType="VARCHAR" property="clazzName" />
+        <result column="clazzId" jdbcType="BIGINT" property="clazzId" />
+        <result column="gradeId" jdbcType="BIGINT" property="gradeId" />
+        <result column="teacherName" jdbcType="VARCHAR" property="teacherName" />
+        <result column="allStudentCount" jdbcType="BIGINT" property="allStudentCount" />
+        <result column="shouldStudentCount" jdbcType="BIGINT" property="shouldStudentCount" />
+        <result column="actualStudentCount" jdbcType="BIGINT" property="actualStudentCount" />
+        <result column="score" jdbcType="BIGINT" property="score" />
+        <result column="isConfirm" jdbcType="VARCHAR" property="isConfirm" />
+        <collection property="nightStudyDutyClazzDeductions" columnPrefix="dnsdcd_"  resultMap="com.zhzx.server.repository.base.NightStudyDutyClazzDeductionBaseMapper.ResultMap">
+            <constructor>
+                <arg column="nightStudyDetailList"/>
+            </constructor>
+        </collection>
+    </resultMap>
+    <select id="queryImageList" resultMap="com.zhzx.server.repository.base.NightStudyDutyGradeImagesBaseMapper.ResultMap">
+        select
+         *
+        from day_night_study_duty_grade_images
+        where night_study_duty_id = #{id}
+    </select>
+    <select id="queryCommentById" resultMap="com.zhzx.server.repository.CommentMapper.ResultCommentDtoMap">
+        select
+        dc.id ,dc.item_name  ,dc.content ,dc.classify,sfd.name as gd_name,sfd.id as gd_id
+        from day_comment dc
+        left join day_comment_process dcp on dc.id = dcp.comment_id
+        left join day_comment_task dct on dcp.id = dct.comment_process_id
+        left join sys_function_department sfd on sfd.id = dct.function_department_id
+        where daily_routine_id = #{id} and classify = 'DAY_OTHER_2'
+    </select>
+    <select id="queryIncidentById" resultMap="com.zhzx.server.repository.base.IncidentBaseMapper.ResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.IncidentBaseMapper.Base_Column_List" />
+        from day_incident
+        where daily_routine_id = #{id} and classify = 'DAY_OTHER_2'
+    </select>
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.NightStudyDutyBaseMapper.ResultMap">
+        select * from day_night_study_duty where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.NightStudyDutyBaseMapper.ResultMap">
+        select * from day_night_study_duty ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <select id="nightRoutine" resultMap="TeacherNightRoutineResultMap">
+        select dnsd.*,dld.leader_id as leaderId,dld.schoolyard_id as schoolyardId,
+        sc.name as sc_clazzName ,sc.id as sc_clazzId,sg.name as sc_gradeName,sg.id as sc_gradeId,sc.student_count as sc_allStudentCount,
+        dnsdc.id as sc_nightStudyDutyClazzId,dnsdc.teacher as sc_teacherName ,dnsdc.should_student_count as sc_shouldStudentCount,
+        dnsdc.actual_student_count as sc_actualStudentCount,dnsdc.score as sc_score,
+        dnsdcd.id as sc_dnsdcd_id,dnsdcd.Description as sc_dnsdcd_Description
+        from day_night_study_duty dnsd
+        left join day_leader_duty dld on dld.id = dnsd.leader_duty_id
+        left join day_night_study_duty_clazz dnsdc on dnsdc.night_study_duty_id = dnsd.id
+        left join sys_clazz sc on dnsdc.clazz_id = sc.id
+        left join sys_grade sg on sc.grade_id = sg.id
+        left join day_night_study_duty_clazz_deduction dnsdcd  on dnsdcd.night_study_duty_clazz_id = dnsdc.id
+
+        where dld.leader_id = #{leaderId} and dld.duty_type = 'NIGHT_STUDY'
+        <if test="type=='BEFORE'">
+            and to_days(dld.start_time) <![CDATA[ <= ]]> to_days(#{time})
+        </if>
+        <if test="type=='AFTER'">
+            and to_days(dld.start_time) <![CDATA[ >= ]]> to_days(#{time})
+        </if>
+        <if test="type=='DAY'">
+            and to_days(dld.start_time) = to_days(#{time})
+        </if>
+        order by dnsd.start_time asc,sg.id asc
+    </select>
+    <select id="getDetail" resultMap="TeacherNightRoutineResultMap">
+        select dnsd.*,dld.leader_id as leaderId,
+        dnsdc.id as sc_nightStudyDutyClazzId,dnsdc.teacher as sc_teacherName ,dnsdc.should_student_count as sc_shouldStudentCount,
+        dnsdc.actual_student_count as sc_actualStudentCount,dnsdc.score as sc_score,
+        dnsdcd.id as sc_dnsdcd_id,dnsdcd.Description as sc_dnsdcd_Description
+        from day_night_study_duty dnsd
+        left join day_night_study_duty_clazz dnsdc on dnsdc.night_study_duty_id = dnsd.id
+        left join day_night_study_duty_clazz_deduction dnsdcd  on dnsdcd.night_study_duty_clazz_id = dnsdc.id
+        left join day_leader_duty dld on dld.id = dnsd.leader_duty_id
+
+        where to_days(dnsd.start_time) = to_days(#{time}) and dnsdc.clazz_id = #{clazzId}
+        order by dnsd.start_time asc
+    </select>
+
+    <select id="getCorrespondLeaderNightStudyDuty" resultMap="com.zhzx.server.repository.base.NightStudyDutyBaseMapper.ResultMap">
+        select * from day_night_study_duty a
+        left join day_leader_duty b on a.leader_duty_id=b.id
+        where to_days(b.start_time)=to_days(#{time}) and b.schoolyard_id=#{schoolyardId}
+        limit 1
+    </select>
+</mapper>

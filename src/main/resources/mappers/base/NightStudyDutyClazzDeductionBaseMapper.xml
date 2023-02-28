@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.NightStudyDutyClazzDeductionBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.NightStudyDutyClazzDeduction">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="night_study_duty_clazz_id" jdbcType="BIGINT" property="nightStudyDutyClazzId" />
+        <result column="Description" jdbcType="VARCHAR" property="Description" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NightStudyDutyClazzDeduction" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, night_study_duty_clazz_id, Description
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.night_study_duty_clazz_id, t.Description
+    </sql>
+    <insert id="batchInsert">
+        insert into day_night_study_duty_clazz_deduction (
+            night_study_duty_clazz_id, Description
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.nightStudyDutyClazzId, jdbcType=BIGINT}, #{record.Description, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.NightStudyDutyClazzDeduction">
+        update day_night_study_duty_clazz_deduction set
+        <trim suffixOverrides=",">
+            night_study_duty_clazz_id = #{et.nightStudyDutyClazzId, jdbcType=BIGINT},
+            Description = #{et.Description, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

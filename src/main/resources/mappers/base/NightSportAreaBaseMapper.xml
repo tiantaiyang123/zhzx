@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.NightSportAreaBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.NightSportArea">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="schoolyard_id" jdbcType="BIGINT" property="schoolyardId" />
+        <result column="leader_duty_id" jdbcType="BIGINT" property="leaderDutyId" />
+        <result column="sport_area_order" jdbcType="VARCHAR" property="sportAreaOrder" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="check_time" jdbcType="TIMESTAMP" property="checkTime" />
+        <result column="has_contingency" jdbcType="VARCHAR" property="hasContingency" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NightSportArea" extends="BaseResultMap">
+        <association column="schoolyard_id" property="schoolyard" javaType="com.zhzx.server.domain.Schoolyard"
+                     select="com.zhzx.server.repository.SchoolyardMapper.selectById" />
+        <collection column="id" property="nightSportAreaImagesList" select="queryNightSportAreaImagesById" />
+        <collection column="id" property="incidentList" select="queryIncidentById" />
+        <collection column="id" property="commentList" select="queryCommentById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, schoolyard_id, leader_duty_id, sport_area_order, start_time, end_time, check_time, has_contingency, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.schoolyard_id, t.leader_duty_id, t.sport_area_order, t.start_time, t.end_time, t.check_time, t.has_contingency, t.create_time, t.update_time
+    </sql>
+    <select id="queryNightSportAreaImagesById" resultMap="com.zhzx.server.repository.base.NightSportAreaImagesBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.NightSportAreaImagesBaseMapper.Base_Column_List" />
+        from day_night_sport_area_images
+        where sport_area_id = #{id}
+    </select>
+    <select id="queryIncidentById" resultMap="com.zhzx.server.repository.base.IncidentBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.IncidentBaseMapper.Base_Column_List" />
+        from day_incident
+        where daily_routine_id = #{id} and classify = 'DAY_NIGHT_SPORT_AREA'
+    </select>
+    <select id="queryCommentById" resultMap="com.zhzx.server.repository.CommentMapper.ResultCommentDtoMap">
+        select
+        dc.id ,dc.item_name  ,dc.content ,dc.classify,sfd.name as gd_name,dc.state,sfd.parent_id as gd_parent_id
+        from day_comment dc
+        left join day_comment_process dcp on dc.id = dcp.comment_id
+        left join day_comment_task dct on dcp.id = dct.comment_process_id
+        left join sys_function_department sfd on sfd.id = dct.function_department_id
+        where daily_routine_id = #{id} and classify = 'DAY_NIGHT_SPORT_AREA'
+    </select>
+    <insert id="batchInsert">
+        insert into day_night_sport_area (
+            schoolyard_id, leader_duty_id, sport_area_order, start_time, end_time, check_time, has_contingency
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.schoolyardId, jdbcType=BIGINT}, #{record.leaderDutyId, jdbcType=BIGINT}, #{record.sportAreaOrder, jdbcType=VARCHAR}, #{record.startTime, jdbcType=TIMESTAMP}, #{record.endTime, jdbcType=TIMESTAMP}, #{record.checkTime, jdbcType=TIMESTAMP}, #{record.hasContingency, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.NightSportArea">
+        update day_night_sport_area set
+        <trim suffixOverrides=",">
+            schoolyard_id = #{et.schoolyardId, jdbcType=BIGINT},
+            leader_duty_id = #{et.leaderDutyId, jdbcType=BIGINT},
+            sport_area_order = #{et.sportAreaOrder, jdbcType=VARCHAR},
+            start_time = #{et.startTime, jdbcType=TIMESTAMP},
+            end_time = #{et.endTime, jdbcType=TIMESTAMP},
+            check_time = #{et.checkTime, jdbcType=TIMESTAMP},
+            has_contingency = #{et.hasContingency, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

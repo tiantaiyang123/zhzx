@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.CommentProcessBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.CommentProcess">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="comment_id" jdbcType="BIGINT" property="commentId" />
+        <result column="need_instruction" jdbcType="VARCHAR" property="needInstruction" />
+        <result column="instructions" jdbcType="VARCHAR" property="instructions" />
+        <result column="headmaster" jdbcType="VARCHAR" property="headmaster" />
+        <result column="source" jdbcType="VARCHAR" property="source" />
+        <result column="state" jdbcType="VARCHAR" property="state" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.CommentProcess" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, comment_id, need_instruction, instructions, headmaster, source, state, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.comment_id, t.need_instruction, t.instructions, t.headmaster, t.source, t.state, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into day_comment_process (
+            comment_id, need_instruction, instructions, headmaster, source, state
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.commentId, jdbcType=BIGINT}, #{record.needInstruction, jdbcType=VARCHAR}, #{record.instructions, jdbcType=VARCHAR}, #{record.headmaster, jdbcType=VARCHAR}, #{record.source, jdbcType=VARCHAR}, #{record.state, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.CommentProcess">
+        update day_comment_process set
+        <trim suffixOverrides=",">
+            comment_id = #{et.commentId, jdbcType=BIGINT},
+            need_instruction = #{et.needInstruction, jdbcType=VARCHAR},
+            instructions = #{et.instructions, jdbcType=VARCHAR},
+            headmaster = #{et.headmaster, jdbcType=VARCHAR},
+            source = #{et.source, jdbcType=VARCHAR},
+            state = #{et.state, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

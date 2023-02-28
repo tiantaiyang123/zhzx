@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.TeachingResultGrjshjBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.TeachingResultGrjshj">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teaching_result_id" jdbcType="BIGINT" property="teachingResultId" />
+        <result column="zzdw" jdbcType="VARCHAR" property="zzdw" />
+        <result column="hjqk" jdbcType="VARCHAR" property="hjqk" />
+        <result column="bsmc" jdbcType="VARCHAR" property="bsmc" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.TeachingResultGrjshj" extends="BaseResultMap">
+        <association column="teaching_result_id" property="teachingResult" javaType="com.zhzx.server.domain.TeachingResult"
+                     select="com.zhzx.server.repository.TeachingResultMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, teaching_result_id, zzdw, hjqk, bsmc
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.teaching_result_id, t.zzdw, t.hjqk, t.bsmc
+    </sql>
+    <insert id="batchInsert">
+        insert into tmg_teaching_result_grjshj (
+            teaching_result_id, zzdw, hjqk, bsmc
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.teachingResultId, jdbcType=BIGINT}, #{record.zzdw, jdbcType=VARCHAR}, #{record.hjqk, jdbcType=VARCHAR}, #{record.bsmc, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.TeachingResultGrjshj">
+        update tmg_teaching_result_grjshj set
+        <trim suffixOverrides=",">
+            teaching_result_id = #{et.teachingResultId, jdbcType=BIGINT},
+            zzdw = #{et.zzdw, jdbcType=VARCHAR},
+            hjqk = #{et.hjqk, jdbcType=VARCHAR},
+            bsmc = #{et.bsmc, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

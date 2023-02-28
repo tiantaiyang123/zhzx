@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.TeachingResultLzcbBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.TeachingResultLzcb">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teaching_result_id" jdbcType="BIGINT" property="teachingResultId" />
+        <result column="zzmc" jdbcType="VARCHAR" property="zzmc" />
+        <result column="isbnsh" jdbcType="VARCHAR" property="isbnsh" />
+        <result column="cbs" jdbcType="VARCHAR" property="cbs" />
+        <result column="wczsjbl" jdbcType="VARCHAR" property="wczsjbl" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.TeachingResultLzcb" extends="BaseResultMap">
+        <association column="teaching_result_id" property="teachingResult" javaType="com.zhzx.server.domain.TeachingResult"
+                     select="com.zhzx.server.repository.TeachingResultMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, teaching_result_id, zzmc, isbnsh, cbs, wczsjbl
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.teaching_result_id, t.zzmc, t.isbnsh, t.cbs, t.wczsjbl
+    </sql>
+    <insert id="batchInsert">
+        insert into tmg_teaching_result_lzcb (
+            teaching_result_id, zzmc, isbnsh, cbs, wczsjbl
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.teachingResultId, jdbcType=BIGINT}, #{record.zzmc, jdbcType=VARCHAR}, #{record.isbnsh, jdbcType=VARCHAR}, #{record.cbs, jdbcType=VARCHAR}, #{record.wczsjbl, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.TeachingResultLzcb">
+        update tmg_teaching_result_lzcb set
+        <trim suffixOverrides=",">
+            teaching_result_id = #{et.teachingResultId, jdbcType=BIGINT},
+            zzmc = #{et.zzmc, jdbcType=VARCHAR},
+            isbnsh = #{et.isbnsh, jdbcType=VARCHAR},
+            cbs = #{et.cbs, jdbcType=VARCHAR},
+            wczsjbl = #{et.wczsjbl, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

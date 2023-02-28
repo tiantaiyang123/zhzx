@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ExamPublishMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.ExamPublishBaseMapper.ResultMap">
+        select * from dat_exam_publish where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.ExamPublishBaseMapper.ResultMap">
+        select * from dat_exam_publish ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <select id="listByGrade" resultMap="com.zhzx.server.repository.base.ExamPublishBaseMapper.BaseResultMap">
+        select distinct dep.*
+        from dat_exam_publish dep
+        left join dat_exam_publish_relation depr on dep.id = depr.exam_publish_id
+        left join dat_exam de on de.id = depr.exam_id
+        where
+        concat(de.grade_id, '_', de.academic_year_semester_id) in
+        <foreach item="item" collection="paramList" separator="," open="(" close=")" index="">
+            #{item, jdbcType=VARCHAR}
+        </foreach>
+        <if test="param.isPublish != null">
+            and dep.is_publish = #{param.isPublish}
+        </if>
+        order by ${orderByClause}
+    </select>
+</mapper>

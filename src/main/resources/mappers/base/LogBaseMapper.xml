@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.LogBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Log">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="code" jdbcType="VARCHAR" property="code" />
+        <result column="value" jdbcType="VARCHAR" property="value" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="editor_id" jdbcType="BIGINT" property="editorId" />
+        <result column="editor_name" jdbcType="VARCHAR" property="editorName" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Log" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, code, value, remark, editor_id, editor_name, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.code, t.value, t.remark, t.editor_id, t.editor_name, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_log (
+            code, value, remark, editor_id, editor_name
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.code, jdbcType=VARCHAR}, #{record.value, jdbcType=VARCHAR}, #{record.remark, jdbcType=VARCHAR}, #{record.editorId, jdbcType=BIGINT}, #{record.editorName, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Log">
+        update sys_log set
+        <trim suffixOverrides=",">
+            code = #{et.code, jdbcType=VARCHAR},
+            value = #{et.value, jdbcType=VARCHAR},
+            remark = #{et.remark, jdbcType=VARCHAR},
+            editor_id = #{et.editorId, jdbcType=BIGINT},
+            editor_name = #{et.editorName, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

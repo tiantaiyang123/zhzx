@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.NightStudyBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.NightStudy">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teacher_duty_clazz_id" jdbcType="BIGINT" property="teacherDutyClazzId" />
+        <result column="should_student_count" jdbcType="INTEGER" property="shouldStudentCount" />
+        <result column="actual_student_count" jdbcType="INTEGER" property="actualStudentCount" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NightStudy" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, teacher_duty_clazz_id, should_student_count, actual_student_count
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.teacher_duty_clazz_id, t.should_student_count, t.actual_student_count
+    </sql>
+    <insert id="batchInsert">
+        insert into day_night_study (
+            teacher_duty_clazz_id, should_student_count, actual_student_count
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.teacherDutyClazzId, jdbcType=BIGINT}, #{record.shouldStudentCount, jdbcType=INTEGER}, #{record.actualStudentCount, jdbcType=INTEGER}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.NightStudy">
+        update day_night_study set
+        <trim suffixOverrides=",">
+            teacher_duty_clazz_id = #{et.teacherDutyClazzId, jdbcType=BIGINT},
+            should_student_count = #{et.shouldStudentCount, jdbcType=INTEGER},
+            actual_student_count = #{et.actualStudentCount, jdbcType=INTEGER},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.NightStudyAttendance">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="academic_year_semester_id" jdbcType="BIGINT" property="academicYearSemesterId" />
+        <result column="week" jdbcType="INTEGER" property="week" />
+        <result column="register_date" jdbcType="TIMESTAMP" property="registerDate" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="student_id" jdbcType="BIGINT" property="studentId" />
+        <result column="stage" jdbcType="VARCHAR" property="stage" />
+        <result column="should_num" jdbcType="INTEGER" property="shouldNum" />
+        <result column="actual_num" jdbcType="INTEGER" property="actualNum" />
+        <result column="classify" jdbcType="VARCHAR" property="classify" />
+        <result column="reason" jdbcType="VARCHAR" property="reason" />
+        <result column="summarize" jdbcType="VARCHAR" property="summarize" />
+        <result column="sign" jdbcType="VARCHAR" property="sign" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NightStudyAttendance" extends="BaseResultMap">
+        <association column="academic_year_semester_id" property="academicYearSemester" javaType="com.zhzx.server.domain.AcademicYearSemester"
+                     select="com.zhzx.server.repository.AcademicYearSemesterMapper.selectById" />
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.ClazzMapper.selectById" />
+        <association column="student_id" property="student" javaType="com.zhzx.server.domain.Student"
+                     select="com.zhzx.server.repository.StudentMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        `id`, `academic_year_semester_id`, `week`, `register_date`, `clazz_id`, `student_id`, `stage`, `should_num`, `actual_num`, `classify`, `reason`, `summarize`, `sign`, `create_time`, `update_time`
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.`id`, t.`academic_year_semester_id`, t.`week`, t.`register_date`, t.`clazz_id`, t.`student_id`, t.`stage`, t.`should_num`, t.`actual_num`, t.`classify`, t.`reason`, t.`summarize`, t.`sign`, t.`create_time`, t.`update_time`
+    </sql>
+    <insert id="batchInsert">
+        insert into std_night_study_attendance (
+            `academic_year_semester_id`, `week`, `register_date`, `clazz_id`, `student_id`, `stage`, `should_num`, `actual_num`, `classify`, `reason`, `summarize`, `sign`
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.academicYearSemesterId, jdbcType=BIGINT}, #{record.week, jdbcType=INTEGER}, #{record.registerDate, jdbcType=TIMESTAMP}, #{record.clazzId, jdbcType=BIGINT}, #{record.studentId, jdbcType=BIGINT}, #{record.stage, jdbcType=VARCHAR}, #{record.shouldNum, jdbcType=INTEGER}, #{record.actualNum, jdbcType=INTEGER}, #{record.classify, jdbcType=VARCHAR}, #{record.reason, jdbcType=VARCHAR}, #{record.summarize, jdbcType=VARCHAR}, #{record.sign, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.NightStudyAttendance">
+        update std_night_study_attendance set
+        <trim suffixOverrides=",">
+            academic_year_semester_id = #{et.academicYearSemesterId, jdbcType=BIGINT},
+            week = #{et.week, jdbcType=INTEGER},
+            register_date = #{et.registerDate, jdbcType=TIMESTAMP},
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+            student_id = #{et.studentId, jdbcType=BIGINT},
+            stage = #{et.stage, jdbcType=VARCHAR},
+            should_num = #{et.shouldNum, jdbcType=INTEGER},
+            actual_num = #{et.actualNum, jdbcType=INTEGER},
+            classify = #{et.classify, jdbcType=VARCHAR},
+            reason = #{et.reason, jdbcType=VARCHAR},
+            summarize = #{et.summarize, jdbcType=VARCHAR},
+            sign = #{et.sign, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

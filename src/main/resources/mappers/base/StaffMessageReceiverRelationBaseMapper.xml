@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StaffMessageReceiverRelationBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.StaffMessageReceiverRelation">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="staff_message_id" jdbcType="BIGINT" property="staffMessageId" />
+        <result column="staff_id" jdbcType="BIGINT" property="staffId" />
+        <result column="student_id" jdbcType="BIGINT" property="studentId" />
+        <result column="receiver_id" jdbcType="BIGINT" property="receiverId" />
+        <result column="receiver_type" jdbcType="VARCHAR" property="receiverType" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.StaffMessageReceiverRelation" extends="BaseResultMap">
+        <association column="staff_id" property="staff" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+        <association column="student_id" property="student" javaType="com.zhzx.server.domain.Student"
+                     select="com.zhzx.server.repository.StudentMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, staff_message_id, staff_id, student_id, receiver_id, receiver_type, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.staff_message_id, t.staff_id, t.student_id, t.receiver_id, t.receiver_type, t.create_time, t.update_time
+    </sql>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.StaffMessageReceiverRelation">
+        update sys_staff_message_receiver_relation set
+        <trim suffixOverrides=",">
+            staff_message_id = #{et.staffMessageId, jdbcType=BIGINT},
+            staff_id = #{et.staffId, jdbcType=BIGINT},
+            student_id = #{et.studentId, jdbcType=BIGINT},
+            receiver_id = #{et.receiverId, jdbcType=BIGINT},
+            receiver_type = #{et.receiverType, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

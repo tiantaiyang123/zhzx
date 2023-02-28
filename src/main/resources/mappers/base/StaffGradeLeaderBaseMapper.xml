@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StaffGradeLeaderBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.StaffGradeLeader">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="academic_year_semester_id" jdbcType="BIGINT" property="academicYearSemesterId" />
+        <result column="grade_id" jdbcType="BIGINT" property="gradeId" />
+        <result column="staff_id" jdbcType="BIGINT" property="staffId" />
+        <result column="is_current" jdbcType="VARCHAR" property="isCurrent" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.StaffGradeLeader" extends="BaseResultMap">
+        <association column="academic_year_semester_id" property="academicYearSemester" javaType="com.zhzx.server.domain.AcademicYearSemester"
+                     select="com.zhzx.server.repository.AcademicYearSemesterMapper.selectById" />
+        <association column="grade_id" property="grade" javaType="com.zhzx.server.domain.Grade"
+                     select="com.zhzx.server.repository.GradeMapper.selectById" />
+        <association column="staff_id" property="staff" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, academic_year_semester_id, grade_id, staff_id, is_current
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.academic_year_semester_id, t.grade_id, t.staff_id, t.is_current
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_staff_grade_leader (
+            academic_year_semester_id, grade_id, staff_id, is_current
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.academicYearSemesterId, jdbcType=BIGINT}, #{record.gradeId, jdbcType=BIGINT}, #{record.staffId, jdbcType=BIGINT}, #{record.isCurrent, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.StaffGradeLeader">
+        update sys_staff_grade_leader set
+        <trim suffixOverrides=",">
+            academic_year_semester_id = #{et.academicYearSemesterId, jdbcType=BIGINT},
+            grade_id = #{et.gradeId, jdbcType=BIGINT},
+            staff_id = #{et.staffId, jdbcType=BIGINT},
+            is_current = #{et.isCurrent, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

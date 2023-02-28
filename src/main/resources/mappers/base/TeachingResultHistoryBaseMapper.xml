@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.TeachingResultHistoryBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.TeachingResultHistory">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teaching_result_id" jdbcType="BIGINT" property="teachingResultId" />
+        <result column="classify_id1" jdbcType="BIGINT" property="classifyId1" />
+        <result column="classify_id2" jdbcType="BIGINT" property="classifyId2" />
+    </resultMap>
+    <resultMap id="PartMap" type="com.zhzx.server.domain.TeachingResultHistory" extends="BaseResultMap">
+        <association column="classify_id1" property="classify1" javaType="com.zhzx.server.domain.TeachingResultDeclarationClassify"
+                     select="com.zhzx.server.repository.TeachingResultDeclarationClassifyMapper.selectById" />
+        <association column="classify_id2" property="classify2" javaType="com.zhzx.server.domain.TeachingResultDeclarationClassify"
+                     select="com.zhzx.server.repository.TeachingResultDeclarationClassifyMapper.selectById" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.TeachingResultHistory" extends="BaseResultMap">
+        <association column="teaching_result_id" property="teachingResult" javaType="com.zhzx.server.domain.TeachingResult"
+                     select="com.zhzx.server.repository.TeachingResultMapper.selectById" />
+        <association column="classify_id1" property="classify1" javaType="com.zhzx.server.domain.TeachingResultDeclarationClassify"
+                     select="com.zhzx.server.repository.TeachingResultDeclarationClassifyMapper.selectById" />
+        <association column="classify_id2" property="classify2" javaType="com.zhzx.server.domain.TeachingResultDeclarationClassify"
+                     select="com.zhzx.server.repository.TeachingResultDeclarationClassifyMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, teaching_result_id, classify_id1, classify_id2
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.teaching_result_id, t.classify_id1, t.classify_id2
+    </sql>
+    <insert id="batchInsert">
+        insert into tmg_teaching_result_history (
+            teaching_result_id, classify_id1, classify_id2
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.teachingResultId, jdbcType=BIGINT}, #{record.classifyId1, jdbcType=BIGINT}, #{record.classifyId2, jdbcType=BIGINT}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.TeachingResultHistory">
+        update tmg_teaching_result_history set
+        <trim suffixOverrides=",">
+            teaching_result_id = #{et.teachingResultId, jdbcType=BIGINT},
+            classify_id1 = #{et.classifyId1, jdbcType=BIGINT},
+            classify_id2 = #{et.classifyId2, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

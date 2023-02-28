@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.LeaderDutySubstituteMapper">
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.LeaderDutySubstitute" extends="com.zhzx.server.repository.base.LeaderDutySubstituteBaseMapper.ResultMap">
+
+    </resultMap>
+    <resultMap id="ListResultMap" type="com.zhzx.server.domain.LeaderDutySubstitute" extends="com.zhzx.server.repository.base.LeaderDutySubstituteBaseMapper.BaseResultMap">
+
+    </resultMap>
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="ResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.LeaderDutySubstituteBaseMapper.Base_Column_List" />
+        from day_leader_duty_substitute
+        where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="ResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.LeaderDutySubstituteBaseMapper.Base_Column_List" />
+        from day_leader_duty_substitute
+        ${ew.customSqlSegment}
+        LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="ListResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.LeaderDutySubstituteBaseMapper.Base_Column_List" />
+        from day_leader_duty_substitute
+        ${ew.customSqlSegment}
+    </select>
+    <select id="searchMyLogPage" resultType="com.zhzx.server.dto.TeacherDutySubstituteDto">
+        select
+        dlds.id as id,
+        dlds.is_agree as isAgree,
+        dlds.leader_id as leaderId,
+        dlds.leader_old_id as leaderOldId,
+        (select ss.name from sys_staff ss where ss.id = dlds.leader_id) as teacherName,
+        (select ss.name from sys_staff ss where ss.id = dlds.leader_old_id) as originalTeacher,
+        dld.id as leaderDutyId,
+        dld.leader_id as currentLeaderId,
+        dld.duty_type as leaderDutyType,
+        dld.start_time as time
+        from day_leader_duty_substitute dlds
+        left join day_leader_duty dld on dld.id = dlds.leader_duty_id
+        where 1=1
+        <if test="param.leaderId != null and param.leaderOldId == null">
+            and dlds.leader_id = #{param.leaderId}
+        </if>
+        <if test="param.leaderOldId != null and param.leaderId == null">
+            and dlds.leader_old_id = #{param.leaderOldId}
+        </if>
+        <if test="param.leaderOldId != null and param.leaderId != null">
+            and (dlds.leader_old_id = #{param.leaderOldId} or dlds.leader_id = #{param.leaderId} )
+        </if>
+        <if test="param.isAgreeList != null">
+            and dlds.is_agree in
+            <foreach item="item" collection="param.isAgreeList" separator="," open="(" close=")" index="">
+                #{item, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+        group by concat(leaderDutyId,dlds.leader_id,dlds.leader_old_id)
+        order by dld.start_time desc ,id desc
+    </select>
+</mapper>

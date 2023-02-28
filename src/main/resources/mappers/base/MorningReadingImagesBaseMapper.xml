@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.MorningReadingImagesBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.MorningReadingImages">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="morning_reading_id" jdbcType="BIGINT" property="morningReadingId" />
+        <result column="image_classify" jdbcType="VARCHAR" property="imageClassify" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.MorningReadingImages" extends="BaseResultMap">
+        <result column="url" jdbcType="VARCHAR" property="url" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, morning_reading_id, image_classify, url
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.morning_reading_id, t.image_classify, t.url
+    </sql>
+    <sql id="Base_Column_List_Full_With_Prefix">
+        t.id, t.morning_reading_id, t.image_classify, t.url
+    </sql>
+    <insert id="batchInsert">
+        insert into day_morning_reading_images (
+            morning_reading_id, image_classify, url
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.morningReadingId, jdbcType=BIGINT}, #{record.imageClassify, jdbcType=VARCHAR}, #{record.url, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.MorningReadingImages">
+        update day_morning_reading_images set
+        <trim suffixOverrides=",">
+            morning_reading_id = #{et.morningReadingId, jdbcType=BIGINT},
+            image_classify = #{et.imageClassify, jdbcType=VARCHAR},
+            url = #{et.url, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

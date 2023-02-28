@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.LeaderDutyMapper">
+    <resultMap id="DayRoutineResultMap" type="com.zhzx.server.dto.DayRoutineDto" extends="com.zhzx.server.repository.base.LeaderDutyBaseMapper.BaseResultMap">
+        <association column="leader_id" property="leader" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+        <association property="southGate" columnPrefix="dsg_"  resultMap="com.zhzx.server.repository.base.SouthGateBaseMapper.ResultMap">
+            <constructor>
+                <arg column="southGate"/>
+            </constructor>
+        </association>
+        <association property="breakfast" columnPrefix="db_"  resultMap="com.zhzx.server.repository.base.BreakfastBaseMapper.ResultMap">
+            <constructor>
+                <arg column="breakfast"/>
+            </constructor>
+        </association>
+        <association property="morningReading" columnPrefix="dmr_"  resultMap="com.zhzx.server.repository.base.MorningReadingBaseMapper.ResultMap">
+            <constructor>
+                <arg column="morningReading"/>
+            </constructor>
+        </association>
+        <association property="breakActivity" columnPrefix="dba_"  resultMap="com.zhzx.server.repository.base.BreakActivityBaseMapper.ResultMap">
+            <constructor>
+                <arg column="breakActivity"/>
+            </constructor>
+        </association>
+        <association property="lunch" columnPrefix="dl_"  resultMap="com.zhzx.server.repository.base.LunchBaseMapper.ResultMap">
+            <constructor>
+                <arg column="lunch"/>
+            </constructor>
+        </association>
+        <association property="teachingArea" columnPrefix="dta_"  resultMap="com.zhzx.server.repository.base.TeachingAreaBaseMapper.ResultMap">
+            <constructor>
+                <arg column="teachingArea"/>
+            </constructor>
+        </association>
+        <association property="noonSportArea" columnPrefix="dnsa_"  resultMap="com.zhzx.server.repository.base.NoonSportAreaBaseMapper.ResultMap">
+            <constructor>
+                <arg column="noonSportArea"/>
+            </constructor>
+        </association>
+        <association property="goOut" columnPrefix="dgo_"  resultMap="com.zhzx.server.repository.base.GoOutBaseMapper.ResultMap">
+            <constructor>
+                <arg column="goOut"/>
+            </constructor>
+        </association>
+        <association property="dinner" columnPrefix="dd_"  resultMap="com.zhzx.server.repository.base.DinnerBaseMapper.ResultMap">
+            <constructor>
+                <arg column="dinner"/>
+            </constructor>
+        </association>
+        <association property="nightSportArea" columnPrefix="dntsa_"  resultMap="com.zhzx.server.repository.base.NightSportAreaBaseMapper.ResultMap">
+            <constructor>
+                <arg column="nightSportArea"/>
+            </constructor>
+        </association>
+        <association property="schoolyard" columnPrefix="ss_"  resultMap="com.zhzx.server.repository.base.SchoolyardBaseMapper.ResultMap">
+            <constructor>
+                <arg column="schoolyard"/>
+            </constructor>
+        </association>
+        <collection column="id" property="comment" select="queryCommentById" />
+        <collection column="id" property="incidentList" select="queryIncidentById" />
+    </resultMap>
+
+    <select id="queryCommentById" resultMap="com.zhzx.server.repository.CommentMapper.ResultCommentDtoMap">
+        select
+        dc.id ,dc.item_name  ,dc.content ,dc.classify,sfd.name as gd_name,sfd.id as gd_id,sfd.parent_id as gd_parent_id,dc.state
+        from day_comment dc
+        left join day_comment_process dcp on dc.id = dcp.comment_id
+        left join day_comment_task dct on dcp.id = dct.comment_process_id
+        left join sys_function_department sfd on sfd.id = dct.function_department_id
+        where daily_routine_id = #{id} and classify = 'DAY_OTHER_1'
+    </select>
+    <select id="queryIncidentById" resultMap="com.zhzx.server.repository.base.IncidentBaseMapper.ResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.IncidentBaseMapper.Base_Column_List" />
+        from day_incident
+        where daily_routine_id = #{id} and classify = 'DAY_OTHER_1'
+    </select>
+
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.LeaderDutyBaseMapper.ResultMap">
+        select * from day_leader_duty where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.LeaderDutyBaseMapper.ResultMap">
+        select * from day_leader_duty ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.LeaderDutyBaseMapper.ResultMap">
+        select * from day_leader_duty ${ew.customSqlSegment}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.LeaderDutyBaseMapper.ResultMap">
+        select * from day_leader_duty ${ew.customSqlSegment}
+    </select>
+    <select id="dayRoutine" resultMap="DayRoutineResultMap">
+        select dld.*,
+        dsg.id as dsg_id ,dsg.doctor_in_place as dsg_doctor_in_place ,dsg.doctor_description as dsg_doctor_description ,
+        dsg.guard_in_place as dsg_guard_in_place,dsg.guard_description as dsg_guard_description ,
+        dsg.thermometer_in_place as dsg_thermometer_in_place ,dsg.thermometer_description as dsg_thermometer_description ,
+        dsg.start_time as dsg_start_time ,dsg.end_time as dsg_end_time ,dsg.check_time as dsg_check_time ,
+        dsg.has_contingency as dsg_has_contingency ,
+
+        db.id as db_id ,db.dining_order as db_dining_order ,db.is_accompany_meal as db_is_accompany_meal ,
+        db.start_time as db_start_time ,db.end_time as db_end_time ,db.check_time as db_check_time ,
+        db.has_contingency as db_has_contingency ,
+
+        dmr.id as dmr_id,dmr.reading_order1 as dmr_reading_order1,dmr.evaluation_level1 as dmr_evaluation_level1,
+        dmr.reading_order2 as dmr_reading_order2,dmr.evaluation_level2 as dmr_evaluation_level2,
+        dmr.reading_order3 as dmr_reading_order3,dmr.evaluation_level3 as dmr_evaluation_level3,
+        dmr.start_time as dmr_start_time,dmr.end_time as dmr_end_time,dmr.check_time as dmr_check_time,
+        dmr.has_contingency as dmr_has_contingency,
+
+        dba.id as dba_id ,dba.activity_grade as dba_activity_grade ,dba.activity_type as dba_activity_type ,
+        dba.activity_order as dba_activity_order,dba.start_time as dba_start_time,dba.end_time as dba_end_time,
+        dba.check_time as dba_check_time,dba.has_contingency as dba_has_contingency,
+
+        dl.id as dl_id ,dl.dining_order as dl_dining_order ,dl.is_accompany_meal as dl_is_accompany_meal ,
+        dl.start_time as dl_start_time,dl.end_time as dl_end_time,
+        dl.check_time as dl_check_time,dl.has_contingency as dl_has_contingency,
+
+        dta.id as dta_id ,dta.teaching_area_order1 as dta_teaching_area_order1 ,
+        dta.teaching_area_order2 as dta_teaching_area_order2 ,
+        dta.teaching_area_order3 as dta_teaching_area_order3 ,
+        dta.start_time as dta_start_time,dta.end_time as dta_end_time,
+        dta.check_time as dta_check_time,dta.has_contingency as dta_has_contingency,
+
+        dnsa.id as dnsa_id,dnsa.sport_area_order as dnsa_sport_area_order,
+        dnsa.start_time as dnsa_start_time,dnsa.end_time as dnsa_end_time,
+        dnsa.check_time as dnsa_check_time,dnsa.has_contingency as dnsa_has_contingency,
+
+        dd.id as dd_id,dd.dinner_order as dd_dinner_order,dd.is_accompany_meal as dd_is_accompany_meal,
+        dd.start_time as dd_start_time,dd.end_time as dd_end_time,
+        dd.check_time as dd_check_time,dd.has_contingency as dd_has_contingency,
+
+        dgo.id as dgo_id,dgo.go_out_order as dgo_go_out_order,
+        dgo.start_time as dgo_start_time,dgo.end_time as dgo_end_time,
+        dgo.check_time as dgo_check_time,dgo.has_contingency as dgo_has_contingency,
+
+        dntsa.id as dntsa_id,dntsa.sport_area_order as dntsa_sport_area_order,
+        dntsa.start_time as dntsa_start_time,dntsa.end_time as dntsa_end_time,
+        dntsa.check_time as dntsa_check_time,dntsa.has_contingency as dntsa_has_contingency,
+
+        ss.id as ss_id,ss.name as ss_name
+        from day_leader_duty  dld
+        left join sys_schoolyard ss on ss.id=dld.schoolyard_id
+        left join day_south_gate dsg on dsg.leader_duty_id = dld.id
+        left join day_breakfast db on db.leader_duty_id = dld.id
+        left join day_morning_reading dmr on dmr.leader_duty_id = dld.id
+        left join day_break_activity dba on dba.leader_duty_id = dld.id
+        left join day_lunch dl on dl.leader_duty_id = dld.id
+        left join day_teaching_area dta on dta.leader_duty_id = dld.id
+        left join day_noon_sport_area dnsa on dnsa.leader_duty_id = dld.id
+        left join day_dinner dd on dd.leader_duty_id = dld.id
+        left join day_go_out dgo on dgo.leader_duty_id = dld.id
+        left join day_night_sport_area dntsa on dntsa.leader_duty_id = dld.id
+        where dld.leader_id = #{leaderId}
+        <if test="type=='DAY'">
+            and to_days(dld.start_time) = to_days(#{time})
+        </if>
+        <if test="type=='BEFORE'">
+            and to_days(dld.start_time) <![CDATA[ <= ]]> to_days(#{time})
+        </if>
+        <if test="type=='AFTER'">
+            and to_days(dld.start_time) <![CDATA[ >= ]]> to_days(#{time})
+        </if>
+        <if test="type=='DAY'">
+            and to_days(dld.start_time) = to_days(#{time})
+        </if>
+        <if test="leaderDutyTypeEnum != null and leaderDutyTypeEnum != '' ">
+            and dld.duty_type = #{leaderDutyTypeEnum}
+        </if>
+        order by dld.start_time desc
+        limit 1
+    </select>
+
+    <select id="getLeaderDutyFormTime" resultType="com.zhzx.server.dto.LeaderDutyDto">
+        select DISTINCT date_format(dld.start_time,'%Y-%m-%d') as `time`,dld.schoolyard_id as schoolyardId
+        from day_leader_duty dld
+        left join sys_staff ss on ss.id = dld.leader_id
+        where 1=1
+        <if test="timeFrom != null" >
+            and to_days(dld.start_time) <![CDATA[>=]]> to_days(#{timeFrom})
+        </if>
+        <if test="timeTo != null" >
+            and to_days(dld.start_time) <![CDATA[<=]]> to_days(#{timeTo})
+        </if>
+        <if test="leaderDutyName != null" >
+            and ss.name like concat('%',#{leaderDutyName},'%')
+        </if>
+        <if test="phone != null" >
+            and ss.phone like concat('%',#{phone},'%')
+        </if>
+        <if test="schoolyardId != null" >
+            and dld.schoolyard_id = #{schoolyardId}
+        </if>
+        order by dld.start_time
+    </select>
+
+    <select id="getLeaderDutyForm" resultType="com.zhzx.server.dto.LeaderDutyDto">
+        select DISTINCT dld.id as leaderDutyId, ss.name as teacherName,ss.phone as phone,
+        date_format(dld.start_time,'%Y-%m-%d') as `time` ,dld.duty_type as dutyType,
+        a.name as schoolyardName,a.id as schoolyardId
+        from day_leader_duty dld
+        left join sys_staff ss on ss.id = dld.leader_id
+        left join sys_schoolyard a on a.id=dld.schoolyard_id
+        where
+        dld.start_time <![CDATA[ >= ]]> #{startTime} and
+        dld.start_time <![CDATA[ <= ]]> #{endTime}
+        <if test="schoolyardId != null" >
+            and dld.schoolyard_id = #{schoolyardId}
+        </if>
+    </select>
+    <select id="getByTime" resultMap="com.zhzx.server.repository.base.LeaderDutyBaseMapper.ResultMap">
+        select *
+        from day_leader_duty
+        where
+        to_days(start_time) <![CDATA[ = ]]> to_days(#{startTime})
+        and duty_type = #{dutyType} and schoolyard_id=#{schoolyardId}
+        limit 1
+    </select>
+</mapper>

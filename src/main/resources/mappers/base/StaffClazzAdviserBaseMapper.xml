@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StaffClazzAdviserBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.StaffClazzAdviser">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="staff_id" jdbcType="BIGINT" property="staffId" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="is_current" jdbcType="VARCHAR" property="isCurrent" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.StaffClazzAdviser" extends="BaseResultMap">
+        <association column="staff_id" property="staff" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.ClazzMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, staff_id, clazz_id, is_current
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.staff_id, t.clazz_id, t.is_current
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_staff_clazz_adviser (
+            staff_id, clazz_id, is_current
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.staffId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.isCurrent, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.StaffClazzAdviser">
+        update sys_staff_clazz_adviser set
+        <trim suffixOverrides=",">
+            staff_id = #{et.staffId, jdbcType=BIGINT},
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+            is_current = #{et.isCurrent, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

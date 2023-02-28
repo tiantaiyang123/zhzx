@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.TeachingResultMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.TeachingResultBaseMapper.ResultMap">
+        select * from tmg_teaching_result where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.TeachingResultBaseMapper.ResultMap">
+        select * from tmg_teaching_result ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.TeachingResultBaseMapper.ResultMap">
+        select * from tmg_teaching_result ${ew.customSqlSegment}
+    </select>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.TeachingResultBaseMapper.ResultMap">
+        select * from tmg_teaching_result ${ew.customSqlSegment}
+    </select>
+
+
+    <select id="queryPage" resultMap="com.zhzx.server.repository.base.TeachingResultBaseMapper.ResultMap">
+        select
+               *,
+               if(state = 'PENDING_REVIEW', 0, if(state = 'REJECTED', 1, 2)) AS customOrderNum
+               from tmg_teaching_result ${ew.customSqlSegment}
+    </select>
+</mapper>

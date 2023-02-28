@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.StaffLessonLeaderMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.StaffLessonLeaderBaseMapper.ResultMap">
+        select * from sys_staff_lesson_leader where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.StaffLessonLeaderBaseMapper.ResultMap">
+        select * from sys_staff_lesson_leader ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.StaffLessonLeaderBaseMapper.ResultMap">
+        select * from sys_staff_lesson_leader ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectLessonLeader" resultType="com.zhzx.server.dto.StaffLessonLeaderDto">
+        select
+            ssll.id AS id,
+            ssll.staff_id AS staffId,
+            ssll.grade_id AS gradeId,
+            ssll.academic_year_semester_id AS academicYearSemesterId,
+            ss.name AS subjectName,
+            ss.id AS subjectId,
+            sst.name AS leaderName,
+            (select ifnull(group_concat(distinct sslt.staff_id),'') from sys_staff_lesson_teacher sslt
+            where sslt.subject_id=subjectId
+            and sslt.clazz_id in (select id from sys_clazz where grade_id=#{gradeId} and academic_year_semester_id=#{academicYearSemesterId})
+            and sslt.is_current='YES') AS staffIds
+        from sys_staff_lesson_leader ssll
+        left join sys_subject ss on ss.id=ssll.subject_id
+        left join sys_staff sst on sst.id=ssll.staff_id
+        where
+        ssll.grade_id=#{gradeId}
+        and ssll.academic_year_semester_id=#{academicYearSemesterId}
+        and ssll.is_current='YES' and ss.is_main='YES'
+    </select>
+</mapper>

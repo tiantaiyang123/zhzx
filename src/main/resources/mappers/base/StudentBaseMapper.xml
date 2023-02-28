@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StudentBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Student">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="student_number" jdbcType="VARCHAR" property="studentNumber" />
+        <result column="id_number" jdbcType="VARCHAR" property="idNumber" />
+        <result column="order_number" jdbcType="VARCHAR" property="orderNumber" />
+        <result column="card_number" jdbcType="VARCHAR" property="cardNumber" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="student_type" jdbcType="VARCHAR" property="studentType" />
+        <result column="gender" jdbcType="VARCHAR" property="gender" />
+        <result column="nationality" jdbcType="VARCHAR" property="nationality" />
+        <result column="admission_way" jdbcType="VARCHAR" property="admissionWay" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Student" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, student_number, id_number, order_number, card_number, name, student_type, gender, nationality, admission_way, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.student_number, t.id_number, t.order_number, t.card_number, t.name, t.student_type, t.gender, t.nationality, t.admission_way, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_student (
+            student_number, id_number, order_number, card_number, name, student_type, gender, nationality, admission_way
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.studentNumber, jdbcType=VARCHAR}, #{record.idNumber, jdbcType=VARCHAR}, #{record.orderNumber, jdbcType=VARCHAR}, #{record.cardNumber, jdbcType=VARCHAR}, #{record.name, jdbcType=VARCHAR}, #{record.studentType, jdbcType=VARCHAR}, #{record.gender, jdbcType=VARCHAR}, #{record.nationality, jdbcType=VARCHAR}, #{record.admissionWay, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Student">
+        update sys_student set
+        <trim suffixOverrides=",">
+            student_number = #{et.studentNumber, jdbcType=VARCHAR},
+            id_number = #{et.idNumber, jdbcType=VARCHAR},
+            order_number = #{et.orderNumber, jdbcType=VARCHAR},
+            card_number = #{et.cardNumber, jdbcType=VARCHAR},
+            name = #{et.name, jdbcType=VARCHAR},
+            student_type = #{et.studentType, jdbcType=VARCHAR},
+            gender = #{et.gender, jdbcType=VARCHAR},
+            nationality = #{et.nationality, jdbcType=VARCHAR},
+            admission_way = #{et.admissionWay, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

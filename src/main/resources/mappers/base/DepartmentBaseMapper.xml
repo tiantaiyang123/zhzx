@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.DepartmentBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Department">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="principal" jdbcType="VARCHAR" property="principal" />
+        <result column="parent_id" jdbcType="BIGINT" property="parentId" />
+        <result column="sort_order" jdbcType="BIGINT" property="sortOrder" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Department" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, name, principal, parent_id, sort_order, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.name, t.principal, t.parent_id, t.sort_order, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_department (
+            name, principal, parent_id, sort_order
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.name, jdbcType=VARCHAR}, #{record.principal, jdbcType=VARCHAR}, #{record.parentId, jdbcType=BIGINT}, #{record.sortOrder, jdbcType=BIGINT}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Department">
+        update sys_department set
+        <trim suffixOverrides=",">
+            name = #{et.name, jdbcType=VARCHAR},
+            principal = #{et.principal, jdbcType=VARCHAR},
+            parent_id = #{et.parentId, jdbcType=BIGINT},
+            sort_order = #{et.sortOrder, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

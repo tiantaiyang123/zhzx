@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamGoalTemplateBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamGoalTemplate">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="academic_year_semester_id" jdbcType="BIGINT" property="academicYearSemesterId" />
+        <result column="grade_id" jdbcType="BIGINT" property="gradeId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="setting_type" jdbcType="VARCHAR" property="settingType" />
+        <result column="target_type" jdbcType="VARCHAR" property="targetType" />
+        <result column="subject_type" jdbcType="VARCHAR" property="subjectType" />
+        <result column="goal_value" jdbcType="INTEGER" property="goalValue" />
+        <result column="subject_value" jdbcType="INTEGER" property="subjectValue" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamGoalTemplate" extends="BaseResultMap">
+        <association column="academic_year_semester_id" property="academicYearSemester" javaType="com.zhzx.server.domain.AcademicYearSemester"
+                     select="com.zhzx.server.repository.AcademicYearSemesterMapper.selectById" />
+        <association column="grade_id" property="grade" javaType="com.zhzx.server.domain.Grade"
+                     select="com.zhzx.server.repository.GradeMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, name, setting_type, target_type, subject_type, goal_value, subject_value, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.name, t.setting_type, t.target_type, t.subject_type, t.goal_value, t.subject_value, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into dat_exam_goal_template (
+            name, setting_type, target_type, subject_type, goal_value, subject_value
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.name, jdbcType=VARCHAR}, #{record.settingType, jdbcType=VARCHAR}, #{record.targetType, jdbcType=VARCHAR}, #{record.subjectType, jdbcType=VARCHAR}, #{record.goalValue, jdbcType=INTEGER}, #{record.subjectValue, jdbcType=INTEGER}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamGoalTemplate">
+        update dat_exam_goal_template set
+        <trim suffixOverrides=",">
+            name = #{et.name, jdbcType=VARCHAR},
+            setting_type = #{et.settingType, jdbcType=VARCHAR},
+            target_type = #{et.targetType, jdbcType=VARCHAR},
+            subject_type = #{et.subjectType, jdbcType=VARCHAR},
+            goal_value = #{et.goalValue, jdbcType=INTEGER},
+            subject_value = #{et.subjectValue, jdbcType=INTEGER},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

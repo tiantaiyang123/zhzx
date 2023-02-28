@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.msrepository.AccountInfoMapper">
+
+    <select id="getInfo" resultType="map">
+        select top 1 *
+--         [账号] AS id,
+--         [编号] AS orderNumber,
+--         [姓名] AS name,
+--         [身份] AS type,
+--         [性别] AS sex,
+--         [标志] AS flag,
+--         [预撤户] AS ych,
+--         C_PhysicalNo AS cPhysicalNo,
+--         Mobile AS mobile,
+--         PIN AS idNumber
+        from dbo.ViewAccounts
+        <where>
+            <if test="cPhysicalNo != null">
+                and C_PhysicalNo=${cPhysicalNo}
+            </if>
+            <if test="mobile != null and mobile != ''">
+                and Mobile=#{mobile}
+            </if>
+            <if test="idNumber != null and idNumber != ''">
+                and PIN=#{idNumber}
+            </if>
+        </where>
+    </select>
+
+</mapper>

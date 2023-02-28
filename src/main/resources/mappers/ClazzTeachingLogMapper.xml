@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ClazzTeachingLogMapper">
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ClazzTeachingLog" extends="com.zhzx.server.repository.base.ClazzTeachingLogBaseMapper.ResultMap">
+
+    </resultMap>
+    <resultMap id="ListResultMap" type="com.zhzx.server.domain.ClazzTeachingLog" extends="com.zhzx.server.repository.base.ClazzTeachingLogBaseMapper.BaseResultMap">
+
+    </resultMap>
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="ResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.ClazzTeachingLogBaseMapper.Base_Column_List_Full" />
+        from std_clazz_teaching_log
+        where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="ResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.ClazzTeachingLogBaseMapper.Base_Column_List_Full" />
+        from std_clazz_teaching_log
+        ${ew.customSqlSegment}
+        LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="ListResultMap">
+        select
+            <include refid="com.zhzx.server.repository.base.ClazzTeachingLogBaseMapper.Base_Column_List" />
+        from std_clazz_teaching_log
+        ${ew.customSqlSegment}
+    </select>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="selectList" resultMap="ResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.ClazzTeachingLogBaseMapper.Base_Column_List" />
+        from std_clazz_teaching_log
+        ${ew.customSqlSegment}
+    </select>
+</mapper>

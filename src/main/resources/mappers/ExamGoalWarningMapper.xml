@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ExamGoalWarningMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.ExamGoalWarningBaseMapper.ResultMap">
+        select * from dat_exam_goal_warning where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.ExamGoalWarningBaseMapper.ResultMap">
+        select * from dat_exam_goal_warning ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <select id="selectMap" resultType="map">
+        select
+            id, exam_id AS examId, goal_id AS goalId, subject_id AS subjectId,
+            subject_type AS subjectType, left_value AS leftValue, right_value AS rightValue,
+            sort_order AS sortOrder, create_time AS createTime, update_time AS updateTime
+        from dat_exam_goal_warning ${ew.customSqlSegment}
+    </select>
+</mapper>

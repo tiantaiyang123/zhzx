@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StudentParentBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.StudentParent">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="student_id" jdbcType="BIGINT" property="studentId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+        <result column="relation" jdbcType="VARCHAR" property="relation" />
+        <result column="wx_parent_id" jdbcType="VARCHAR" property="wxParentId" />
+        <result column="type" jdbcType="VARCHAR" property="type" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.StudentParent" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, student_id, name, phone, relation, wx_parent_id, type
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.student_id, t.name, t.phone, t.relation, t.wx_parent_id, t.type
+    </sql>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.StudentParent">
+        update sys_student_parent set
+        <trim suffixOverrides=",">
+            student_id = #{et.studentId, jdbcType=BIGINT},
+            name = #{et.name, jdbcType=VARCHAR},
+            phone = #{et.phone, jdbcType=VARCHAR},
+            relation = #{et.relation, jdbcType=VARCHAR},
+            wx_parent_id = #{et.wxParentId, jdbcType=VARCHAR},
+            type = #{et.type, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

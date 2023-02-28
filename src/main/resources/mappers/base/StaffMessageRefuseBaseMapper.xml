@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StaffMessageRefuseBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.StaffMessageRefuse">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="staff_id" jdbcType="BIGINT" property="staffId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="status" jdbcType="VARCHAR" property="status" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.StaffMessageRefuse" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, staff_id, name, remark, status, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.staff_id, t.name, t.remark, t.status, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_staff_message_refuse (
+            staff_id, name, remark, status
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.staffId, jdbcType=BIGINT}, #{record.name, jdbcType=VARCHAR}, #{record.remark, jdbcType=VARCHAR}, #{record.status, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.StaffMessageRefuse">
+        update sys_staff_message_refuse set
+        <trim suffixOverrides=",">
+            staff_id = #{et.staffId, jdbcType=BIGINT},
+            name = #{et.name, jdbcType=VARCHAR},
+            remark = #{et.remark, jdbcType=VARCHAR},
+            status = #{et.status, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

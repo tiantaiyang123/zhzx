@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.TeachingResultZdxshjBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.TeachingResultZdxshj">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teaching_result_id" jdbcType="BIGINT" property="teachingResultId" />
+        <result column="hjqk" jdbcType="VARCHAR" property="hjqk" />
+        <result column="zzdw" jdbcType="VARCHAR" property="zzdw" />
+        <result column="bsmc" jdbcType="VARCHAR" property="bsmc" />
+        <result column="xsxm" jdbcType="VARCHAR" property="xsxm" />
+        <result column="xsbj" jdbcType="VARCHAR" property="xsbj" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.TeachingResultZdxshj" extends="BaseResultMap">
+        <association column="teaching_result_id" property="teachingResult" javaType="com.zhzx.server.domain.TeachingResult"
+                     select="com.zhzx.server.repository.TeachingResultMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, teaching_result_id, hjqk, zzdw, bsmc, xsxm, xsbj
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.teaching_result_id, t.hjqk, t.zzdw, t.bsmc, t.xsxm, t.xsbj
+    </sql>
+    <insert id="batchInsert">
+        insert into tmg_teaching_result_zdxshj (
+            teaching_result_id, hjqk, zzdw, bsmc, xsxm, xsbj
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.teachingResultId, jdbcType=BIGINT}, #{record.hjqk, jdbcType=VARCHAR}, #{record.zzdw, jdbcType=VARCHAR}, #{record.bsmc, jdbcType=VARCHAR}, #{record.xsxm, jdbcType=VARCHAR}, #{record.xsbj, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.TeachingResultZdxshj">
+        update tmg_teaching_result_zdxshj set
+        <trim suffixOverrides=",">
+            teaching_result_id = #{et.teachingResultId, jdbcType=BIGINT},
+            hjqk = #{et.hjqk, jdbcType=VARCHAR},
+            zzdw = #{et.zzdw, jdbcType=VARCHAR},
+            bsmc = #{et.bsmc, jdbcType=VARCHAR},
+            xsxm = #{et.xsxm, jdbcType=VARCHAR},
+            xsbj = #{et.xsbj, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

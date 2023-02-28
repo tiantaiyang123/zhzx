@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.UserRoleBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.UserRole">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="user_id" jdbcType="BIGINT" property="userId" />
+        <result column="role_id" jdbcType="BIGINT" property="roleId" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.UserRole" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, user_id, role_id
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.user_id, t.role_id
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_user_role (
+            user_id, role_id
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.userId, jdbcType=BIGINT}, #{record.roleId, jdbcType=BIGINT}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.UserRole">
+        update sys_user_role set
+        <trim suffixOverrides=",">
+            user_id = #{et.userId, jdbcType=BIGINT},
+            role_id = #{et.roleId, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

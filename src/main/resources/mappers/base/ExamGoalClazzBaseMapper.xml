@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamGoalClazzBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamGoalClazz">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="exam_goal_id" jdbcType="BIGINT" property="examGoalId" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="goal_value" jdbcType="INTEGER" property="goalValue" />
+        <result column="subject_value" jdbcType="INTEGER" property="subjectValue" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamGoalClazz" extends="BaseResultMap">
+        <association column="exam_goal_id" property="examGoal" javaType="com.zhzx.server.domain.ExamGoal"
+                     select="com.zhzx.server.repository.ExamGoalMapper.selectById" />
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.ClazzMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, exam_goal_id, clazz_id, goal_value, subject_value
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.exam_goal_id, t.clazz_id, t.goal_value, t.subject_value
+    </sql>
+    <insert id="batchInsert">
+        insert into dat_exam_goal_clazz (
+            exam_goal_id, clazz_id, goal_value, subject_value
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.examGoalId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.goalValue, jdbcType=INTEGER}, #{record.subjectValue, jdbcType=INTEGER}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamGoalClazz">
+        update dat_exam_goal_clazz set
+        <trim suffixOverrides=",">
+            exam_goal_id = #{et.examGoalId, jdbcType=BIGINT},
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+            goal_value = #{et.goalValue, jdbcType=INTEGER},
+            subject_value = #{et.subjectValue, jdbcType=INTEGER},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

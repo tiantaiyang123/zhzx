@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ClazzTeachingLogSubjectsBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ClazzTeachingLogSubjects">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="clazz_teaching_log_id" jdbcType="BIGINT" property="clazzTeachingLogId" />
+        <result column="sort_order" jdbcType="INTEGER" property="sortOrder" />
+        <result column="subject_id" jdbcType="BIGINT" property="subjectId" />
+        <result column="teacher_id" jdbcType="BIGINT" property="teacherId" />
+        <result column="rules" jdbcType="VARCHAR" property="rules" />
+        <result column="is_on_time" jdbcType="VARCHAR" property="isOnTime" />
+        <result column="state" jdbcType="VARCHAR" property="state" />
+        <result column="remark_subject" jdbcType="VARCHAR" property="remarkSubject" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ClazzTeachingLogSubjects" extends="BaseResultMap">
+        <association column="subject_id" property="subject" javaType="com.zhzx.server.domain.Subject"
+                     select="com.zhzx.server.repository.SubjectMapper.selectById" />
+        <association column="teacher_id" property="teacher" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        `id`, `clazz_teaching_log_id`, `sort_order`, `subject_id`, `teacher_id`, `rules`, `is_on_time`, `state`, `remark_subject`, `create_time`, `update_time`
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.`id`, t.`clazz_teaching_log_id`, t.`sort_order`, t.`subject_id`, t.`teacher_id`, t.`rules`, t.`is_on_time`, t.`state`, t.`remark_subject`, t.`create_time`, t.`update_time`
+    </sql>
+    <insert id="batchInsert">
+        insert into std_clazz_teaching_log_subjects (
+            `clazz_teaching_log_id`, `sort_order`, `subject_id`, `teacher_id`, `rules`, `is_on_time`, `state`, `remark_subject`
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.clazzTeachingLogId, jdbcType=BIGINT}, #{record.sortOrder, jdbcType=INTEGER}, #{record.subjectId, jdbcType=BIGINT}, #{record.teacherId, jdbcType=BIGINT}, #{record.rules, jdbcType=VARCHAR}, #{record.isOnTime, jdbcType=VARCHAR}, #{record.state, jdbcType=VARCHAR}, #{record.remarkSubject, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ClazzTeachingLogSubjects">
+        update std_clazz_teaching_log_subjects set
+        <trim suffixOverrides=",">
+            clazz_teaching_log_id = #{et.clazzTeachingLogId, jdbcType=BIGINT},
+            sort_order = #{et.sortOrder, jdbcType=INTEGER},
+            subject_id = #{et.subjectId, jdbcType=BIGINT},
+            teacher_id = #{et.teacherId, jdbcType=BIGINT},
+            rules = #{et.rules, jdbcType=VARCHAR},
+            is_on_time = #{et.isOnTime, jdbcType=VARCHAR},
+            state = #{et.state, jdbcType=VARCHAR},
+            remark_subject = #{et.remarkSubject, jdbcType=VARCHAR}
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

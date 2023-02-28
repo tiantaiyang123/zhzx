@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamPublishRelationBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamPublishRelation">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="exam_publish_id" jdbcType="BIGINT" property="examPublishId" />
+        <result column="exam_id" jdbcType="BIGINT" property="examId" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamPublishRelation" extends="BaseResultMap">
+        <association column="exam_id" property="exam" javaType="com.zhzx.server.domain.Exam"
+                     select="com.zhzx.server.repository.ExamMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, exam_publish_id, exam_id, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.exam_publish_id, t.exam_id, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into dat_exam_publish_relation (
+            exam_publish_id, exam_id
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.examPublishId, jdbcType=BIGINT}, #{record.examId, jdbcType=BIGINT}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamPublishRelation">
+        update dat_exam_publish_relation set
+        <trim suffixOverrides=",">
+            exam_publish_id = #{et.examPublishId, jdbcType=BIGINT},
+            exam_id = #{et.examId, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

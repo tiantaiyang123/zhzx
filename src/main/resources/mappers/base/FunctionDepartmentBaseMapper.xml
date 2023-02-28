@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.FunctionDepartmentBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.FunctionDepartment">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="sort_order" jdbcType="BIGINT" property="sortOrder" />
+        <result column="parent_id" jdbcType="BIGINT" property="parentId" />
+        <result column="principal_id" jdbcType="BIGINT" property="principalId" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.FunctionDepartment" extends="BaseResultMap">
+        <association column="parent_id" property="parent" javaType="com.zhzx.server.domain.FunctionDepartment"
+                     select="com.zhzx.server.repository.FunctionDepartmentMapper.selectById" />
+        <association column="principal_id" property="principal" javaType="com.zhzx.server.domain.User"
+                     select="com.zhzx.server.repository.UserMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, name, sort_order, parent_id, principal_id
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.name, t.sort_order, t.parent_id, t.principal_id
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_function_department (
+            name, sort_order, parent_id, principal_id
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.name, jdbcType=VARCHAR}, #{record.sortOrder, jdbcType=BIGINT}, #{record.parentId, jdbcType=BIGINT}, #{record.principalId, jdbcType=BIGINT}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.FunctionDepartment">
+        update sys_function_department set
+        <trim suffixOverrides=",">
+            name = #{et.name, jdbcType=VARCHAR},
+            sort_order = #{et.sortOrder, jdbcType=BIGINT},
+            parent_id = #{et.parentId, jdbcType=BIGINT},
+            principal_id = #{et.principalId, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.NightStudyDutyClazzMapper">
+    <resultMap id="VoResultMap" type="com.zhzx.server.vo.NightStudyDutyClazzVo" extends="com.zhzx.server.repository.base.NightStudyDutyClazzBaseMapper.BaseResultMap">
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="name" jdbcType="VARCHAR" property="leaderName" />
+        <result column="gradeName" jdbcType="VARCHAR" property="gradeName" />
+        <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName" />
+        <result column="clazzName" jdbcType="VARCHAR" property="clazzName" />
+        <result column="nightStudyDutyId" jdbcType="BIGINT" property="nightStudyDutyId" />
+        <collection column="id" property="nightStudyDutyClazzDeductionList" select="queryNightStudyDutyClazzDeductionById" />
+    </resultMap>
+
+    <resultMap id="ResultMap" type="com.zhzx.server.dto.NightStudyDutyClazzDto">
+        <result column="groupTime" jdbcType="TIMESTAMP" property="groupTime" />
+        <collection column="id" columnPrefix="fir_sec_" property="nightStudyDutyClazzVoList" resultMap="VoResultMap" />
+    </resultMap>
+
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.NightStudyDutyClazzBaseMapper.ResultMap">
+        select * from day_night_study_duty_clazz where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.NightStudyDutyClazzBaseMapper.ResultMap">
+        select * from day_night_study_duty_clazz ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <select id="getDutyClazzList" resultMap="VoResultMap">
+        select a.*, b.start_time, b.end_time from day_night_study_duty_clazz a left join day_night_study_duty b on a.night_study_duty_id = b.id
+            where b.leader_duty_id = ${leaderDutyId}
+    </select>
+
+    <select id="queryNightStudyDutyClazzDeductionById" resultMap="com.zhzx.server.repository.base.NightStudyDutyClazzDeductionBaseMapper.BaseResultMap">
+        select *
+        from day_night_study_duty_clazz_deduction
+        where night_study_duty_clazz_id = #{id}
+    </select>
+    <select id="pageDetail" resultMap="ResultMap">
+        SELECT * FROM (
+        select concat(a.clazz_id,",",date_format(b.start_time,'%Y-%m-%d')) as groupTime,
+        b.start_time as fir_sec_start_time,b.id as fir_sec_nightStudyDutyId,
+        a.id as fir_sec_id ,a.night_study_duty_id as fir_sec_night_study_duty_id ,a.clazz_id as fir_sec_clazz_id,
+        a.should_student_count as fir_sec_should_student_count ,a.actual_student_count as fir_sec_actual_student_count,
+        a.score as fir_sec_score, b.end_time as fir_sec_end_time,ss.name as
+        fir_sec_name,
+        sc.name as fir_sec_clazzName,sg.name as fir_sec_gradeName,
+        yard.name as fir_sec_schoolyardName,
+        hour(b.start_time) as xs
+        from day_night_study_duty_clazz a
+        left join sys_clazz sc on a.clazz_id = sc.id
+        left join sys_schoolyard yard on yard.id=sc.schoolyard_id
+        left join sys_grade sg on sc.grade_id = sg.id
+        left join day_night_study_duty b on a.night_study_duty_id = b.id
+        left join day_leader_duty dld on dld.id = b.leader_duty_id
+        left join sys_staff ss on dld.leader_id = ss.id
+        where 1=1
+        <if test="name != null and name != ''">
+            and ss.name like concat('',#{name},'')
+        </if>
+        <if test="clazzName != null and clazzName != ''">
+            and sc.name like concat('',#{clazzName},'')
+        </if>
+        <if test="startTime != null ">
+            and b.start_time <![CDATA[ >= ]]> #{startTime}
+        </if>
+        <if test="endTime != null ">
+            and b.end_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+        <if test="gradeId != null">
+            and sg.id = ${gradeId}
+        </if>
+        <if test="clazzId != null">
+            and sc.id = ${clazzId}
+        </if>
+        <if test="schoolyardId != null">
+            and sc.schoolyard_id = ${schoolyardId}
+        </if>
+        ) TEMP
+        WHERE 1=1 AND
+        <if test="dutyType == 'STAGE_TWO'">
+            xs = 20
+        </if>
+        <if test="dutyType == 'STAGE_ONE'">
+            xs <![CDATA[ != ]]> 20
+        </if>
+        order by fir_sec_start_time asc , fir_sec_clazz_id asc
+    </select>
+
+    <update id="updateStudentNum">
+        update day_night_study_duty_clazz
+        set
+            should_student_count = #{shouldStudentCount} ,
+            actual_student_count = #{actualStudentCount}
+        where clazz_id = #{clazzId} and night_study_duty_id in (
+         select t.id from (
+            select
+              a.id
+            from day_night_study_duty a
+            left join day_leader_duty b on a.leader_duty_id=b.id
+            where to_days(a.start_time) = to_days(#{time})
+            and b.schoolyard_id=(select schoolyard_id from sys_clazz c where c.id=#{clazzId})
+            order by a.start_time asc
+            limit #{numStart},#{numEnd}
+         ) t
+        )
+    </update>
+    <insert id="batchInsertWithId" parameterType="com.zhzx.server.domain.NightStudyDutyClazz" keyColumn="id" keyProperty="id">
+        insert into day_night_study_duty_clazz (
+        night_study_duty_id, clazz_id, teacher, should_student_count, actual_student_count, score
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+            (
+            #{record.nightStudyDutyId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.teacher, jdbcType=VARCHAR}, #{record.shouldStudentCount, jdbcType=INTEGER}, #{record.actualStudentCount, jdbcType=INTEGER}, #{record.score, jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+</mapper>

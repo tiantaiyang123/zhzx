@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ClazzMapper">
+    <sql id="Base_Column_List_To_Bean">
+        t.id AS id,
+        t.schoolyard_id AS schoolyardId,
+        t.grade_id AS gradeId,
+        t.name AS name,
+        t.student_count AS studentCount,
+        t.start_year AS startYear,
+        t.head_teacher AS headTeacher,
+        t.clazz_nature AS clazzNature,
+        t.create_time AS createTime,
+        t.update_time AS updateTime
+    </sql>
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.ClazzBaseMapper.ResultMap">
+        select * from sys_clazz where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.ClazzBaseMapper.ResultMap">
+        select * from sys_clazz ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.ClazzBaseMapper.ResultMap">
+        select *,
+        if(clazz_nature='OTHER','',
+        concat_ws('',if(clazz_nature='SCIENCE','物','史'),
+        (select ifnull(group_concat(substr(ss.name,1,1) order by ss.name separator ''),'')
+            from sys_subject ss
+            where ss.is_main='YES' and ss.has_weight='YES' and find_in_set(ss.id, clazz_division)<![CDATA[>]]>0))) AS simpleDivision
+        from sys_clazz ${ew.customSqlSegment}
+    </select>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.ClazzBaseMapper.ResultMap">
+        select * from sys_clazz ${ew.customSqlSegment}
+    </select>
+
+    <select id="pageDetail" resultType="com.zhzx.server.vo.ClazzVo">
+        select
+        <include refid="Base_Column_List_To_Bean"></include>,
+        t.academic_year_semester_id AS academicYearSemesterId,
+        if(t.clazz_nature='SCIENCE', '物理', if(t.clazz_nature='OTHER','','历史')) AS fourthSubject,
+        if(t.clazz_nature='OTHER', '', (select group_concat(ss.name order by ss.name) from sys_subject ss where find_in_set(ss.id, t.clazz_division)>0 and ss.has_weight='YES' and ss.is_main='YES')) AS otherTwoSubejct
+        from sys_clazz t
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="getClazzSubjects" resultType="map">
+        select
+        if(t.clazz_nature='SCIENCE', '物理', if(t.clazz_nature='OTHER','','历史')) AS fourthSubject,
+        if(t.clazz_nature='OTHER', '', (select group_concat(concat_ws('|', ss.name, ss.subject_alias) order by ss.id) from sys_subject ss where find_in_set(ss.id, t.clazz_division)>0 and ss.has_weight='YES' and ss.is_main='YES' limit 2)) AS otherTwoSubject
+        from sys_clazz t
+        where t.id=#{clazzId}
+    </select>
+
+    <select id="clazzWithDutyTeacher" resultType="com.zhzx.server.vo.ClazzVo">
+        select
+            t.id as id,
+            t.grade_id as gradeId,
+            t.name as name,
+            sg.name as gradeName,
+            t.student_count as studentNum,
+            t.night_stage_one_num as nightStageOneNum,
+            t.night_stage_two_num as nightStageTwoNum,
+            t.schoolyard_id as schoolyardId,
+            (select ss.`name` from sys_staff ss where ss.id = (
+                    select
+                        dtd.teacher_id
+                    from day_teacher_duty_clazz dtdc
+                    left join day_teacher_duty dtd  on dtd.id = dtdc.teacher_duty_id
+                    where t.id = dtdc.clazz_id and to_days(dtd.start_time) = to_days(#{time}) and dtd.duty_type = #{dutyType})
+						) as teacherDutyName,
+            (select ss.id from sys_staff ss where ss.id = (
+                    select
+                        dtd.teacher_id
+                    from day_teacher_duty_clazz dtdc
+                    left join day_teacher_duty dtd  on dtd.id = dtdc.teacher_duty_id
+                    where t.id = dtdc.clazz_id and to_days(dtd.start_time) = to_days(#{time}) and dtd.duty_type = #{dutyType})
+            ) as teacherDutyTeacherId,
+            (select concat(dtdc.is_leader_comfirm,',',dtdc.is_comfirm)
+                    from day_teacher_duty_clazz dtdc
+                    left join day_teacher_duty dtd  on dtd.id = dtdc.teacher_duty_id
+                    where t.id = dtdc.clazz_id and to_days(dtd.start_time) = to_days(#{time}) and dtd.duty_type = #{dutyType}
+            ) as teacherLeaderConfirm
+        from sys_clazz t
+        left join sys_grade sg on sg.id= t.grade_id
+				where t.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1  )
+    </select>
+
+<!--    <update id="resetClazzStudentNum" >-->
+<!--        update sys_clazz sc set student_count = (select count(*) from sys_student t-->
+<!--        left join (select student_id, max(id) as id from sys_student_clazz group by student_id) t2 on t2.student_id=t.id-->
+<!--        left join sys_student_clazz t1 on t1.id = t2.id-->
+<!--        where t1.clazz_id = sc.id)-->
+<!--        where sc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1  )-->
+<!--    </update>-->
+
+    <update id="resetClazzStudentNum" >
+        update sys_clazz sc set student_count = (
+        select count(*) from
+        (
+            select student_id, max(id) as id from sys_student_clazz
+            where clazz_id in
+            (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1))
+            group by student_id
+        ) t2
+        left join sys_student_clazz t1 on t1.id = t2.id
+        where t1.clazz_id = sc.id)
+        where sc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1  )
+    </update>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="selectByTeacherDutyId" resultType="com.zhzx.server.vo.ClazzVo">
+        select sc.name as name ,sg.name as gradeName  from
+        sys_clazz sc
+        left join sys_grade sg on sc.grade_id = sg.id
+        left join day_teacher_duty_clazz dtdc on dtdc.clazz_id = sc.id
+        left join day_teacher_duty dtd on dtdc.teacher_duty_id = dtd.id
+        where dtd.id = #{teacherDutyId}
+    </select>
+</mapper>

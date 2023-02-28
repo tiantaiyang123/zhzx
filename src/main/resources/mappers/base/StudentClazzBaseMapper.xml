@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StudentClazzBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.StudentClazz">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="student_id" jdbcType="BIGINT" property="studentId" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.StudentClazz" extends="BaseResultMap">
+        <association column="student_id" property="student" javaType="com.zhzx.server.domain.Student"
+                     select="com.zhzx.server.repository.StudentMapper.selectById" />
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.ClazzMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, student_id, clazz_id
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.student_id, t.clazz_id
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_student_clazz (
+            student_id, clazz_id
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.studentId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.StudentClazz">
+        update sys_student_clazz set
+        <trim suffixOverrides=",">
+            student_id = #{et.studentId, jdbcType=BIGINT},
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

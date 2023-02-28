@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.VisitLogMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.VisitLogBaseMapper.ResultMap">
+        select * from sys_visit_log where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.VisitLogBaseMapper.ResultMap">
+        select * from sys_visit_log ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <select id="statistics" resultType="java.util.Map">
+        select c.editorName,c.total,c.monthCount,(c.total*2+c.integral) as integral
+        from (
+            select
+                a.editor_name as editorName,
+                sum(num) as total,
+                ifnull((select sum(num) from sys_visit_log b where DATE_FORMAT(visit_time, '%Y%m') = DATE_FORMAT(#{time}, '%Y%m') and a.editor_id = b.editor_id),0)
+                as monthCount,
+                ((select count(*) from sys_log where editor_id = a.editor_id)) as integral
+            from sys_visit_log a
+            where 1=1
+                <if test="editorName != null and editorName != ''">
+                    and a.editor_name like concat('%',#{editorName},'%')
+                </if>
+            group by editor_id
+        ) c
+        order by ${orderByClause}
+    </select>
+</mapper>

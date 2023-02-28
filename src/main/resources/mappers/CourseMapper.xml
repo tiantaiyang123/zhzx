@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.CourseMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.CourseBaseMapper.ResultMap">
+        select * from sys_course where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.CourseBaseMapper.ResultMap">
+        select * from sys_course ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.CourseBaseMapper.ResultMap">
+        select * from sys_course ${ew.customSqlSegment}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.CourseBaseMapper.ResultMap">
+        select * from sys_course ${ew.customSqlSegment}
+    </select>
+
+    <update id="updateClazzId">
+        update sys_course a, sys_clazz b set a.clazz_id=b.id
+        where b.grade_id=#{gradeId} and b.academic_year_semester_id=#{academicYearSemesterId}
+            and a.grade_id=#{gradeId}
+            and a.academic_year_semester_id=#{academicYearSemesterId}
+            and concat(a.clazz_id,'班')=b.name
+    </update>
+
+    <update id="updateTeacherId">
+        update sys_course a, sys_staff b set a.teacher_id=b.id
+        where a.grade_id=#{gradeId}
+            and a.academic_year_semester_id=#{academicYearSemesterId}
+            and a.teacher_name=b.name
+    </update>
+
+    <select id="getMeetingTime" resultType="java.lang.Long">
+        select DISTINCT sc.sort_order from sys_course sc
+        where  sc.sort_order not in (
+            select DISTINCT sort_order from sys_course sc1  where sc1.teacher_id in (
+            <foreach collection="teacherIdList" item="record" separator=",">
+                #{record}
+            </foreach>)
+            and sc1.week = #{week}
+            and sc.academic_year_semester_id = (
+                select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1
+                )
+        )
+        and sc.academic_year_semester_id = (
+        select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1
+        )
+    </select>
+</mapper>

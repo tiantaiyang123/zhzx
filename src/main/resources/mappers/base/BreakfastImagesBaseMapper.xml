@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.BreakfastImagesBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.BreakfastImages">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="breakfast_id" jdbcType="BIGINT" property="breakfastId" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.BreakfastImages" extends="BaseResultMap">
+        <result column="url" jdbcType="VARCHAR" property="url" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, breakfast_id, url
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.breakfast_id, t.url
+    </sql>
+    <sql id="Base_Column_List_Full_With_Prefix">
+        t.id, t.breakfast_id, t.url
+    </sql>
+    <insert id="batchInsert">
+        insert into day_breakfast_images (
+            breakfast_id, url
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.breakfastId, jdbcType=BIGINT}, #{record.url, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.BreakfastImages">
+        update day_breakfast_images set
+        <trim suffixOverrides=",">
+            breakfast_id = #{et.breakfastId, jdbcType=BIGINT},
+            url = #{et.url, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

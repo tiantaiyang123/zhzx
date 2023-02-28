@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.AuthorityBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.Authority">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="parent_id" jdbcType="BIGINT" property="parentId" />
+        <result column="type" jdbcType="VARCHAR" property="type" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="path" jdbcType="VARCHAR" property="path" />
+        <result column="redirect" jdbcType="VARCHAR" property="redirect" />
+        <result column="keep_alive" jdbcType="BOOLEAN" property="keepAlive" />
+        <result column="hidden" jdbcType="BOOLEAN" property="hidden" />
+        <result column="hide_children" jdbcType="BOOLEAN" property="hideChildren" />
+        <result column="component" jdbcType="VARCHAR" property="component" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="icon" jdbcType="VARCHAR" property="icon" />
+        <result column="target" jdbcType="VARCHAR" property="target" />
+        <result column="hidden_header_content" jdbcType="BOOLEAN" property="hiddenHeaderContent" />
+        <result column="sort_order" jdbcType="BIGINT" property="sortOrder" />
+        <result column="editor_id" jdbcType="BIGINT" property="editorId" />
+        <result column="editor_name" jdbcType="VARCHAR" property="editorName" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Authority" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, parent_id, type, name, path, redirect, keep_alive, hidden, hide_children, component, title, icon, target, hidden_header_content, sort_order, editor_id, editor_name, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.parent_id, t.type, t.name, t.path, t.redirect, t.keep_alive, t.hidden, t.hide_children, t.component, t.title, t.icon, t.target, t.hidden_header_content, t.sort_order, t.editor_id, t.editor_name, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_authority (
+            parent_id, type, name, path, redirect, keep_alive, hidden, hide_children, component, title, icon, target, hidden_header_content, sort_order, editor_id, editor_name
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.parentId, jdbcType=BIGINT}, #{record.type, jdbcType=VARCHAR}, #{record.name, jdbcType=VARCHAR}, #{record.path, jdbcType=VARCHAR}, #{record.redirect, jdbcType=VARCHAR}, #{record.keepAlive, jdbcType=BOOLEAN}, #{record.hidden, jdbcType=BOOLEAN}, #{record.hideChildren, jdbcType=BOOLEAN}, #{record.component, jdbcType=VARCHAR}, #{record.title, jdbcType=VARCHAR}, #{record.icon, jdbcType=VARCHAR}, #{record.target, jdbcType=VARCHAR}, #{record.hiddenHeaderContent, jdbcType=BOOLEAN}, #{record.sortOrder, jdbcType=BIGINT}, #{record.editorId, jdbcType=BIGINT}, #{record.editorName, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.Authority">
+        update sys_authority set
+        <trim suffixOverrides=",">
+            parent_id = #{et.parentId, jdbcType=BIGINT},
+            type = #{et.type, jdbcType=VARCHAR},
+            name = #{et.name, jdbcType=VARCHAR},
+            path = #{et.path, jdbcType=VARCHAR},
+            redirect = #{et.redirect, jdbcType=VARCHAR},
+            keep_alive = #{et.keepAlive, jdbcType=BOOLEAN},
+            hidden = #{et.hidden, jdbcType=BOOLEAN},
+            hide_children = #{et.hideChildren, jdbcType=BOOLEAN},
+            component = #{et.component, jdbcType=VARCHAR},
+            title = #{et.title, jdbcType=VARCHAR},
+            icon = #{et.icon, jdbcType=VARCHAR},
+            target = #{et.target, jdbcType=VARCHAR},
+            hidden_header_content = #{et.hiddenHeaderContent, jdbcType=BOOLEAN},
+            sort_order = #{et.sortOrder, jdbcType=BIGINT},
+            editor_id = #{et.editorId, jdbcType=BIGINT},
+            editor_name = #{et.editorName, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

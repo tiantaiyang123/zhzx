@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamGoalWarningBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamGoalWarning">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="exam_id" jdbcType="BIGINT" property="examId" />
+        <result column="goal_id" jdbcType="BIGINT" property="goalId" />
+        <result column="subject_id" jdbcType="BIGINT" property="subjectId" />
+        <result column="subject_type" jdbcType="VARCHAR" property="subjectType" />
+        <result column="left_value" jdbcType="INTEGER" property="leftValue" />
+        <result column="right_value" jdbcType="INTEGER" property="rightValue" />
+        <result column="sort_order" jdbcType="INTEGER" property="sortOrder" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamGoalWarning" extends="BaseResultMap">
+        <association column="exam_id" property="exam" javaType="com.zhzx.server.domain.Exam"
+                     select="com.zhzx.server.repository.ExamMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, exam_id, goal_id, subject_id, subject_type, left_value, right_value, sort_order, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.exam_id, t.goal_id, t.subject_id, t.subject_type, t.left_value, t.right_value, t.sort_order, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into dat_exam_goal_warning (
+            exam_id, goal_id, subject_id, subject_type, left_value, right_value, sort_order
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.examId, jdbcType=BIGINT}, #{record.goalId, jdbcType=BIGINT}, #{record.subjectId, jdbcType=BIGINT}, #{record.subjectType, jdbcType=VARCHAR}, #{record.leftValue, jdbcType=INTEGER}, #{record.rightValue, jdbcType=INTEGER}, #{record.sortOrder, jdbcType=INTEGER}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamGoalWarning">
+        update dat_exam_goal_warning set
+        <trim suffixOverrides=",">
+            exam_id = #{et.examId, jdbcType=BIGINT},
+            goal_id = #{et.goalId, jdbcType=BIGINT},
+            subject_id = #{et.subjectId, jdbcType=BIGINT},
+            subject_type = #{et.subjectType, jdbcType=VARCHAR},
+            left_value = #{et.leftValue, jdbcType=INTEGER},
+            right_value = #{et.rightValue, jdbcType=INTEGER},
+            sort_order = #{et.sortOrder, jdbcType=INTEGER},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

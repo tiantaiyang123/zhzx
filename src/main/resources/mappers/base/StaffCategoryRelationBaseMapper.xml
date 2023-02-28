@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.StaffCategoryRelationBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.StaffCategoryRelation">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="staff_category_id" jdbcType="BIGINT" property="staffCategoryId" />
+        <result column="staff_id" jdbcType="BIGINT" property="staffId" />
+        <result column="parent_category" jdbcType="VARCHAR" property="parentCategory" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.StaffCategoryRelation" extends="BaseResultMap">
+        <association column="staff_id" property="staff" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, staff_category_id, staff_id, parent_category
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.staff_category_id, t.staff_id, t.parent_category
+    </sql>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.StaffCategoryRelation">
+        update sys_staff_category_relation set
+        <trim suffixOverrides=",">
+            staff_category_id = #{et.staffCategoryId, jdbcType=BIGINT},
+            staff_id = #{et.staffId, jdbcType=BIGINT},
+            parent_category = #{et.parentCategory, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

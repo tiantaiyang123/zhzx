@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.ExamGoalMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.ExamGoalBaseMapper.ResultMap">
+        select * from dat_exam_goal where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.ExamGoalBaseMapper.ResultMap">
+        select * from dat_exam_goal ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.ExamGoalBaseMapper.ResultMap">
+        select * from dat_exam_goal ${ew.customSqlSegment}
+    </select>
+
+    <select id="getClazzGoalTotal" resultType="com.zhzx.server.dto.exam.ExamGoalClazzTotalDto">
+        select
+        t5.id AS clazzId,
+        t1.targetName AS targetName,
+        t1.transGoalScore AS targetScore,
+        t1.subjectType AS subjectType,
+        t1.id AS id,
+        t5.name AS clazzName,
+        t5.clazz_nature AS clazzNature,
+        count(1) AS joinCnt,
+        t5.student_count AS studentCnt,
+        t6.goal_value AS shouldMeetingCnt,
+        sum(if(t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore,1,0)) AS clazzMeetingCnt
+        from
+        (
+        <foreach collection="entity" separator="union all" open="" close="" item="item" index="index">
+            select
+            #{item.examId} AS examId,
+            #{item.name} AS targetName,
+            #{item.id} AS id,
+            #{item.transGoalScore} AS transGoalScore,
+            #{item.subjectType} AS subjectType
+            from dual
+        </foreach>
+        ) t1
+        left join dat_exam t2 on t2.id=t1.examId
+        left join sys_clazz t5 on t5.grade_id=t2.grade_id and t5.academic_year_semester_id=t2.academic_year_semester_id AND t5.clazz_nature=t1.subjectType
+        left join dat_exam_result t3 on t1.examId=t3.exam_id and t3.clazz_id=t5.id
+        left join dat_exam_goal_clazz t6 on t6.exam_goal_id=t1.id and t6.clazz_id=t5.id
+        where 1=1
+        <if test="clazzId != null and clazzId != 0">
+            and t5.id=#{clazzId}
+        </if>
+        group by t1.id,t5.id
+        order by t1.id,clazzMeetingCnt desc
+    </select>
+    <select id="getClazzGoalSubject" resultType="com.zhzx.server.dto.exam.ExamGoalClazzSubjectDto">
+        select
+        t1.subjectType AS subjectType,
+        sum(if(t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore,1,0)) AS shouldMeetingCnt,
+        t1.targetName AS targetName,
+        t1.id AS id,
+        t5.id AS clazzId,
+        t5.name AS clazzName,
+        t5.clazz_nature AS clazzNature,
+        count(1) AS joinCnt,
+        t5.student_count AS studentCnt,
+        sum(if(t3.chinese_score <![CDATA[>=]]> t1.chineseGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS chineseMeetingCnt,
+        sum(if(t3.math_score <![CDATA[>=]]> t1.mathGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS mathMeetingCnt,
+        sum(if(t3.english_score <![CDATA[>=]]> t1.englishGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS englishMeetingCnt,
+        sum(if(t3.physics_score <![CDATA[>=]]> t1.physicsGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS physicsMeetingCnt,
+        sum(if(t3.chemistry_score <![CDATA[>=]]> t1.chemistryGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS chemistryMeetingCnt,
+        sum(if(t3.chemistry_weighted_score <![CDATA[>=]]> t1.chemistryWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS chemistryWeightedMeetingCnt,
+        sum(if(t3.biology_score <![CDATA[>=]]> t1.biologyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS biologyMeetingCnt,
+        sum(if(t3.biology_weighted_score <![CDATA[>=]]> t1.biologyWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS biologyWeightedMeetingCnt,
+        sum(if(t3.history_score <![CDATA[>=]]> t1.historyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS historyMeetingCnt,
+        sum(if(t3.politics_score <![CDATA[>=]]> t1.politicsGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS politicsMeetingCnt,
+        sum(if(t3.politics_weighted_score <![CDATA[>=]]> t1.politicsWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS politicsWeightedMeetingCnt,
+        sum(if(t3.geography_score <![CDATA[>=]]> t1.geographyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS geographyMeetingCnt,
+        sum(if(t3.geography_weighted_score <![CDATA[>=]]> t1.geographyWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS geographyWeightedMeetingCnt
+        from
+        (
+        <foreach collection="entity" separator="union all" open="" close="" item="item" index="index">
+            select
+            #{item.examId} AS examId,
+            #{item.id} AS id,
+            #{item.name} AS targetName,
+            #{item.subjectType} AS subjectType,
+            #{item.transGoalScore} AS transGoalScore,
+            #{item.chineseGoalScore} AS chineseGoalScore,
+            #{item.mathGoalScore} AS mathGoalScore,
+            #{item.englishGoalScore} AS englishGoalScore,
+            #{item.physicsGoalScore} AS physicsGoalScore,
+            #{item.chemistryGoalScore} AS chemistryGoalScore,
+            #{item.chemistryWeightedGoalScore} AS chemistryWeightedGoalScore,
+            #{item.biologyGoalScore} AS biologyGoalScore,
+            #{item.biologyWeightedGoalScore} AS biologyWeightedGoalScore,
+            #{item.historyGoalScore} AS historyGoalScore,
+            #{item.politicsGoalScore} AS politicsGoalScore,
+            #{item.politicsWeightedGoalScore} AS politicsWeightedGoalScore,
+            #{item.geographyGoalScore} AS geographyGoalScore,
+            #{item.geographyWeightedGoalScore} AS geographyWeightedGoalScore
+            from dual
+        </foreach>
+        ) t1
+        left join dat_exam t2 on t2.id=t1.examId
+        left join sys_clazz t5 on t5.grade_id=t2.grade_id and t5.academic_year_semester_id=t2.academic_year_semester_id AND t5.clazz_nature=t1.subjectType
+        left join dat_exam_result t3 on t1.examId=t3.exam_id and t3.clazz_id=t5.id
+        where 1=1
+        <if test="clazzId != null and clazzId != 0">
+            and t5.id=#{clazzId}
+        </if>
+        group by t1.id,t5.id
+        order by t1.id, t5.id
+    </select>
+    <select id="getAllGoal" resultType="com.zhzx.server.dto.exam.ExamGoalDto">
+        select
+            t.id AS id,
+            t.name AS `name`,
+            t.exam_id AS examId,
+            t3.clazz_nature AS subjectType,
+            sum(t4.goal_value) AS totalCount,
+            sum(if(find_in_set(5, t3.clazz_division)<![CDATA[>]]>0,t4.goal_value,0)) AS chemistryGoalCount,
+            sum(if(find_in_set(6, t3.clazz_division)<![CDATA[>]]>0,t4.goal_value,0)) AS biologyGoalCount,
+            sum(if(find_in_set(7, t3.clazz_division)<![CDATA[>]]>0,t4.goal_value,0)) AS politicsGoalCount,
+            sum(if(find_in_set(8, t3.clazz_division)<![CDATA[>]]>0,t4.goal_value,0)) AS geographyGoalCount
+        from dat_exam_goal t
+        left join dat_exam tt1 on tt1.id=t.exam_id
+        left join sys_clazz t3 on t3.grade_id=tt1.grade_id and t3.academic_year_semester_id=tt1.academic_year_semester_id
+        left join dat_exam_goal_clazz t4 on t4.exam_goal_id=t.id and t4.clazz_id = t3.id
+        where
+        t.exam_id=#{examId}
+        <if test="goalId != null">
+        and t.id=#{goalId}
+        </if>
+        group by t.id,t3.clazz_nature
+    </select>
+
+    <select id="getClazzGoalWorkBench" resultType="com.zhzx.server.dto.exam.ExamGoalWorkBenchDto">
+        select
+        t6.goal_value AS shouldMeetingCnt,
+        t1.targetName AS targetName,
+        t1.id AS id,
+        t5.id AS clazzId,
+        t5.name AS clazzName,
+        t5.clazz_nature AS clazzNature,
+        t5.clazz_division AS clazzDivision,
+        count(1) AS joinCnt,
+        t5.student_count AS studentCnt,
+        sum(if(t3.chinese_score <![CDATA[>]]> 0, 1, 0)) AS chineseJoinCnt,
+        sum(if(t3.math_score <![CDATA[>]]> 0, 1, 0)) AS mathJoinCnt,
+        sum(if(t3.english_score <![CDATA[>]]> 0, 1, 0)) AS englishJoinCnt,
+        sum(if(t3.physics_score <![CDATA[>]]> 0, 1, 0)) AS physicsJoinCnt,
+        sum(if(t3.chemistry_score <![CDATA[>]]> 0, 1, 0)) AS chemistryJoinCnt,
+        sum(if(t3.biology_score <![CDATA[>]]> 0, 1, 0)) AS biologyJoinCnt,
+        sum(if(t3.history_score <![CDATA[>]]> 0, 1, 0)) AS historyJoinCnt,
+        sum(if(t3.politics_score <![CDATA[>]]> 0, 1, 0)) AS politicsJoinCnt,
+        sum(if(t3.geography_score <![CDATA[>]]> 0, 1, 0)) AS geographyJoinCnt,
+        sum(if(t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore,1,0)) AS clazzMeetingCnt,
+               
+        sum(if(t3.chinese_score <![CDATA[>=]]> t1.chineseGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS chineseMeetingCnt,
+        sum(if(t3.math_score <![CDATA[>=]]> t1.mathGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS mathMeetingCnt,
+        sum(if(t3.english_score <![CDATA[>=]]> t1.englishGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS englishMeetingCnt,
+        sum(if(t3.physics_score <![CDATA[>=]]> t1.physicsGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS physicsMeetingCnt,
+        sum(if(t3.chemistry_score <![CDATA[>=]]> t1.chemistryGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS chemistryMeetingCnt,
+        sum(if(t3.chemistry_weighted_score <![CDATA[>=]]> t1.chemistryWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS chemistryWeightedMeetingCnt,
+        sum(if(t3.biology_score <![CDATA[>=]]> t1.biologyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS biologyMeetingCnt,
+        sum(if(t3.biology_weighted_score <![CDATA[>=]]> t1.biologyWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS biologyWeightedMeetingCnt,
+        sum(if(t3.history_score <![CDATA[>=]]> t1.historyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS historyMeetingCnt,
+        sum(if(t3.politics_score <![CDATA[>=]]> t1.politicsGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS politicsMeetingCnt,
+        sum(if(t3.politics_weighted_score <![CDATA[>=]]> t1.politicsWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS politicsWeightedMeetingCnt,
+        sum(if(t3.geography_score <![CDATA[>=]]> t1.geographyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS geographyMeetingCnt,
+        sum(if(t3.geography_weighted_score <![CDATA[>=]]> t1.geographyWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, 1, 0)) AS geographyWeightedMeetingCnt,
+
+        sum(if(t3.chinese_score <![CDATA[>=]]> t1.chineseGoalScore, 1, 0)) AS chineseOnlyMeetingCnt,
+        sum(if(t3.math_score <![CDATA[>=]]> t1.mathGoalScore, 1, 0)) AS mathOnlyMeetingCnt,
+        sum(if(t3.english_score <![CDATA[>=]]> t1.englishGoalScore, 1, 0)) AS englishOnlyMeetingCnt,
+        sum(if(t3.physics_score <![CDATA[>=]]> t1.physicsGoalScore, 1, 0)) AS physicsOnlyMeetingCnt,
+        sum(if(t3.chemistry_score <![CDATA[>=]]> t1.chemistryGoalScore, 1, 0)) AS chemistryOnlyMeetingCnt,
+        sum(if(t3.chemistry_weighted_score <![CDATA[>=]]> t1.chemistryWeightedGoalScore, 1, 0)) AS chemistryWeightedOnlyMeetingCnt,
+        sum(if(t3.biology_score <![CDATA[>=]]> t1.biologyGoalScore, 1, 0)) AS biologyOnlyMeetingCnt,
+        sum(if(t3.biology_weighted_score <![CDATA[>=]]> t1.biologyWeightedGoalScore, 1, 0)) AS biologyWeightedOnlyMeetingCnt,
+        sum(if(t3.history_score <![CDATA[>=]]> t1.historyGoalScore, 1, 0)) AS historyOnlyMeetingCnt,
+        sum(if(t3.politics_score <![CDATA[>=]]> t1.politicsGoalScore, 1, 0)) AS politicsOnlyMeetingCnt,
+        sum(if(t3.politics_weighted_score <![CDATA[>=]]> t1.politicsWeightedGoalScore, 1, 0)) AS politicsWeightedOnlyMeetingCnt,
+        sum(if(t3.geography_score <![CDATA[>=]]> t1.geographyGoalScore, 1, 0)) AS geographyOnlyMeetingCnt,
+        sum(if(t3.geography_weighted_score <![CDATA[>=]]> t1.geographyWeightedGoalScore, 1, 0)) AS geographyWeightedOnlyMeetingCnt,
+
+        round(sum(if(t3.chinese_score <![CDATA[>=]]> t1.chineseGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.chinese_score, 0))/greatest(count(t3.chinese_score <![CDATA[>=]]> t1.chineseGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS chineseValidAvgScore,
+        round(sum(if(t3.math_score <![CDATA[>=]]> t1.mathGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.math_score, 0))/greatest(count(t3.math_score <![CDATA[>=]]> t1.mathGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS mathValidAvgScore,
+        round(sum(if(t3.english_score <![CDATA[>=]]> t1.englishGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.english_score, 0))/greatest(count(t3.english_score <![CDATA[>=]]> t1.englishGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS englishValidAvgScore,
+        round(sum(if(t3.physics_score <![CDATA[>=]]> t1.physicsGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.physics_score, 0))/greatest(count(t3.physics_score <![CDATA[>=]]> t1.physicsGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS physicsValidAvgScore,
+        round(sum(if(t3.chemistry_score <![CDATA[>=]]> t1.chemistryGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.chemistry_score, 0))/greatest(count(t3.chemistry_score <![CDATA[>=]]> t1.chemistryGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS chemistryValidAvgScore,
+        round(sum(if(t3.chemistry_weighted_score <![CDATA[>=]]> t1.chemistryWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.chemistry_weighted_score, 0))/greatest(count(t3.chemistry_weighted_score <![CDATA[>=]]> t1.chemistryWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS chemistryWeightedValidAvgScore,
+        round(sum(if(t3.biology_score <![CDATA[>=]]> t1.biologyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.biology_score, 0))/greatest(count(t3.biology_score <![CDATA[>=]]> t1.biologyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS biologyValidAvgScore,
+        round(sum(if(t3.biology_weighted_score <![CDATA[>=]]> t1.biologyWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.biology_weighted_score, 0))/greatest(count(t3.biology_weighted_score <![CDATA[>=]]> t1.biologyWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS biologyWeightedValidAvgScore,
+        round(sum(if(t3.history_score <![CDATA[>=]]> t1.historyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.history_score, 0))/greatest(count(t3.history_score <![CDATA[>=]]> t1.historyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS historyValidAvgScore,
+        round(sum(if(t3.politics_score <![CDATA[>=]]> t1.politicsGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.politics_score, 0))/greatest(count(t3.politics_score <![CDATA[>=]]> t1.politicsGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS politicsValidAvgScore,
+        round(sum(if(t3.politics_weighted_score <![CDATA[>=]]> t1.politicsWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.politics_weighted_score, 0))/greatest(count(t3.politics_weighted_score <![CDATA[>=]]> t1.politicsWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS politicsWeightedValidAvgScore,
+        round(sum(if(t3.geography_score <![CDATA[>=]]> t1.geographyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.geography_score, 0))/greatest(count(t3.geography_score <![CDATA[>=]]> t1.geographyGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS geographyValidAvgScore,
+        round(sum(if(t3.geography_weighted_score <![CDATA[>=]]> t1.geographyWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore, t3.geography_weighted_score, 0))/greatest(count(t3.geography_weighted_score <![CDATA[>=]]> t1.geographyWeightedGoalScore and t3.total_weighted_score <![CDATA[>=]]> t1.transGoalScore or null),1), 1) AS geographyWeightedValidAvgScore
+        from
+        (
+        <foreach collection="entity" separator="union all" open="" close="" item="item" index="index">
+            select
+            #{item.examId} AS examId,
+            #{item.id} AS id,
+            #{item.name} AS targetName,
+            #{item.subjectType} AS subjectType,
+            #{item.transGoalScore} AS transGoalScore,
+            #{item.chineseGoalScore} AS chineseGoalScore,
+            #{item.mathGoalScore} AS mathGoalScore,
+            #{item.englishGoalScore} AS englishGoalScore,
+            #{item.physicsGoalScore} AS physicsGoalScore,
+            #{item.chemistryGoalScore} AS chemistryGoalScore,
+            #{item.chemistryWeightedGoalScore} AS chemistryWeightedGoalScore,
+            #{item.biologyGoalScore} AS biologyGoalScore,
+            #{item.biologyWeightedGoalScore} AS biologyWeightedGoalScore,
+            #{item.historyGoalScore} AS historyGoalScore,
+            #{item.politicsGoalScore} AS politicsGoalScore,
+            #{item.politicsWeightedGoalScore} AS politicsWeightedGoalScore,
+            #{item.geographyGoalScore} AS geographyGoalScore,
+            #{item.geographyWeightedGoalScore} AS geographyWeightedGoalScore
+            from dual
+        </foreach>
+        ) t1
+        left join dat_exam t2 on t2.id=t1.examId
+        left join sys_clazz t5 on t5.grade_id=t2.grade_id and t5.academic_year_semester_id=t2.academic_year_semester_id and t5.clazz_nature=t1.subjectType
+        left join dat_exam_result t3 on t1.examId=t3.exam_id and t3.clazz_id=t5.id
+        left join dat_exam_goal_clazz t6 on t6.exam_goal_id=t1.id and t6.clazz_id=t5.id
+        where 1=1
+        <if test="entity1 != null and entity1.size > 0">
+            and t5.id in
+            <foreach collection="entity1" separator="," open="(" close=")" item="item" index="index">#{item}</foreach>
+        </if>
+        group by t1.id,t5.id
+        order by t1.id, t5.id
+    </select>
+
+    <resultMap id="goal_clazz_map" type="map">
+        <result column="id" jdbcType="BIGINT" property="key" />
+        <result column="goal_reference" jdbcType="VARCHAR" property="value" />
+    </resultMap>
+    <select id="getGoalForEachClazz" resultMap="goal_clazz_map">
+        select id, goal_reference from dat_exam_goal where exam_id=#{examId}
+    </select>
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.TeacherDutyClazzBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.TeacherDutyClazz">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teacher_duty_id" jdbcType="BIGINT" property="teacherDutyId" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="is_comfirm" jdbcType="VARCHAR" property="isComfirm" />
+        <result column="is_leader_comfirm" jdbcType="VARCHAR" property="isLeaderComfirm" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.TeacherDutyClazz" extends="BaseResultMap">
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.ClazzMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, teacher_duty_id, clazz_id, is_comfirm, is_leader_comfirm
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.teacher_duty_id, t.clazz_id, t.is_comfirm, t.is_leader_comfirm
+    </sql>
+    <insert id="batchInsert">
+        insert into day_teacher_duty_clazz (
+            teacher_duty_id, clazz_id, is_comfirm, is_leader_comfirm
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.teacherDutyId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.isComfirm, jdbcType=VARCHAR}, #{record.isLeaderComfirm, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.TeacherDutyClazz">
+        update day_teacher_duty_clazz set
+        <trim suffixOverrides=",">
+            teacher_duty_id = #{et.teacherDutyId, jdbcType=BIGINT},
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+            is_comfirm = #{et.isComfirm, jdbcType=VARCHAR},
+            is_leader_comfirm = #{et.isLeaderComfirm, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.NoonSportAreaMapper">
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NoonSportArea" extends="com.zhzx.server.repository.base.NoonSportAreaBaseMapper.ResultMap">
+        <result column="leaderName" jdbcType="VARCHAR" property="leaderName" />
+    </resultMap>
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="ResultMap">
+        select t.*,
+        (select ss.name from day_leader_duty dld
+        left join sys_staff ss on ss.id = dld.leader_id where dld.id = t.leader_duty_id ) as leaderName
+        from day_noon_sport_area t where t.id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.NoonSportAreaBaseMapper.ResultMap">
+        select * from day_noon_sport_area ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="pageDetail" resultMap="ResultMap">
+        select t.*,
+        (select ss.name from day_leader_duty dld
+        left join sys_staff ss on ss.id = dld.leader_id where dld.id = t.leader_duty_id ) as leaderName
+        from day_night_sport_area t
+        ${ew.customSqlSegment}
+    </select>
+</mapper>

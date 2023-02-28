@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.NightStudyMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.NightStudyBaseMapper.ResultMap">
+        select * from day_night_study where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.NightStudyBaseMapper.ResultMap">
+        select * from day_night_study ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <select id="getNightStudyLeader" resultMap="com.zhzx.server.repository.base.NightStudyBaseMapper.BaseResultMap">
+        select * from day_night_study
+        where teacher_duty_clazz_id in(
+          select dtdc.id from day_teacher_duty_clazz dtdc
+          left join day_teacher_duty dtd on dtd.id = dtdc.teacher_duty_id
+          where to_days(dtd.start_time) = to_days(#{time}) and dtdc.clazz_id = #{clazzId} and dtd.duty_type = #{dutyType}
+        ) LIMIT 1
+    </select>
+
+    <update id="updateStudentNum">
+        update day_night_study
+        set should_student_count = #{shouldStudentCount} ,actual_student_count = #{actualStudentCount}
+        where teacher_duty_clazz_id in(
+          select dtdc.id from day_teacher_duty_clazz dtdc
+          left join day_teacher_duty dtd on dtd.id = dtdc.teacher_duty_id
+          where to_days(dtd.start_time) = to_days(#{time}) and dtdc.clazz_id = #{clazzId} and dtd.duty_type = #{dutyType}
+        )
+    </update>
+</mapper>

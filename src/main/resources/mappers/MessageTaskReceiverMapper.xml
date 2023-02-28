@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.MessageTaskReceiverMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.MessageTaskReceiverBaseMapper.ResultMap">
+        select * from mes_message_task_receiver where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.MessageTaskReceiverBaseMapper.ResultMap">
+        select * from mes_message_task_receiver ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <insert id="batchInsert" keyColumn="id" keyProperty="id">
+        insert into mes_message_task_receiver (
+        message_task_id, receiver_id, receiver_name,receiver_type
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+            (
+            #{record.messageTaskId, jdbcType=BIGINT}, #{record.receiverId, jdbcType=BIGINT}, #{record.receiverName, jdbcType=VARCHAR},#{record.receiverType, jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+</mapper>

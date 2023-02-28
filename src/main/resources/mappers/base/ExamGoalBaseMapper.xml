@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamGoalBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamGoal">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="exam_id" jdbcType="BIGINT" property="examId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="setting_type" jdbcType="VARCHAR" property="settingType" />
+        <result column="target_type" jdbcType="VARCHAR" property="targetType" />
+        <result column="subject_type" jdbcType="VARCHAR" property="subjectType" />
+        <result column="goal_value" jdbcType="INTEGER" property="goalValue" />
+        <result column="subject_value" jdbcType="INTEGER" property="subjectValue" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamGoal" extends="BaseResultMap">
+        <result column="goal_reference" jdbcType="VARCHAR" property="goalReference" />
+        <association column="exam_id" property="exam" javaType="com.zhzx.server.domain.Exam"
+                     select="com.zhzx.server.repository.ExamMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, exam_id, name, setting_type, target_type, subject_type, goal_value, subject_value, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.exam_id, t.name, t.setting_type, t.target_type, t.subject_type, t.goal_value, t.subject_value, t.create_time, t.update_time
+    </sql>
+    <sql id="Base_Column_List_Full_With_Prefix">
+        t.id, t.exam_id, t.name, t.setting_type, t.target_type, t.subject_type, t.goal_value, t.subject_value, t.goal_reference, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into dat_exam_goal (
+            exam_id, name, setting_type, target_type, subject_type, goal_value, subject_value, goal_reference
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.examId, jdbcType=BIGINT}, #{record.name, jdbcType=VARCHAR}, #{record.settingType, jdbcType=VARCHAR}, #{record.targetType, jdbcType=VARCHAR}, #{record.subjectType, jdbcType=VARCHAR}, #{record.goalValue, jdbcType=INTEGER}, #{record.subjectValue, jdbcType=INTEGER}, #{record.goalReference, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamGoal">
+        update dat_exam_goal set
+        <trim suffixOverrides=",">
+            exam_id = #{et.examId, jdbcType=BIGINT},
+            name = #{et.name, jdbcType=VARCHAR},
+            setting_type = #{et.settingType, jdbcType=VARCHAR},
+            target_type = #{et.targetType, jdbcType=VARCHAR},
+            subject_type = #{et.subjectType, jdbcType=VARCHAR},
+            goal_value = #{et.goalValue, jdbcType=INTEGER},
+            subject_value = #{et.subjectValue, jdbcType=INTEGER},
+            goal_reference = #{et.goalReference, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

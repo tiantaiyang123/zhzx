@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.StaffMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.ResultMap">
+        select * from sys_staff where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.ResultMap">
+        select * from sys_staff ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="getListNoDuty" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.BaseResultMap">
+        select ss.* from sys_staff ss
+        where ss.id not in (
+            select
+                distinct dtd.teacher_id
+            from day_teacher_duty dtd
+            where to_days(dtd.start_time) = to_days(#{time}) and dtd.duty_type = #{dutyType}
+            and exists (select * from day_teacher_duty_clazz where teacher_duty_id=dtd.id)
+        ) and ss.personnel_situation = 'TEACHER' and ss.is_delete = 'NO'
+    </select>
+</mapper>

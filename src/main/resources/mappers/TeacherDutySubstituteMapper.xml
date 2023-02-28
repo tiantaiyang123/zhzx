@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.TeacherDutySubstituteMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.TeacherDutySubstituteBaseMapper.ResultMap">
+        select * from day_teacher_duty_substitute where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.TeacherDutySubstituteBaseMapper.ResultMap">
+        select * from day_teacher_duty_substitute ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <select id="searchMyLogPage" resultType="com.zhzx.server.dto.TeacherDutySubstituteDto">
+        select
+          dtds.id as id,
+          dtds.teacher_duty_id as teacherDutyId,
+          dtds.is_agree as isAgree,
+          dtds.teacher_id as teacherId,
+          dtds.teacher_old_id as teacherOldId,
+          (select ss.name from sys_staff ss where ss.id = dtds.teacher_id) as teacherName,
+          (select ss.name from sys_staff ss where ss.id = dtds.teacher_old_id) as originalTeacher,
+          dtd.duty_type as dutyType,
+          dtd.start_time as time
+        from day_teacher_duty_substitute dtds
+        left join day_teacher_duty dtd on dtd.id = dtds.teacher_duty_id
+        where 1=1
+        <if test="param.teacherId != null and param.teacherOldId == null">
+            and dtds.teacher_id = #{param.teacherId}
+        </if>
+        <if test="param.teacherId == null and param.teacherOldId != null">
+            and dtds.teacher_old_id = #{param.teacherOldId}
+        </if>
+        <if test="param.teacherId != null and param.teacherOldId != null">
+            and (dtds.teacher_id = #{param.teacherId} or dtds.teacher_old_id = #{param.teacherOldId})
+        </if>
+        <if test="param.isAgreeList != null">
+            and dtds.is_agree in
+            <foreach item="item" collection="param.isAgreeList" separator="," open="(" close=")" index="">
+                #{item, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+        group by concat(teacherDutyId,teacherId,teacherOldId)
+        order by dtds.id desc
+    </select>
+
+    <resultMap id="GradeTotalDutySubstituteResultMap" type="com.zhzx.server.dto.TeacherDutyGradeTotalSubstitueDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="teacher_duty_id" jdbcType="BIGINT" property="teacherDutyId" />
+        <result column="is_agree" jdbcType="VARCHAR" property="isAgree" />
+        <result column="teacher_id" jdbcType="BIGINT" property="teacherId" />
+        <result column="teacher_old_id" jdbcType="BIGINT" property="teacherOldId" />
+        <result column="teacherName" jdbcType="VARCHAR" property="teacherName" />
+        <result column="originalTeacher" jdbcType="VARCHAR" property="originalTeacher" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="time" />
+        <collection property="teacherDutyGradeTotalClazzList" column="teacher_duty_id" select="queryTeacherDutyGradeTotalClazzList">
+            <constructor>
+                <arg column="teacherDutyGradeTotalClazzList"/>
+            </constructor>
+        </collection>
+    </resultMap>
+    <select id="queryTeacherDutyGradeTotalClazzList" resultMap="com.zhzx.server.repository.base.TeacherDutyClazzBaseMapper.ResultMap">
+        select *
+        from day_teacher_duty_clazz
+        where teacher_duty_id = ${value}
+    </select>
+    <select id="searchMyLogPageGradeTotal" resultMap="GradeTotalDutySubstituteResultMap">
+        select
+        dtds.id,
+        dtds.teacher_duty_id,
+        dtds.is_agree,
+        dtds.teacher_id,
+        dtds.teacher_old_id,
+        (select ss.name from sys_staff ss where ss.id = dtds.teacher_id) as teacherName,
+        (select ss.name from sys_staff ss where ss.id = dtds.teacher_old_id) as originalTeacher,
+        dtd.duty_type,
+        dtd.start_time
+        from day_teacher_duty_substitute dtds
+        left join day_teacher_duty dtd on dtd.id = dtds.teacher_duty_id
+        where
+        dtd.duty_type = 'GRADE_TOTAL_DUTY'
+        <if test="param.teacherId != null and param.teacherOldId == null">
+            and dtds.teacher_id = #{param.teacherId}
+        </if>
+        <if test="param.teacherId == null and param.teacherOldId != null">
+            and dtds.teacher_old_id = #{param.teacherOldId}
+        </if>
+        <if test="param.teacherId != null and param.teacherOldId != null">
+            and (dtds.teacher_id = #{param.teacherId} or dtds.teacher_old_id = #{param.teacherOldId})
+        </if>
+        <if test="param.isAgreeList != null">
+            and dtds.is_agree in
+            <foreach item="item" collection="param.isAgreeList" separator="," open="(" close=")" index="">
+                #{item, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+        group by concat(dtds.teacher_duty_id,dtds.teacher_id,dtds.teacher_old_id)
+        order by dtds.id desc
+    </select>
+</mapper>

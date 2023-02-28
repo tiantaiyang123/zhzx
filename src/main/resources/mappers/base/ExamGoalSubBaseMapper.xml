@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamGoalSubBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamGoalSub">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="exam_id" jdbcType="BIGINT" property="examId" />
+        <result column="subject_id" jdbcType="BIGINT" property="subjectId" />
+        <result column="subject_type" jdbcType="VARCHAR" property="subjectType" />
+        <result column="type" jdbcType="VARCHAR" property="type" />
+        <result column="goal_value" jdbcType="INTEGER" property="goalValue" />
+        <result column="style_json" jdbcType="VARCHAR" property="styleJson" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamGoalSub" extends="BaseResultMap">
+        <association column="exam_id" property="exam" javaType="com.zhzx.server.domain.Exam"
+                     select="com.zhzx.server.repository.ExamMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, exam_id, subject_id, subject_type, type, goal_value, style_json, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.exam_id, t.subject_id, t.subject_type, t.type, t.goal_value, t.style_json, t.create_time, t.update_time
+    </sql>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamGoalSub">
+        update dat_exam_goal_sub set
+        <trim suffixOverrides=",">
+            exam_id = #{et.examId, jdbcType=BIGINT},
+            subject_id = #{et.subjectId, jdbcType=BIGINT},
+            subject_type = #{et.subjectType, jdbcType=VARCHAR},
+            type = #{et.type, jdbcType=VARCHAR},
+            goal_value = #{et.goalValue, jdbcType=INTEGER},
+            style_json = #{et.styleJson, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

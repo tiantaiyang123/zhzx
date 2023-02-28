@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.NightStudyDutyBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.NightStudyDuty">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="leader_duty_id" jdbcType="BIGINT" property="leaderDutyId" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="has_contingency" jdbcType="VARCHAR" property="hasContingency" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.NightStudyDuty" extends="BaseResultMap">
+        <association column="leader_duty_id" property="leaderDuty" javaType="com.zhzx.server.domain.LeaderDuty"
+                     select="com.zhzx.server.repository.LeaderDutyMapper.selectById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, leader_duty_id, start_time, end_time, has_contingency, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.leader_duty_id, t.start_time, t.end_time, t.has_contingency, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into day_night_study_duty (
+            leader_duty_id, start_time, end_time, has_contingency
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.leaderDutyId, jdbcType=BIGINT}, #{record.startTime, jdbcType=TIMESTAMP}, #{record.endTime, jdbcType=TIMESTAMP}, #{record.hasContingency, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.NightStudyDuty">
+        update day_night_study_duty set
+        <trim suffixOverrides=",">
+            leader_duty_id = #{et.leaderDutyId, jdbcType=BIGINT},
+            start_time = #{et.startTime, jdbcType=TIMESTAMP},
+            end_time = #{et.endTime, jdbcType=TIMESTAMP},
+            has_contingency = #{et.hasContingency, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.SouthGateBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.SouthGate">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="schoolyard_id" jdbcType="BIGINT" property="schoolyardId" />
+        <result column="leader_duty_id" jdbcType="BIGINT" property="leaderDutyId" />
+        <result column="doctor_in_place" jdbcType="VARCHAR" property="doctorInPlace" />
+        <result column="doctor_description" jdbcType="VARCHAR" property="doctorDescription" />
+        <result column="guard_in_place" jdbcType="VARCHAR" property="guardInPlace" />
+        <result column="guard_description" jdbcType="VARCHAR" property="guardDescription" />
+        <result column="thermometer_in_place" jdbcType="VARCHAR" property="thermometerInPlace" />
+        <result column="thermometer_description" jdbcType="VARCHAR" property="thermometerDescription" />
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+        <result column="check_time" jdbcType="TIMESTAMP" property="checkTime" />
+        <result column="has_contingency" jdbcType="VARCHAR" property="hasContingency" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.SouthGate" extends="BaseResultMap">
+        <association column="schoolyard_id" property="schoolyard" javaType="com.zhzx.server.domain.Schoolyard"
+                     select="com.zhzx.server.repository.SchoolyardMapper.selectById" />
+        <collection column="id" property="southGateImagesList" select="querySouthGateImagesById" />
+        <collection column="id" property="incidentList" select="queryIncidentById" />
+        <collection column="id" property="commentList" select="queryCommentById" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, schoolyard_id, leader_duty_id, doctor_in_place, doctor_description, guard_in_place, guard_description, thermometer_in_place, thermometer_description, start_time, end_time, check_time, has_contingency, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.schoolyard_id, t.leader_duty_id, t.doctor_in_place, t.doctor_description, t.guard_in_place, t.guard_description, t.thermometer_in_place, t.thermometer_description, t.start_time, t.end_time, t.check_time, t.has_contingency, t.create_time, t.update_time
+    </sql>
+    <select id="querySouthGateImagesById" resultMap="com.zhzx.server.repository.base.SouthGateImagesBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.SouthGateImagesBaseMapper.Base_Column_List" />
+        from day_south_gate_images
+        where south_gate_id = #{id}
+    </select>
+    <select id="queryIncidentById" resultMap="com.zhzx.server.repository.base.IncidentBaseMapper.BaseResultMap">
+        select
+        <include refid="com.zhzx.server.repository.base.IncidentBaseMapper.Base_Column_List" />
+        from day_incident
+        where daily_routine_id = #{id} and classify = 'DAY_SOUTH_GATE'
+    </select>
+    <select id="queryCommentById" resultMap="com.zhzx.server.repository.CommentMapper.ResultCommentDtoMap">
+        select
+        dc.id ,dc.item_name  ,dc.content ,dc.classify,sfd.name as gd_name,sfd.id as gd_id,dc.state,sfd.parent_id as gd_parent_id
+        from day_comment dc
+        left join day_comment_process dcp on dc.id = dcp.comment_id
+        left join day_comment_task dct on dcp.id = dct.comment_process_id
+        left join sys_function_department sfd on sfd.id = dct.function_department_id
+        where daily_routine_id = #{id} and classify = 'DAY_SOUTH_GATE'
+    </select>
+    <insert id="batchInsert">
+        insert into day_south_gate (
+            schoolyard_id, leader_duty_id, doctor_in_place, doctor_description, guard_in_place, guard_description, thermometer_in_place, thermometer_description, start_time, end_time, check_time, has_contingency
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.schoolyardId, jdbcType=BIGINT}, #{record.leaderDutyId, jdbcType=BIGINT}, #{record.doctorInPlace, jdbcType=VARCHAR}, #{record.doctorDescription, jdbcType=VARCHAR}, #{record.guardInPlace, jdbcType=VARCHAR}, #{record.guardDescription, jdbcType=VARCHAR}, #{record.thermometerInPlace, jdbcType=VARCHAR}, #{record.thermometerDescription, jdbcType=VARCHAR}, #{record.startTime, jdbcType=TIMESTAMP}, #{record.endTime, jdbcType=TIMESTAMP}, #{record.checkTime, jdbcType=TIMESTAMP}, #{record.hasContingency, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.SouthGate">
+        update day_south_gate set
+        <trim suffixOverrides=",">
+            schoolyard_id = #{et.schoolyardId, jdbcType=BIGINT},
+            leader_duty_id = #{et.leaderDutyId, jdbcType=BIGINT},
+            doctor_in_place = #{et.doctorInPlace, jdbcType=VARCHAR},
+            doctor_description = #{et.doctorDescription, jdbcType=VARCHAR},
+            guard_in_place = #{et.guardInPlace, jdbcType=VARCHAR},
+            guard_description = #{et.guardDescription, jdbcType=VARCHAR},
+            thermometer_in_place = #{et.thermometerInPlace, jdbcType=VARCHAR},
+            thermometer_description = #{et.thermometerDescription, jdbcType=VARCHAR},
+            start_time = #{et.startTime, jdbcType=TIMESTAMP},
+            end_time = #{et.endTime, jdbcType=TIMESTAMP},
+            check_time = #{et.checkTime, jdbcType=TIMESTAMP},
+            has_contingency = #{et.hasContingency, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

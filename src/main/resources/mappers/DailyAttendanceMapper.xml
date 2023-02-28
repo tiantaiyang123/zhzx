@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.DailyAttendanceMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.DailyAttendanceBaseMapper.ResultMap">
+        select * from std_daily_attendance where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.DailyAttendanceBaseMapper.ResultMap">
+        select * from std_daily_attendance ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.DailyAttendanceBaseMapper.ResultMap">
+        select * from std_daily_attendance ${ew.customSqlSegment}
+    </select>
+
+    <!-- 根据Wrapper查询 -->
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.DailyAttendanceBaseMapper.ResultMap">
+        select * from std_daily_attendance ${ew.customSqlSegment}
+    </select>
+
+    <select id="searchDailyAttendance" resultMap="com.zhzx.server.repository.base.DailyAttendanceBaseMapper.ResultMap">
+        select * from std_daily_attendance
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and academic_year_semester_id=${academicYearSemesterId}
+        </if>
+        <if test="schoolyardId != null">
+            and clazz_id in (select id from sys_clazz where schoolyard_id=${schoolyardId})
+        </if>
+        <if test="gradeId != null">
+            and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+        </if>
+        <if test="clazzId != null">
+            and clazz_id = ${clazzId}
+        </if>
+        <if test="week != null">
+            and week = ${week}
+        </if>
+        <if test="registerDateFrom != null and registerDateTo != null">
+            and register_date between str_to_date('${registerDateFrom}','%Y-%m-%d %H:%i:%s') and str_to_date('${registerDateTo}','%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+
+    <select id="searchStatisticsGroupByDate" resultType="java.util.HashMap">
+        select * from (
+            select count(*) as total,
+            sum(case classify
+                      when '病假' then 1
+                      when '事假' then 1
+                      else null end) as leaveNum,
+            sum(case classify when '病假' then 1 else null end) as illNum,
+            sum(case classify when '事假' then 1 else null end) as thingsNum,
+            DATE_FORMAT(register_date, '%Y-%m-%d') as registerDate
+            from std_daily_attendance
+            where 1=1
+            <if test="academicYearSemesterId != null">
+                and academic_year_semester_id=${academicYearSemesterId}
+            </if>
+            <if test="gradeId != null">
+                and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+            </if>
+            <if test="clazzId != null">
+                and clazz_id = ${clazzId}
+            </if>
+            <if test="week != null">
+                and week = ${week}
+            </if>
+            <if test="classifies != null">
+                and classify in (
+                <foreach collection="classifies" item="record" separator=",">
+                    #{record}
+                </foreach>
+                )
+            </if>
+            <if test="registerDateFrom != null and registerDateTo != null">
+                and register_date between #{registerDateFrom} and #{registerDateTo}
+            </if>
+            <if test="orderByClause != null">
+                order by ${orderByClause}
+            </if>
+            group by to_days(register_date)
+        ) a
+
+    </select>
+    <select id="searchStatisticsGroupByClazz" resultType="java.util.HashMap">
+        select * from (
+        select count(*) as total,
+        sum(case classify
+                when '病假' then 1
+                when '事假' then 1
+                else null end) as leaveNum,
+        sum(case classify when '病假' then 1 else null end) as illNum,
+        sum(case classify when '事假' then 1 else null end) as thingsNum,
+        (select `name` from sys_clazz where std_daily_attendance.clazz_id = sys_clazz.id) as clazzName,
+        DATE_FORMAT(register_date, '%Y-%m-%d') as registerDate
+        from std_daily_attendance
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and academic_year_semester_id=${academicYearSemesterId}
+        </if>
+        <if test="gradeId != null">
+            and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+        </if>
+        <if test="clazzId != null">
+            and clazz_id = ${clazzId}
+        </if>
+        <if test="week != null">
+            and week = ${week}
+        </if>
+        <if test="classifies != null">
+            and classify in (
+            <foreach collection="classifies" item="record" separator=",">
+                #{record}
+            </foreach>
+            )
+        </if>
+        <if test="registerDateFrom != null and registerDateTo != null">
+            and register_date between #{registerDateFrom} and #{registerDateTo}
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+        group by clazz_id
+        ) a
+    </select>
+
+    <select id="isAbnormal" resultType="java.util.Map">
+        select
+            sum(case classify when '病假' then 1 else 0 end) as illNum,
+            sum(case classify when '事假' then 1 else 0 end) as thingsNum,
+			(select concat(IFNULL(sum(case classify when '病假' then 1 else null end),0),",",IFNULL(sum(case classify when '事假' then 1 else null end),0))
+              from std_daily_attendance t where to_days(t.register_date) = to_days(#{time})) as today
+        from std_daily_attendance
+        where
+          DATE_SUB( #{time}, interval 8 day) <![CDATA[ < ]]> register_date
+          and clazz_id in (
+            select id from sys_clazz where grade_id = #{gradeId} and academic_year_semester_id = #{academicYearSemesterId}
+          )
+    </select>
+
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.DailyAttendanceSub" extends="com.zhzx.server.repository.base.DailyAttendanceSubBaseMapper.ResultMap">
+        <collection property="dailyAttendanceList" column="{registerDate=register_date, clazzId=clazz_id}" select="selectAbsentDetail" />
+    </resultMap>
+    <resultMap id="ResultMapDetail" type="com.zhzx.server.domain.DailyAttendance" extends="com.zhzx.server.repository.base.DailyAttendanceBaseMapper.BaseResultMap">
+        <association column="student_id" property="student" javaType="com.zhzx.server.domain.Student" select="com.zhzx.server.repository.StudentMapper.selectById" />
+    </resultMap>
+
+    <select id="selectDetailById" resultMap="ResultMap">
+        select * from std_daily_attendance_sub where id = ${id}
+    </select>
+    <select id="selectAbsentDetail" resultMap="ResultMapDetail">
+        select * from std_daily_attendance
+        where to_days(register_date)=to_days(#{registerDate}) and clazz_id=#{clazzId}
+    </select>
+    <select id="commonQuery" resultMap="ResultMap">
+        select * from std_daily_attendance_sub
+        where 1=1
+        <if test="academicYearSemesterId != null">
+            and academic_year_semester_id=${academicYearSemesterId}
+        </if>
+        <if test="schoolyardId != null">
+            and clazz_id in (select id from sys_clazz where schoolyard_id=${schoolyardId})
+        </if>
+        <if test="gradeId != null">
+            and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+        </if>
+        <if test="clazzId != null">
+            and clazz_id = ${clazzId}
+        </if>
+        <if test="week != null">
+            and week = ${week}
+        </if>
+        <if test="registerDateFrom != null and registerDateTo != null">
+            and register_date between str_to_date('${registerDateFrom}','%Y-%m-%d %H:%i:%s') and str_to_date('${registerDateTo}','%Y-%m-%d %H:%i:%s')
+        </if>
+    </select>
+
+</mapper>

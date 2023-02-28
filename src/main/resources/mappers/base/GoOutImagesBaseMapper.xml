@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.GoOutImagesBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.GoOutImages">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="go_out_id" jdbcType="BIGINT" property="goOutId" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.GoOutImages" extends="BaseResultMap">
+        <result column="url" jdbcType="VARCHAR" property="url" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, go_out_id, url
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.go_out_id, t.url
+    </sql>
+    <sql id="Base_Column_List_Full_With_Prefix">
+        t.id, t.go_out_id, t.url
+    </sql>
+    <insert id="batchInsert">
+        insert into day_go_out_images (
+            go_out_id, url
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.goOutId, jdbcType=BIGINT}, #{record.url, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.GoOutImages">
+        update day_go_out_images set
+        <trim suffixOverrides=",">
+            go_out_id = #{et.goOutId, jdbcType=BIGINT},
+            url = #{et.url, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

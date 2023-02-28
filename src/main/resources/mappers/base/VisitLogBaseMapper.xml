@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.VisitLogBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.VisitLog">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+        <result column="num" jdbcType="BIGINT" property="num" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="editor_id" jdbcType="BIGINT" property="editorId" />
+        <result column="editor_name" jdbcType="VARCHAR" property="editorName" />
+        <result column="visit_time" jdbcType="TIMESTAMP" property="visitTime" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.VisitLog" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, project_name, num, remark, editor_id, editor_name, visit_time, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.project_name, t.num, t.remark, t.editor_id, t.editor_name, t.visit_time, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_visit_log (
+            project_name, num, remark, editor_id, editor_name, visit_time
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.projectName, jdbcType=VARCHAR}, #{record.num, jdbcType=BIGINT}, #{record.remark, jdbcType=VARCHAR}, #{record.editorId, jdbcType=BIGINT}, #{record.editorName, jdbcType=VARCHAR}, #{record.visitTime, jdbcType=TIMESTAMP}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.VisitLog">
+        update sys_visit_log set
+        <trim suffixOverrides=",">
+            project_name = #{et.projectName, jdbcType=VARCHAR},
+            num = #{et.num, jdbcType=BIGINT},
+            remark = #{et.remark, jdbcType=VARCHAR},
+            editor_id = #{et.editorId, jdbcType=BIGINT},
+            editor_name = #{et.editorName, jdbcType=VARCHAR},
+            visit_time = #{et.visitTime, jdbcType=TIMESTAMP},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

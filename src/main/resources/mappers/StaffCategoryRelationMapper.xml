@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.StaffCategoryRelationMapper">
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.StaffCategoryRelationBaseMapper.ResultMap">
+        select * from sys_staff_category_relation where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.StaffCategoryRelationBaseMapper.ResultMap">
+        select * from sys_staff_category_relation ${ew.customSqlSegment} LIMIT 1
+    </select>
+
+    <insert id="batchInsert">
+        insert into sys_staff_category_relation (
+        staff_category_id, staff_id, parent_category
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+            (
+            #{record.staffCategoryId, jdbcType=BIGINT}, #{record.staffId, jdbcType=BIGINT}, #{record.parentCategory, jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+</mapper>

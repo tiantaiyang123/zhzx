@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.StudentMapper">
+    <sql id="Base_Column_List_To_Bean">
+        t.id AS id,
+        t.student_number AS studentNumber,
+        t.name AS name,
+        t.student_type AS studentType,
+        t.gender AS gender,
+        t.nationality AS nationality,
+        t.admission_way AS admissionWay,
+        t.create_time AS createTime,
+        t.update_time AS updateTime
+    </sql>
+    <resultMap id="ResultMap" type="com.zhzx.server.vo.StudentInfoVo" extends="com.zhzx.server.repository.base.StudentBaseMapper.BaseResultMap">
+
+    </resultMap>
+
+    <select id="queryStudentParentById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.StudentParentBaseMapper.ResultMap">
+        select * from sys_student_parent where student_id = #{id}
+    </select>
+
+
+    <!-- 根据主键查询 -->
+    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.StudentBaseMapper.ResultMap">
+        select * from sys_student where id = #{id}
+    </select>
+    <!-- 根据Wrapper查询 -->
+    <select id="selectOne" resultMap="com.zhzx.server.repository.base.StudentBaseMapper.ResultMap">
+        select * from sys_student ${ew.customSqlSegment} LIMIT 1
+    </select>
+    <select id="queryStudentByPage" resultType="java.util.Map">
+        select
+        <include refid="Base_Column_List_To_Bean"></include>,
+        t2.name AS className
+        from sys_student t
+        left join sys_student_clazz t1
+        on t1.student_id = t.id
+        left join sys_clazz t2
+        on t2.id = t1.clazz_id
+        ${ew.customSqlSegment}
+    </select>
+
+<!--    <select id="listByClazz" resultMap="com.zhzx.server.repository.base.StudentBaseMapper.BaseResultMap">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List_To_Bean"></include>-->
+<!--        from sys_student t-->
+<!--        left join (select student_id, max(id) as id from sys_student_clazz group by student_id) t2 on t2.student_id=t.id-->
+<!--        left join sys_student_clazz t1 on t1.id = t2.id-->
+<!--        where t1.clazz_id = #{clazzId}-->
+<!--    </select>-->
+
+    <select id="listByClazz" resultMap="com.zhzx.server.repository.base.StudentBaseMapper.BaseResultMap">
+        select
+        <include refid="Base_Column_List_To_Bean"></include>
+        from sys_student t
+        left join (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1)) group by student_id) t2 on t2.student_id=t.id
+        left join sys_student_clazz t1 on t1.id = t2.id
+        where t1.clazz_id = #{clazzId}
+    </select>
+
+<!--    <select id="listByClazzStudent" resultMap="com.zhzx.server.repository.base.StudentBaseMapper.BaseResultMap">-->
+<!--        select * from sys_student t-->
+<!--        left join (select student_id, max(id) as id from sys_student_clazz group by student_id) t2 on t2.student_id=t.id-->
+<!--        left join sys_student_clazz t1 on t1.id = t2.id-->
+<!--        where t1.clazz_id = #{clazzId}-->
+<!--        <if test="studentName != null and studentName !=''">-->
+<!--            and t.name like concat('%',#{studentName},'%')-->
+<!--        </if>-->
+<!--    </select>-->
+
+    <select id="listByClazzStudent" resultMap="com.zhzx.server.repository.base.StudentBaseMapper.BaseResultMap">
+        select * from sys_student t
+        left join (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = #{academicYearSemesterId}) group by student_id) t2 on t2.student_id=t.id
+        left join sys_student_clazz t1 on t1.id = t2.id
+        where t1.clazz_id = #{clazzId}
+        <if test="studentName != null and studentName !=''">
+            and t.name like concat('%',#{studentName},'%')
+        </if>
+    </select>
+
+<!--    <select id="getCurrentClazzByStudentId" resultMap="com.zhzx.server.repository.base.ClazzBaseMapper.ResultMap">-->
+<!--        select * from sys_clazz where id=(select clazz_id from sys_student_clazz where id=(select max(id) from sys_student_clazz where student_id=${studentId}))-->
+<!--    </select>-->
+
+    <select id="getCurrentClazzByStudentId" resultMap="com.zhzx.server.repository.base.ClazzBaseMapper.ResultMap">
+        select * from sys_clazz where id=(select clazz_id from sys_student_clazz where id=(
+            select max(id) from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1)) and student_id=${studentId}))
+    </select>
+
+<!--    <select id="selectListWithClazz" resultType="com.zhzx.server.vo.StudentVo">-->
+<!--        select-->
+<!--        DISTINCT-->
+<!--        <include refid="Base_Column_List_To_Bean"></include>,-->
+<!--        sc.name as clazzName,sc.id as clazzId,-->
+<!--        sg.name as gradeName,sg.id as gradeId-->
+<!--        from sys_student t-->
+<!--        left join (select student_id, max(id) as id from sys_student_clazz group by student_id) t2 on t2.student_id=t.id-->
+<!--        left join sys_student_clazz t1 on t1.id = t2.id-->
+<!--        left join sys_clazz sc on sc.id = t1.clazz_id-->
+<!--        left join sys_grade sg on sg.id = sc.grade_id-->
+<!--        where sc.academic_year_semester_id = (select id from sys_academic_year_semester where is_default = 'YES')-->
+<!--        <if test="studentTypeEnum != null and studentTypeEnum != ''">-->
+<!--            and t.student_type = #{studentTypeEnum}-->
+<!--        </if>-->
+<!--        <if test="senderId != null">-->
+<!--            and t.id in (-->
+<!--                select ssmrr.receiver_id from sys_staff_message_receiver_relation ssmrr-->
+<!--                left join sys_staff_message ssm on ssm.id = ssmrr.staff_message_id-->
+<!--                where ssmrr.receiver_type = 'STUDENT' and ssm.staff_id = #{senderId}-->
+<!--            )-->
+<!--        </if>-->
+<!--    </select>-->
+
+    <select id="selectListWithClazz" resultType="com.zhzx.server.vo.StudentVo">
+        select
+        DISTINCT
+        <include refid="Base_Column_List_To_Bean"></include>,
+        sc.name as clazzName,sc.id as clazzId,
+        sg.name as gradeName,sg.id as gradeId
+        from sys_student t
+        left join (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1)) group by student_id) t2 on t2.student_id=t.id
+        left join sys_student_clazz t1 on t1.id = t2.id
+        left join sys_clazz sc on sc.id = t1.clazz_id
+        left join sys_grade sg on sg.id = sc.grade_id
+        where 1=1 and sc.id is not null
+        <if test="studentTypeEnum != null and studentTypeEnum != ''">
+            and t.student_type = #{studentTypeEnum}
+        </if>
+        <if test="senderId != null">
+            and t.id in (
+            select ssmrr.receiver_id from sys_staff_message_receiver_relation ssmrr
+            left join sys_staff_message ssm on ssm.id = ssmrr.staff_message_id
+            where ssmrr.receiver_type = 'STUDENT' and ssm.staff_id = #{senderId}
+            )
+        </if>
+    </select>
+
+<!--    <select id="count" resultType="java.lang.Integer">-->
+<!--        select-->
+<!--        count(*)-->
+<!--        from sys_student t-->
+<!--        left join (select student_id, max(id) as id from sys_student_clazz group by student_id) t2 on t2.student_id=t.id-->
+<!--        left join sys_student_clazz t1 on t1.id = t2.id-->
+<!--        where 1=1-->
+<!--        <if test="gradeId != null">-->
+<!--            and t1.clazz_id in (select id from sys_clazz where grade_id=#{gradeId})-->
+<!--        </if>-->
+<!--        <if test="clazzId != null">-->
+<!--            and t1.clazz_id = #{clazzId}-->
+<!--        </if>-->
+<!--        <if test="studentType != null">-->
+<!--            and t.student_type = #{studentType}-->
+<!--        </if>-->
+<!--    </select>-->
+
+    <select id="count" resultType="java.lang.Integer">
+        select
+        count(*)
+        from sys_student t
+        left join (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1)) group by student_id) t2 on t2.student_id=t.id
+        left join sys_student_clazz t1 on t1.id = t2.id
+        where 1=1
+        <if test="gradeId != null">
+            and t1.clazz_id in (select id from sys_clazz where grade_id=#{gradeId})
+        </if>
+        <if test="clazzId != null">
+            and t1.clazz_id = #{clazzId}
+        </if>
+        <if test="studentType != null">
+            and t.student_type = #{studentType}
+        </if>
+    </select>
+
+    <resultMap type="com.zhzx.server.vo.StudentInfoVo" id="InfoMap" extends="com.zhzx.server.repository.base.StudentBaseMapper.BaseResultMap">
+        <id property="id" column="id"/>
+        <result property="clazzId" column="clazz_id"/>
+        <result property="clazzName" column="clazz_name"/>
+        <result property="bedName" column="bed_name"/>
+        <collection column="id" property="studentParentList" select="queryStudentParentById" />
+    </resultMap>
+
+<!--    <select id="selectInfoByPage" resultMap="InfoMap">-->
+<!--        select ss.*,-->
+<!--             ssc.clazz_id as clazz_id,-->
+<!--             replace(concat(sg.name, sc.name), '年级', '') as clazz_name,-->
+<!--             concat(sd.building, sd.floor, sd.name, ssd.bed) as bed_name-->
+<!--        from sys_student ss-->
+<!--               left join (select student_id, max(id) as id from sys_student_clazz group by student_id) tmp on ss.id = tmp.student_id-->
+<!--               left join sys_student_clazz ssc on tmp.id = ssc.id-->
+<!--               left join sys_student_dormitory ssd on ss.id = ssd.student_id and ssd.is_default='YES'-->
+<!--               left join sys_clazz sc on ssc.clazz_id = sc.id-->
+<!--               left join sys_grade sg on sc.grade_id = sg.id-->
+<!--               left join sys_dormitory sd on ssd.dormitory_id = sd.id-->
+<!--        <if test="param!=null">-->
+<!--            <where>-->
+<!--                <if test="param.id!=null">-->
+<!--                    AND ss.id=#{param.id}-->
+<!--                </if>-->
+<!--                <if test="param.studentNumber!=null">-->
+<!--                    AND ss.student_number like CONCAT('%', #{param.studentNumber}, '%')-->
+<!--                </if>-->
+<!--                <if test="param.idNumber!=null">-->
+<!--                    AND ss.id_number like CONCAT('%', #{param.idNumber}, '%')-->
+<!--                </if>-->
+<!--                <if test="param.orderNumber!=null">-->
+<!--                    AND ss.order_number like CONCAT('%', #{param.orderNumber}, '%')-->
+<!--                </if>-->
+<!--                <if test="param.cardNumber!=null">-->
+<!--                    AND ss.card_number like CONCAT('%', #{param.cardNumber}, '%')-->
+<!--                </if>-->
+<!--                <if test="param.name!=null">-->
+<!--                    AND ss.name like CONCAT('%', #{param.name}, '%')-->
+<!--                </if>-->
+<!--                <if test="param.clazzId!=null">-->
+<!--                    AND ssc.clazz_id=#{param.clazzId}-->
+<!--                </if>-->
+<!--                <if test="param.clazzName!=null">-->
+<!--                    AND replace(concat(sg.name, sc.name), '年级', '') like CONCAT('%', #{param.clazzName}, '%')-->
+<!--                </if>-->
+<!--                <if test="param.bedName!=null">-->
+<!--                    AND concat(sd.building, sd.floor, sd.name, ssd.bed) like CONCAT('%', #{param.bedName}, '%')-->
+<!--                </if>-->
+<!--                <if test="param.studentType==@com.zhzx.server.enums.StudentTypeEnum@DAY">-->
+<!--                    AND ss.student_type='DAY'-->
+<!--                </if>-->
+<!--                <if test="param.studentType==@com.zhzx.server.enums.StudentTypeEnum@LIVE">-->
+<!--                    AND ss.student_type='LIVE'-->
+<!--                </if>-->
+<!--            </where>-->
+<!--        </if>-->
+<!--        order by sg.id,cast(replace(sc.name,'班','') as signed),ss.order_number-->
+<!--    </select>-->
+
+    <select id="selectInfoByPage" resultMap="InfoMap">
+        select ss.*,
+        ssc.clazz_id as clazz_id,
+        replace(concat(sg.name, sc.name), '年级', '') as clazz_name,
+        concat(sd.building, sd.floor, sd.name, ssd.bed) as bed_name
+        from sys_student ss
+        left join (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1)) group by student_id) tmp on ss.id = tmp.student_id
+        left join sys_student_clazz ssc on tmp.id = ssc.id
+        left join sys_student_dormitory ssd on ss.id = ssd.student_id and ssd.is_default='YES'
+        left join sys_clazz sc on ssc.clazz_id = sc.id
+        left join sys_grade sg on sc.grade_id = sg.id
+        left join sys_dormitory sd on ssd.dormitory_id = sd.id
+        <if test="param!=null">
+            <where>
+                <if test="param.id!=null">
+                    AND ss.id=#{param.id}
+                </if>
+                <if test="param.studentNumber!=null">
+                    AND ss.student_number like CONCAT('%', #{param.studentNumber}, '%')
+                </if>
+                <if test="param.idNumber!=null">
+                    AND ss.id_number like CONCAT('%', #{param.idNumber}, '%')
+                </if>
+                <if test="param.orderNumber!=null">
+                    AND ss.order_number like CONCAT('%', #{param.orderNumber}, '%')
+                </if>
+                <if test="param.cardNumber!=null">
+                    AND ss.card_number like CONCAT('%', #{param.cardNumber}, '%')
+                </if>
+                <if test="param.name!=null">
+                    AND ss.name like CONCAT('%', #{param.name}, '%')
+                </if>
+                <if test="param.clazzId!=null">
+                    AND ssc.clazz_id=#{param.clazzId}
+                </if>
+                <if test="param.clazzName!=null">
+                    AND replace(concat(sg.name, sc.name), '年级', '') like CONCAT('%', #{param.clazzName}, '%')
+                </if>
+                <if test="param.bedName!=null">
+                    AND concat(sd.building, sd.floor, sd.name, ssd.bed) like CONCAT('%', #{param.bedName}, '%')
+                </if>
+                <if test="param.studentType==@com.zhzx.server.enums.StudentTypeEnum@DAY">
+                    AND ss.student_type='DAY'
+                </if>
+                <if test="param.studentType==@com.zhzx.server.enums.StudentTypeEnum@LIVE">
+                    AND ss.student_type='LIVE'
+                </if>
+            </where>
+        </if>
+        order by sg.id,cast(replace(sc.name,'班','') as signed),cast(ss.student_number as signed)
+    </select>
+
+    <update id="updateDormitory">
+        update sys_student ss
+            left join (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = #{academicYearSemesterId}) group by student_id) tmp on ss.id = tmp.student_id
+            left join sys_student_clazz ssc on tmp.id = ssc.id
+            left join sys_student_dormitory ssd on ss.id = ssd.student_id and ssd.is_default='YES'
+            left join sys_clazz sc on ssc.clazz_id = sc.id
+        set
+            ss.student_type = 'DAY',
+            ssd.is_default = 'NO'
+        where ss.student_type='LIVE'
+        <if test="clazzId != null">
+            and ssc.id=#{clazzId}
+        </if>
+        <if test="gradeId != null">
+            and sc.id=#{clazzId}
+        </if>
+    </update>
+</mapper>
