@@ -360,4 +360,11 @@ public class UserController {
         this.userService.sendVerifyCode(username);
         return ApiResponse.ok("消息已发送");
     }
+
+    @PostMapping("/alloc-student-duty/{id}")
+    @ApiOperation("分配值班班长")
+    public ApiResponse<Integer> allocStudentDuty(@PathVariable("id") Long id,
+                                                 @RequestParam(name = "type") String type) {
+        return ApiResponse.ok(this.userService.allocStudentDuty(id, type));
+    }
 }

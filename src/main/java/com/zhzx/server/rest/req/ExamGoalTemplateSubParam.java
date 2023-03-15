@@ -50,21 +50,6 @@ public class ExamGoalTemplateSubParam implements Serializable {
     @ApiModelProperty(value = "班级ID")
     private Long clazzId;
     /**
-     * 班级名称
-     */
-    @ApiModelProperty(value = "班级名称")
-    private String clazzName;
-    /**
-     * 目标科目类型
-     */
-    @ApiModelProperty(value = "目标科目类型")
-    private GoalEnum subjectType;
-    /**
-     * 目标科目类型 IN值List
-     */
-    @ApiModelProperty(value = "目标科目类型 IN值List")
-    private List<String> subjectTypeList;
-    /**
      * 目标名称
      */
     @ApiModelProperty(value = "目标名称")
@@ -125,19 +110,6 @@ public class ExamGoalTemplateSubParam implements Serializable {
         wrapper.in(this.getIdList() != null && this.getIdList().size() > 0, "id", this.getIdList());
         wrapper.eq(this.getExamGoalTemplateId() != null, "exam_goal_template_id", this.getExamGoalTemplateId());
         wrapper.eq(this.getClazzId() != null, "clazz_id", this.getClazzId());
-        if (this.getClazzName() != null) {
-            if (this.getClazzName().startsWith("%") && this.getClazzName().endsWith("%")) {
-                wrapper.like("clazz_name", this.getClazzName().substring(1, this.getClazzName().length() - 1));
-            } else if (this.getClazzName().startsWith("%") && !this.getClazzName().endsWith("%")) {
-                wrapper.likeLeft("clazz_name", this.getClazzName().substring(1));
-            } else if (this.getClazzName().endsWith("%")) {
-                wrapper.likeRight("clazz_name", this.getClazzName().substring(0, this.getClazzName().length() - 1));
-            } else {
-                wrapper.eq("clazz_name", this.getClazzName());
-            }
-        }
-        wrapper.eq(this.getSubjectType() != null, "subject_type", this.getSubjectType());
-        wrapper.in(this.getSubjectTypeList() != null && this.getSubjectTypeList().size() > 0, "subject_type", this.getSubjectTypeList());
         if (this.getGoalName() != null) {
             if (this.getGoalName().startsWith("%") && this.getGoalName().endsWith("%")) {
                 wrapper.like("goal_name", this.getGoalName().substring(1, this.getGoalName().length() - 1));

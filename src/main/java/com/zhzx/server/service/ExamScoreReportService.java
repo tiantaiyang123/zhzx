@@ -11,6 +11,8 @@ package com.zhzx.server.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhzx.server.domain.ExamScoreReport;
 
+import java.util.List;
+
 public interface ExamScoreReportService extends IService<ExamScoreReport> {
 
     /**
@@ -23,4 +25,6 @@ public interface ExamScoreReportService extends IService<ExamScoreReport> {
     void importExcel(String fileUrl, Long academicYearSemesterId, Long subjectId, Long clazzId);
 
     void calculate(Long subjectId, Long clazzId, Long examIdMiddle, Long examIdEnd);
+
+    Object batchCreateOrUpdate(Long subjectId, Long clazzId, List<ExamScoreReport> entityList);
 }

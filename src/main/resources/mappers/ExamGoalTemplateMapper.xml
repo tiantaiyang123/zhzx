@@ -9,4 +9,7 @@
     <select id="selectOne" resultMap="com.zhzx.server.repository.base.ExamGoalTemplateBaseMapper.ResultMap">
         select * from dat_exam_goal_template ${ew.customSqlSegment} LIMIT 1
     </select>
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.ExamGoalTemplateBaseMapper.ResultMap">
+        select * from dat_exam_goal_template ${ew.customSqlSegment}
+    </select>
 </mapper>

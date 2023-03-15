@@ -52,17 +52,11 @@ public class ExamGoalTemplateSub extends BaseDomain {
     @ApiModelProperty(value = "班级ID", required = true)
     private Long clazzId;
     /**
-     * 班级名称
+     * 班级
      */
-    @TableField(value = "clazz_name")
-    @ApiModelProperty(value = "班级名称", required = true)
-    private String clazzName;
-    /**
-     * 目标科目类型
-     */
-    @TableField(value = "subject_type")
-    @ApiModelProperty(value = "目标科目类型", required = true)
-    private GoalEnum subjectType;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "班级")
+    private Clazz clazz;
     /**
      * 目标名称
      */
@@ -100,9 +94,6 @@ public class ExamGoalTemplateSub extends BaseDomain {
      * 设置默认值
      */
     public ExamGoalTemplateSub setDefault() {
-        if (this.getGoalValue() == null) {
-            this.setGoalValue(0);
-        }
         if (this.getCreateTime() == null) {
             this.setCreateTime(new java.util.Date());
         }
@@ -122,14 +113,6 @@ public class ExamGoalTemplateSub extends BaseDomain {
         }
         if (this.getClazzId() == null) {
             if (throwException) throw new ApiCode.ApiException(-1, "班级ID不能为空！");
-            return false;
-        }
-        if (this.getClazzName() == null) {
-            if (throwException) throw new ApiCode.ApiException(-1, "班级名称不能为空！");
-            return false;
-        }
-        if (this.getSubjectType() == null) {
-            if (throwException) throw new ApiCode.ApiException(-1, "目标科目类型不能为空！");
             return false;
         }
         if (this.getGoalName() == null) {

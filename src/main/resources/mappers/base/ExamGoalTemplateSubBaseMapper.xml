@@ -5,8 +5,6 @@
         <id column="id" jdbcType="BIGINT" property="id" />
         <result column="exam_goal_template_id" jdbcType="BIGINT" property="examGoalTemplateId" />
         <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
-        <result column="clazz_name" jdbcType="VARCHAR" property="clazzName" />
-        <result column="subject_type" jdbcType="VARCHAR" property="subjectType" />
         <result column="goal_name" jdbcType="VARCHAR" property="goalName" />
         <result column="goal_value" jdbcType="INTEGER" property="goalValue" />
         <result column="sort_order" jdbcType="INTEGER" property="sortOrder" />
@@ -16,6 +14,8 @@
     <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamGoalTemplateSub" extends="BaseResultMap">
         <association column="exam_goal_template_id" property="examGoalTemplate" javaType="com.zhzx.server.domain.ExamGoalTemplate"
                      select="com.zhzx.server.repository.ExamGoalTemplateMapper.selectById" />
+        <association column="clazz_id" property="clazz" javaType="com.zhzx.server.domain.Clazz"
+                     select="com.zhzx.server.repository.base.ClazzBaseMapper.selectById" />
     </resultMap>
     <sql id="Base_Column_List">
         id, exam_goal_template_id, clazz_id, clazz_name, subject_type, goal_name, goal_value, sort_order, create_time, update_time
@@ -25,12 +25,12 @@
     </sql>
     <insert id="batchInsert">
         insert into dat_exam_goal_template_sub (
-            exam_goal_template_id, clazz_id, clazz_name, subject_type, goal_name, goal_value, sort_order
+            exam_goal_template_id, clazz_id, goal_name, goal_value, sort_order
         )
         values
         <foreach collection="records" item="record" separator=",">
         (
-            #{record.examGoalTemplateId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.clazzName, jdbcType=VARCHAR}, #{record.subjectType, jdbcType=VARCHAR}, #{record.goalName, jdbcType=VARCHAR}, #{record.goalValue, jdbcType=INTEGER}, #{record.sortOrder, jdbcType=INTEGER}
+            #{record.examGoalTemplateId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.goalName, jdbcType=VARCHAR}, #{record.goalValue, jdbcType=INTEGER}, #{record.sortOrder, jdbcType=INTEGER}
         )
         </foreach>
     </insert>
@@ -39,8 +39,6 @@
         <trim suffixOverrides=",">
             exam_goal_template_id = #{et.examGoalTemplateId, jdbcType=BIGINT},
             clazz_id = #{et.clazzId, jdbcType=BIGINT},
-            clazz_name = #{et.clazzName, jdbcType=VARCHAR},
-            subject_type = #{et.subjectType, jdbcType=VARCHAR},
             goal_name = #{et.goalName, jdbcType=VARCHAR},
             goal_value = #{et.goalValue, jdbcType=INTEGER},
             sort_order = #{et.sortOrder, jdbcType=INTEGER},

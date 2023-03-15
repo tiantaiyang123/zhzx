@@ -563,4 +563,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         this.userRoleMapper.delete(Wrappers.<UserRole>lambdaQuery().eq(UserRole::getUserId, id));
         return this.baseMapper.deleteById(id);
     }
+
+    @Override
+    public Integer allocStudentDuty(Long id, String type) {
+        Role role = this.roleMapper.selectOne(Wrappers.<Role>lambdaQuery()
+                .eq(Role::getName, "ROLE_STUDENT_DUTY"));
+        if (null == role) throw new ApiCode.ApiException(-1, "值日班长角色缺失");
+
+        LambdaQueryWrapper<UserRole> wrapper = Wrappers.<UserRole>lambdaQuery()
+                .eq(UserRole::getUserId, id)
+                .eq(UserRole::getRoleId, role.getId());
+
+        if ("DELETE".equals(type)) {
+            return this.userRoleMapper.delete(wrapper);
+        }
+
+        UserRole userRole = this.userRoleMapper.selectOne(wrapper);
+        if (null == userRole) {
+            userRole = new UserRole();
+            userRole.setUserId(id);
+            userRole.setRoleId(role.getId());
+            return this.userRoleMapper.insert(userRole);
+        }
+        return 0;
+    }
 }

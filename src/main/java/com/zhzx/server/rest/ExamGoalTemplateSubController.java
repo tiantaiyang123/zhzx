@@ -9,18 +9,29 @@ package com.zhzx.server.rest;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhzx.server.domain.ExamGoalTemplate;
 import com.zhzx.server.domain.ExamGoalTemplateSub;
 import com.zhzx.server.rest.req.ExamGoalTemplateSubParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.ExamGoalTemplateSubService;
+import com.zhzx.server.vo.ExamGoalTemplateVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -29,6 +40,56 @@ import java.util.List;
 public class ExamGoalTemplateSubController {
     @Resource
     private ExamGoalTemplateSubService examGoalTemplateSubService;
+
+    @GetMapping("/search-detail")
+    @ApiOperation("通过主键查询")
+    public ApiResponse<Map<String, Object>> searchDetail(@RequestParam(value = "academicYearSemesterId", required = false) Long academicYearSemesterId,
+                                                         @RequestParam(value = "gradeId", required = false) Long gradeId,
+                                                         @RequestParam(value = "examGoalTemplateId", required = false) Long examGoalTemplateId) {
+        return ApiResponse.ok(this.examGoalTemplateSubService.searchDetail(academicYearSemesterId, gradeId, examGoalTemplateId));
+    }
+
+    @GetMapping("/it")
+    @ApiOperation("按模板插入考试目标")
+    public ApiResponse<Map<String, Object>> it(@RequestParam(value = "examId", defaultValue = "false") Long examId,
+                                                         @RequestParam(value = "examGoalTemplateId", defaultValue = "false") Long examGoalTemplateId) {
+        this.examGoalTemplateSubService.insertExamGoals(examGoalTemplateId, examId);
+        return ApiResponse.ok(null);
+    }
+
+    @PostMapping("/create-or-update")
+    @ApiOperation("新增或修改")
+    public ApiResponse<List<ExamGoalTemplateSub>> createOrUpdate(@RequestBody ExamGoalTemplateVo examGoalTemplateVo) {
+        return ApiResponse.ok(this.examGoalTemplateSubService.createOrUpdate(examGoalTemplateVo));
+    }
+
+    @GetMapping("/export-excel")
+    @ApiOperation("下载")
+    @SneakyThrows
+    public void tableInfoClazzExportExcel(@RequestParam(value = "id") Long id,
+                                          @RequestParam(value = "examGoalTemplateName") String examGoalTemplateName,
+                                          HttpServletResponse response, HttpServletRequest request) {
+        XSSFWorkbook book = this.examGoalTemplateSubService.exportExcel(id);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fileName = examGoalTemplateName + sdf.format(new Date()) + ".xlsx";
+        //获取浏览器使用的编码
+        String encoding = request.getCharacterEncoding();
+        if (encoding != null && encoding.length() > 0) {
+            fileName = URLEncoder.encode(fileName, encoding);
+        } else {
+            //默认编码是utf-8
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+        }
+        response.reset();
+        response.setCharacterEncoding(encoding);
+        response.setContentType("application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+        OutputStream out = response.getOutputStream();
+        book.write(out);
+        out.flush();
+        out.close();
+        book.close();
+    }
 
     /**
      * 通过主键查询
@@ -54,12 +115,6 @@ public class ExamGoalTemplateSubController {
         entity.setDefault().validate(true);
         this.examGoalTemplateSubService.save(entity);
         return ApiResponse.ok(this.examGoalTemplateSubService.getById(entity.getId()));
-    }
-
-    @PostMapping("/create-or-update")
-    @ApiOperation("新增或修改")
-    public ApiResponse<List<ExamGoalTemplateSub>> createOrUpdate(@RequestBody List<ExamGoalTemplateSub> entity) {
-        return ApiResponse.ok(this.examGoalTemplateSubService.createOrUpdate(entity));
     }
 
     /**

@@ -13,6 +13,9 @@
     <select id="selectPage" resultMap="com.zhzx.server.repository.base.ExamBaseMapper.ResultMap">
         select * from dat_exam ${ew.customSqlSegment}
     </select>
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.ExamBaseMapper.ResultMap">
+        select * from dat_exam ${ew.customSqlSegment}
+    </select>
 
     <select id="getList" resultMap="com.zhzx.server.repository.base.ExamBaseMapper.ResultMap">
         select * from dat_exam

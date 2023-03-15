@@ -196,6 +196,14 @@ public class ExamScoreReportController {
         return ApiResponse.ok(null);
     }
 
+    @PostMapping("/batch-create-or-update")
+    @ApiOperation("批量新增或者编辑")
+    public ApiResponse<List<ExamScoreReport>> batchCreateOrUpdate(@RequestBody List<ExamScoreReport> entityList,
+                                                   @RequestParam(value = "subjectId") Long subjectId,
+                                                   @RequestParam(value = "clazzId") Long clazzId) {
+        return ApiResponse.ok(this.examScoreReportService.batchCreateOrUpdate(subjectId, clazzId, entityList));
+    }
+
     @GetMapping("/calculate")
     @ApiOperation("计算总评成绩")
     public ApiResponse<Object> calculate(

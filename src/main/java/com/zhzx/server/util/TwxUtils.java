@@ -17,6 +17,35 @@ public class TwxUtils {
 
     public static final String appKey = "03b5c004-5085-426d-9410-e37762287037";
 
+    public static final List<Map<String, Object>> goalTemplateDefaultList = new ArrayList<Map<String, Object>>() {
+        {
+            this.add(new HashMap<String, Object>() {{
+                this.put("sortOrder", 1);
+                this.put("name", "650分");
+            }});
+            this.add(new HashMap<String, Object>() {{
+                this.put("sortOrder", 2);
+                this.put("name", "620分");
+            }});
+            this.add(new HashMap<String, Object>() {{
+                this.put("sortOrder", 3);
+                this.put("name", "600分");
+            }});
+            this.add(new HashMap<String, Object>() {{
+                this.put("sortOrder", 4);
+                this.put("name", "高分");
+            }});
+            this.add(new HashMap<String, Object>() {{
+                this.put("sortOrder", 5);
+                this.put("name", "一本");
+            }});
+            this.add(new HashMap<String, Object>() {{
+                this.put("sortOrder", 6);
+                this.put("name", "本科");
+            }});
+        }
+    };
+
     public static final String[] arr = {"语文", "数学", "英语", "物理", "化学", "政治", "历史", "地理", "生物"};
 
     public static final String[] arrPrefix = {"chinese", "math", "english",

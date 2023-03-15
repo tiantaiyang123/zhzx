@@ -83,4 +83,5 @@ public interface UserService extends IService<User> {
 
     Integer removeUser(Long id);
 
+    Integer allocStudentDuty(Long id, String type);
 }

@@ -13,6 +13,7 @@ import com.zhzx.server.domain.Clazz;
 import com.zhzx.server.domain.Exam;
 import com.zhzx.server.rest.req.ExamParam;
 import com.zhzx.server.rest.res.ApiResponse;
+import com.zhzx.server.service.ExamGoalTemplateSubService;
 import com.zhzx.server.service.ExamService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +32,9 @@ import java.util.Map;
 public class ExamController {
     @Resource
     private ExamService examService;
+
+    @Resource
+    private ExamGoalTemplateSubService examGoalTemplateSubService;
 
     /**
      * 通过主键查询
@@ -55,6 +59,7 @@ public class ExamController {
     public ApiResponse<Exam> add(@RequestBody Exam entity) {
         entity.setDefault().validate(true);
         this.examService.save(entity);
+        examGoalTemplateSubService.insertExamGoals(entity.getExamGoalTemplateId(), entity.getId());
         return ApiResponse.ok(this.examService.getById(entity.getId()));
     }
 
@@ -72,6 +77,7 @@ public class ExamController {
         } else {
             this.examService.updateById(entity);
         }
+        examGoalTemplateSubService.insertExamGoals(entity.getExamGoalTemplateId(), entity.getId());
         return ApiResponse.ok(this.examService.getById(entity.getId()));
     }
 

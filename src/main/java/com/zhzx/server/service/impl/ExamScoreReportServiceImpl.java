@@ -162,6 +162,30 @@ public class ExamScoreReportServiceImpl extends ServiceImpl<ExamScoreReportMappe
         }
     }
 
+    @Override
+    public Object batchCreateOrUpdate(Long subjectId, Long clazzId, List<ExamScoreReport> entityList) {
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        entityList.forEach(entity -> {
+            entity.setEditorId(user.getId());
+            entity.setEditorName(user.getUsername());
+            if (null == entity.getId()) {
+                entity.setClazzId(clazzId);
+                entity.setSubjectId(subjectId);
+                entity.setMidScore(0L);
+                entity.setEndScore(0L);
+                entity.setTotalScore(0L);
+            }
+            entity.setDefault().validate(true);
+        });
+
+        entityList.forEach(item -> {
+            if (null == item.getId()) this.baseMapper.insert(item);
+            else                      this.baseMapper.updateById(item);
+        });
+
+        return entityList;
+    }
+
     /**
      * 批量插入
      *

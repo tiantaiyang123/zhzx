@@ -277,7 +277,6 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam> implements Ex
             }
             this.getBaseMapper().update(null, Wrappers.<Exam>lambdaUpdate().set(Exam::getIsPublish, YesNoEnum.YES).set(Exam::getUpdateTime, new Date()).eq(Exam::getId, examId));
 
-            // todo 这里按照模板算目标
             List<ExamGoalDto> examGoalDtoList = this.examGoalService.getAllGoal(examId, null);
             if (CollectionUtils.isNotEmpty(examGoalDtoList)) {
                 List<Settings> settingsList = examGoalDtoList.stream().map(item -> {

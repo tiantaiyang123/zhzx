@@ -177,6 +177,8 @@
         <result property="clazzId" column="clazz_id"/>
         <result property="clazzName" column="clazz_name"/>
         <result property="bedName" column="bed_name"/>
+        <result property="userId" column="user_id"/>
+        <result property="isStudentDuty" column="is_student_Duty"/>
         <collection column="id" property="studentParentList" select="queryStudentParentById" />
     </resultMap>
 
@@ -236,7 +238,9 @@
         select ss.*,
         ssc.clazz_id as clazz_id,
         replace(concat(sg.name, sc.name), '年级', '') as clazz_name,
-        concat(sd.building, sd.floor, sd.name, ssd.bed) as bed_name
+        concat(sd.building, sd.floor, sd.name, ssd.bed) as bed_name,
+        su.id as user_id,
+        if(exists (select * from sys_user_role sur where sur.user_id=su.id and sur.role_id=2),'YES','NO') as is_student_Duty
         from sys_student ss
         left join (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1)) group by student_id) tmp on ss.id = tmp.student_id
         left join sys_student_clazz ssc on tmp.id = ssc.id
@@ -244,6 +248,7 @@
         left join sys_clazz sc on ssc.clazz_id = sc.id
         left join sys_grade sg on sc.grade_id = sg.id
         left join sys_dormitory sd on ssd.dormitory_id = sd.id
+        left join sys_user su on su.student_id=ss.id
         <if test="param!=null">
             <where>
                 <if test="param.id!=null">
