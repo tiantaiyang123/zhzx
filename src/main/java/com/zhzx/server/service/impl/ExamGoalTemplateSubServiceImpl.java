@@ -300,6 +300,16 @@ public class ExamGoalTemplateSubServiceImpl extends ServiceImpl<ExamGoalTemplate
         return book;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteAll(Long examGoalTemplateId) {
+        Integer cnt = this.examMapper.selectCount(Wrappers.<Exam>lambdaQuery().eq(Exam::getExamGoalTemplateId, examGoalTemplateId));
+        if (cnt > 0)
+            throw new ApiCode.ApiException(-1, "该模板已被使用，无法删除");
+        this.baseMapper.delete(Wrappers.<ExamGoalTemplateSub>lambdaQuery().eq(ExamGoalTemplateSub::getExamGoalTemplateId, examGoalTemplateId));
+        this.examGoalTemplateMapper.deleteById(examGoalTemplateId);
+    }
+
     /**
      * 批量插入
      *

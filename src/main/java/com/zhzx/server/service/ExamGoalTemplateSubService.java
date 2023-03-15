@@ -32,4 +32,6 @@ public interface ExamGoalTemplateSubService extends IService<ExamGoalTemplateSub
     Map<String, Object> searchDetail(Long academicYearSemesterId, Long gradeId, Long examGoalTemplateId);
 
     XSSFWorkbook exportExcel(Long id);
+
+    void deleteAll(Long examGoalTemplateId);
 }

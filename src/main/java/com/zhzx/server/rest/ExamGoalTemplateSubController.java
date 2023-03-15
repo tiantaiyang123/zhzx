@@ -57,6 +57,13 @@ public class ExamGoalTemplateSubController {
         return ApiResponse.ok(null);
     }
 
+    @DeleteMapping("/delete-all/{examGoalTemplateId}")
+    @ApiOperation("删除")
+    public ApiResponse<Object> deleteAll(@PathVariable("examGoalTemplateId") Long examGoalTemplateId) {
+        this.examGoalTemplateSubService.deleteAll(examGoalTemplateId);
+        return ApiResponse.ok(null);
+    }
+
     @PostMapping("/create-or-update")
     @ApiOperation("新增或修改")
     public ApiResponse<List<ExamGoalTemplateSub>> createOrUpdate(@RequestBody ExamGoalTemplateVo examGoalTemplateVo) {
