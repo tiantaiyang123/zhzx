@@ -258,7 +258,7 @@ public class ExamGoalTemplateSubServiceImpl extends ServiceImpl<ExamGoalTemplate
         style.setVerticalAlignment(VerticalAlignment.CENTER);
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        XSSFSheet sheet = book.getSheetAt(0);
+        XSSFSheet sheet = book.createSheet();
 
         if (CollectionUtils.isNotEmpty(examGoalTemplateSubs)) {
             examGoalTemplateSubs.sort(Comparator
