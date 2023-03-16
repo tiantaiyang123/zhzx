@@ -199,6 +199,11 @@ public class ExamResult extends BaseDomain {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "", required = true)
     private java.util.Date updateTime;
+    /**
+     * 副科分数
+     */
+    @TableField(exist = false)
+    private ExamResultMinor examResultMinor;
 
     /**
      * 设置默认值

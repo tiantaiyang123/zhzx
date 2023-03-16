@@ -260,26 +260,40 @@
         select * from dat_exam_result ${ew.customSqlSegment}
     </select>
 
-    <select id="searchExamResult" resultMap="com.zhzx.server.repository.base.ExamResultBaseMapper.ResultMap">
-        select * from dat_exam_result
+    <resultMap id="resultMap_minor" type="com.zhzx.server.domain.ExamResult" extends="com.zhzx.server.repository.base.ExamResultBaseMapper.ResultMap">
+        <association property="examResultMinor" columnPrefix="minor_" resultMap="com.zhzx.server.repository.base.ExamResultMinorBaseMapper.ResultMap" />
+    </resultMap>
+    <select id="searchExamResult" resultMap="resultMap_minor">
+        select
+               a.*,
+               b.id AS minor_id,
+               b.music_score AS minor_music_score, b.music_level AS minor_music_level,
+               b.sports_score AS minor_sports_score, b.sports_level AS minor_sports_level,
+               b.painting_score AS minor_painting_score, b.painting_level AS minor_painting_level,
+               b.psychology_score AS minor_psychology_score, b.psychology_level AS minor_psychology_level,
+               b.general_technology_score AS minor_general_technology_score, b.general_technology_level AS minor_general_technology_level,
+               b.information_technology_score AS minor_information_technology_score, b.information_technology_level AS minor_information_technology_level,
+               b.other AS minor_other, b.create_time AS minor_create_time, b.update_time AS minor_update_time
+        from dat_exam_result a
+        left join dat_exam_result_minor b on a.clazz_id = b.clazz_id and a.exam_id=b.exam_id and a.student_id=b.student_id
         where 1=1
         <if test="academicYearSemesterId != null">
-            and clazz_id in (select id from sys_clazz where academic_year_semester_id=${academicYearSemesterId})
+            and a.clazz_id in (select id from sys_clazz where academic_year_semester_id=${academicYearSemesterId})
         </if>
         <if test="gradeId != null">
-            and clazz_id in (select id from sys_clazz where grade_id=${gradeId})
+            and a.clazz_id in (select id from sys_clazz where grade_id=${gradeId})
         </if>
         <if test="clazzId != null">
-            and clazz_id = ${clazzId}
+            and a.clazz_id = ${clazzId}
         </if>
         <if test="studentId != null">
-            and student_id = ${studentId}
+            and a.student_id = ${studentId}
         </if>
         <if test="examId != null">
-            and exam_id = ${examId}
+            and a.exam_id = ${examId}
         </if>
         <if test="studentName != null">
-            and student_id in (select id from sys_student where name like '${studentName}')
+            and a.student_id in (select id from sys_student where name like '${studentName}')
         </if>
         <if test="orderByClause != null">
             order by ${orderByClause}

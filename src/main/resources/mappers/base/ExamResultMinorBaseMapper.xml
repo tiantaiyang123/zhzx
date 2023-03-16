@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.ExamResultMinorBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.ExamResultMinor">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="exam_id" jdbcType="BIGINT" property="examId" />
+        <result column="student_id" jdbcType="BIGINT" property="studentId" />
+        <result column="clazz_id" jdbcType="BIGINT" property="clazzId" />
+        <result column="music_score" jdbcType="DECIMAL" property="musicScore" />
+        <result column="music_level" jdbcType="VARCHAR" property="musicLevel" />
+        <result column="sports_score" jdbcType="DECIMAL" property="sportsScore" />
+        <result column="sports_level" jdbcType="VARCHAR" property="sportsLevel" />
+        <result column="painting_score" jdbcType="DECIMAL" property="paintingScore" />
+        <result column="painting_level" jdbcType="VARCHAR" property="paintingLevel" />
+        <result column="psychology_score" jdbcType="DECIMAL" property="psychologyScore" />
+        <result column="psychology_level" jdbcType="VARCHAR" property="psychologyLevel" />
+        <result column="general_technology_score" jdbcType="DECIMAL" property="generalTechnologyScore" />
+        <result column="general_technology_level" jdbcType="VARCHAR" property="generalTechnologyLevel" />
+        <result column="information_technology_score" jdbcType="DECIMAL" property="informationTechnologyScore" />
+        <result column="information_technology_level" jdbcType="VARCHAR" property="informationTechnologyLevel" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.ExamResultMinor" extends="BaseResultMap">
+        <result column="other" jdbcType="VARCHAR" property="other" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, exam_id, student_id, clazz_id, music_score, music_level, sports_score, sports_level, painting_score, painting_level, psychology_score, psychology_level, general_technology_score, general_technology_level, information_technology_score, information_technology_level, other, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.exam_id, t.student_id, t.clazz_id, t.music_score, t.music_level, t.sports_score, t.sports_level, t.painting_score, t.painting_level, t.psychology_score, t.psychology_level, t.general_technology_score, t.general_technology_level, t.information_technology_score, t.information_technology_level, t.other, t.create_time, t.update_time
+    </sql>
+    <sql id="Base_Column_List_Full_With_Prefix">
+        t.id, t.exam_id, t.student_id, t.clazz_id, t.music_score, t.music_level, t.sports_score, t.sports_level, t.painting_score, t.painting_level, t.psychology_score, t.psychology_level, t.general_technology_score, t.general_technology_level, t.information_technology_score, t.information_technology_level, t.other, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into dat_exam_result_minor (
+            exam_id, student_id, clazz_id, music_score, music_level, sports_score, sports_level, painting_score, painting_level, psychology_score, psychology_level, general_technology_score, general_technology_level, information_technology_score, information_technology_level, other
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.examId, jdbcType=BIGINT}, #{record.studentId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.musicScore, jdbcType=DECIMAL}, #{record.musicLevel, jdbcType=VARCHAR}, #{record.sportsScore, jdbcType=DECIMAL}, #{record.sportsLevel, jdbcType=VARCHAR}, #{record.paintingScore, jdbcType=DECIMAL}, #{record.paintingLevel, jdbcType=VARCHAR}, #{record.psychologyScore, jdbcType=DECIMAL}, #{record.psychologyLevel, jdbcType=VARCHAR}, #{record.generalTechnologyScore, jdbcType=DECIMAL}, #{record.generalTechnologyLevel, jdbcType=VARCHAR}, #{record.informationTechnologyScore, jdbcType=DECIMAL}, #{record.informationTechnologyLevel, jdbcType=VARCHAR}, #{record.other, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamResultMinor">
+        update dat_exam_result_minor set
+        <trim suffixOverrides=",">
+            exam_id = #{et.examId, jdbcType=BIGINT},
+            student_id = #{et.studentId, jdbcType=BIGINT},
+            clazz_id = #{et.clazzId, jdbcType=BIGINT},
+            music_score = #{et.musicScore, jdbcType=DECIMAL},
+            music_level = #{et.musicLevel, jdbcType=VARCHAR},
+            sports_score = #{et.sportsScore, jdbcType=DECIMAL},
+            sports_level = #{et.sportsLevel, jdbcType=VARCHAR},
+            painting_score = #{et.paintingScore, jdbcType=DECIMAL},
+            painting_level = #{et.paintingLevel, jdbcType=VARCHAR},
+            psychology_score = #{et.psychologyScore, jdbcType=DECIMAL},
+            psychology_level = #{et.psychologyLevel, jdbcType=VARCHAR},
+            general_technology_score = #{et.generalTechnologyScore, jdbcType=DECIMAL},
+            general_technology_level = #{et.generalTechnologyLevel, jdbcType=VARCHAR},
+            information_technology_score = #{et.informationTechnologyScore, jdbcType=DECIMAL},
+            information_technology_level = #{et.informationTechnologyLevel, jdbcType=VARCHAR},
+            other = #{et.other, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>
