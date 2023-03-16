@@ -6,6 +6,7 @@
         <result column="name" jdbcType="VARCHAR" property="name" />
         <result column="has_weight" jdbcType="VARCHAR" property="hasWeight" />
         <result column="is_main" jdbcType="VARCHAR" property="isMain" />
+        <result column="is_record_score" jdbcType="VARCHAR" property="isRecordScore" />
         <result column="max_score" jdbcType="BIGINT" property="maxScore" />
         <result column="subject_alias" jdbcType="VARCHAR" property="subjectAlias" />
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
@@ -14,19 +15,19 @@
     <resultMap id="ResultMap" type="com.zhzx.server.domain.Subject" extends="BaseResultMap">
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, has_weight, is_main, max_score, subject_alias, create_time, update_time
+        id, name, has_weight, is_main, is_record_score, max_score, subject_alias, create_time, update_time
     </sql>
     <sql id="Base_Column_List_With_Prefix">
-        t.id, t.name, t.has_weight, t.is_main, t.max_score, t.subject_alias, t.create_time, t.update_time
+        t.id, t.name, t.has_weight, t.is_main, t.is_record_score, t.max_score, t.subject_alias, t.create_time, t.update_time
     </sql>
     <insert id="batchInsert">
         insert into sys_subject (
-            name, has_weight, is_main, max_score, subject_alias
+            name, has_weight, is_main, is_record_score, max_score, subject_alias
         )
         values
         <foreach collection="records" item="record" separator=",">
         (
-            #{record.name, jdbcType=VARCHAR}, #{record.hasWeight, jdbcType=VARCHAR}, #{record.isMain, jdbcType=VARCHAR}, #{record.maxScore, jdbcType=BIGINT}, #{record.subjectAlias, jdbcType=VARCHAR}
+            #{record.name, jdbcType=VARCHAR}, #{record.hasWeight, jdbcType=VARCHAR}, #{record.isMain, jdbcType=VARCHAR}, #{record.isRecordScore, jdbcType=VARCHAR}, #{record.maxScore, jdbcType=BIGINT}, #{record.subjectAlias, jdbcType=VARCHAR}
         )
         </foreach>
     </insert>
@@ -36,6 +37,7 @@
             name = #{et.name, jdbcType=VARCHAR},
             has_weight = #{et.hasWeight, jdbcType=VARCHAR},
             is_main = #{et.isMain, jdbcType=VARCHAR},
+            is_record_score = #{et.isRecordScore, jdbcType=VARCHAR},
             max_score = #{et.maxScore, jdbcType=BIGINT},
             subject_alias = #{et.subjectAlias, jdbcType=VARCHAR},
         </trim>

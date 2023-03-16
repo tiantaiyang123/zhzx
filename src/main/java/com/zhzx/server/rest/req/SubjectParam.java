@@ -52,6 +52,11 @@ public class SubjectParam implements Serializable {
     @ApiModelProperty(value = "是否为赋分科目 IN值List")
     private List<String> hasWeightList;
     /**
+     * 是否录入成绩
+     */
+    @ApiModelProperty(value = "是否录入成绩")
+    private YesNoEnum isRecordScore;
+    /**
      * 是否为主要科目
      */
     @ApiModelProperty(value = "是否为主要科目")
@@ -130,6 +135,7 @@ public class SubjectParam implements Serializable {
         wrapper.in(this.getHasWeightList() != null && this.getHasWeightList().size() > 0, "has_weight", this.getHasWeightList());
         wrapper.eq(this.getIsMain() != null, "is_main", this.getIsMain());
         wrapper.in(this.getIsMainList() != null && this.getIsMainList().size() > 0, "is_main", this.getIsMainList());
+        wrapper.eq(this.getIsRecordScore() != null, "is_record_score", this.getIsRecordScore());
         wrapper.eq(this.getMaxScore() != null, "max_score", this.getMaxScore());
         if (this.getSubjectAlias() != null) {
             if (this.getSubjectAlias().startsWith("%") && this.getSubjectAlias().endsWith("%")) {

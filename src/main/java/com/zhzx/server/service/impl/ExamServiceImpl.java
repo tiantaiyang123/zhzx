@@ -25,6 +25,7 @@ import com.zhzx.server.repository.*;
 import com.zhzx.server.repository.base.ExamBaseMapper;
 import com.zhzx.server.rest.req.ExamParam;
 import com.zhzx.server.service.ExamGoalService;
+import com.zhzx.server.service.ExamGoalWarningService;
 import com.zhzx.server.service.ExamService;
 import com.zhzx.server.util.TwxUtils;
 import com.zhzx.server.vo.ExamVo;
@@ -54,6 +55,9 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam> implements Ex
 
     @Resource
     private ExamGoalService examGoalService;
+
+    @Resource
+    private ExamGoalWarningService examGoalWarningService;
 
     @Override
     public int updateAllFieldsById(Exam entity) {
@@ -288,6 +292,7 @@ public class ExamServiceImpl extends ServiceImpl<ExamMapper, Exam> implements Ex
                 }).collect(Collectors.toList());
                 this.settingsMapper.delete(Wrappers.<Settings>lambdaQuery().likeRight(Settings::getCode, "GOAL\\_" + examId + "\\_"));
                 this.settingsMapper.batchInsert(settingsList);
+                this.examGoalWarningService.insertDefault(examGoalDtoList);
             }
         }
     }

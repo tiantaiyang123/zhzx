@@ -342,6 +342,8 @@ public class ExamGoalServiceImpl extends ServiceImpl<ExamGoalMapper, ExamGoal> i
                         item.setGeographyGoalScore(CollectionUtils.isEmpty(map) ? BigDecimal.valueOf(150) : this.getScore(map.get(item.getSubjectType())[11], cnt));
                         item.setGeographyWeightedGoalScore(CollectionUtils.isEmpty(map) ? BigDecimal.valueOf(150) : this.getScore(map.get(item.getSubjectType())[12], cnt));
                     });
+                } else {
+                    examGoalDtoList = new ArrayList<>();
                 }
             }
         }

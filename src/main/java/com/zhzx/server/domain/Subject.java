@@ -58,6 +58,12 @@ public class Subject extends BaseDomain {
     @ApiModelProperty(value = "是否为主要科目", required = true)
     private YesNoEnum isMain;
     /**
+     * 是否录入成绩
+     */
+    @TableField(value = "is_record_score")
+    @ApiModelProperty(value = "是否录入成绩", required = true)
+    private YesNoEnum isRecordScore;
+    /**
      * 总分
      */
     @TableField(value = "max_score")
