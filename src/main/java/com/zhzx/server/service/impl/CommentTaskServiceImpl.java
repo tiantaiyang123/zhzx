@@ -128,6 +128,7 @@ public class CommentTaskServiceImpl extends ServiceImpl<CommentTaskMapper, Comme
                        if(CollectionUtils.isEmpty(commentProcessList)){
                            commentMapper.update(new Comment(),Wrappers.<Comment>lambdaUpdate()
                                    .set(Comment::getState,CommentStateEnum.PROCESSED)
+                                   .eq(Comment::getId, commentProcessDto.getCommentId())
                            );
                        }
                     }

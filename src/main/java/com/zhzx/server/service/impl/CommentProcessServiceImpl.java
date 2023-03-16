@@ -45,6 +45,8 @@ public class CommentProcessServiceImpl extends ServiceImpl<CommentProcessMapper,
     private UserMapper userMapper;
     @Resource
     private CommentImagesMapper commentImagesMapper;
+    @Resource
+    private CommentMapper commentMapper;
 
     @Override
     public int updateAllFieldsById(CommentProcess entity) {
@@ -123,11 +125,18 @@ public class CommentProcessServiceImpl extends ServiceImpl<CommentProcessMapper,
                 .set(Message::getIsRead,YesNoEnum.YES)
                 .eq(Message::getName,"commentProcess_"+commentProcess.getId())
         );
+
+        CommentProcess commentProcess1 = this.baseMapper.selectById(commentProcess.getId());
+        this.commentMapper.update(null, Wrappers.<Comment>lambdaUpdate()
+                .set(Comment::getState, CommentStateEnum.PENDING)
+                .eq(Comment::getId, commentProcess1.getCommentId()));
+
         this.baseMapper.update(new CommentProcess(),Wrappers.<CommentProcess>lambdaUpdate()
                 .set(CommentProcess::getState, CommentStateEnum.PENDING)
                 .set(CommentProcess::getInstructions, commentProcess.getInstructions())
                 .eq(CommentProcess::getId,commentProcess.getId())
         );
+
         List<CommentTask> commentTaskList = commentTaskMapper.selectList(Wrappers.<CommentTask>lambdaQuery()
                 .eq(CommentTask::getCommentProcessId,commentProcess.getId())
         );

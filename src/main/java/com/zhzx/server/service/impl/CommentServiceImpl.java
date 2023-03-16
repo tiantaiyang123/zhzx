@@ -306,8 +306,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             message.setContent(JsonUtils.toJson(map));
             message.setSenderId(-1L);
             message.setSenderName("系统");
-            message.setReceiverName(user.getRealName());
-            message.setReceiverId(user.getStaffId());
+            message.setReceiverName("王圣华");
+            message.setReceiverId(4L);
             message.setReceiverType(ReceiverEnum.TEACHER);
             message.setSendTime(new Date());
             message.setIsSend(YesNoEnum.YES);
