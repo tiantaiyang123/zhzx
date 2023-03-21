@@ -2,9 +2,10 @@
  * 项目：中华中学管理平台
  * 模型分组：成绩管理
  * 模型名称：副科考试结果表
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.rest.req;
 
@@ -116,39 +117,39 @@ public class ExamResultMinorParam implements Serializable {
     @ApiModelProperty(value = "其他成绩信息")
     private String other;
     /**
-     * 
+     *
      */
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "")
     private java.util.Date createTime;
     /**
      *  下限值(大于等于)
      */
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = " 下限值(大于等于)")
     private java.util.Date createTimeFrom;
     /**
      *  上限值(小于)
      */
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = " 上限值(小于)")
     private java.util.Date createTimeTo;
     /**
-     * 
+     *
      */
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "")
     private java.util.Date updateTime;
     /**
      *  下限值(大于等于)
      */
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = " 下限值(大于等于)")
     private java.util.Date updateTimeFrom;
     /**
      *  上限值(小于)
      */
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = " 上限值(小于)")
     private java.util.Date updateTimeTo;
 
@@ -163,88 +164,17 @@ public class ExamResultMinorParam implements Serializable {
         wrapper.eq(this.getStudentId() != null, "student_id", this.getStudentId());
         wrapper.eq(this.getClazzId() != null, "clazz_id", this.getClazzId());
         wrapper.eq(this.getMusicScore() != null, "music_score", this.getMusicScore());
-        if (this.getMusicLevel() != null) {
-            if (this.getMusicLevel().startsWith("%") && this.getMusicLevel().endsWith("%")) {
-                wrapper.like("music_level", this.getMusicLevel().substring(1, this.getMusicLevel().length() - 1));
-            } else if (this.getMusicLevel().startsWith("%") && !this.getMusicLevel().endsWith("%")) {
-                wrapper.likeLeft("music_level", this.getMusicLevel().substring(1));
-            } else if (this.getMusicLevel().endsWith("%")) {
-                wrapper.likeRight("music_level", this.getMusicLevel().substring(0, this.getMusicLevel().length() - 1));
-            } else {
-                wrapper.eq("music_level", this.getMusicLevel());
-            }
-        }
+        wrapper.eq(this.getMusicLevel() != null, "music_level", this.getMusicLevel());
         wrapper.eq(this.getSportsScore() != null, "sports_score", this.getSportsScore());
-        if (this.getSportsLevel() != null) {
-            if (this.getSportsLevel().startsWith("%") && this.getSportsLevel().endsWith("%")) {
-                wrapper.like("sports_level", this.getSportsLevel().substring(1, this.getSportsLevel().length() - 1));
-            } else if (this.getSportsLevel().startsWith("%") && !this.getSportsLevel().endsWith("%")) {
-                wrapper.likeLeft("sports_level", this.getSportsLevel().substring(1));
-            } else if (this.getSportsLevel().endsWith("%")) {
-                wrapper.likeRight("sports_level", this.getSportsLevel().substring(0, this.getSportsLevel().length() - 1));
-            } else {
-                wrapper.eq("sports_level", this.getSportsLevel());
-            }
-        }
+        wrapper.eq(this.getSportsLevel() != null, "sports_level", this.getSportsLevel());
         wrapper.eq(this.getPaintingScore() != null, "painting_score", this.getPaintingScore());
-        if (this.getPaintingLevel() != null) {
-            if (this.getPaintingLevel().startsWith("%") && this.getPaintingLevel().endsWith("%")) {
-                wrapper.like("painting_level", this.getPaintingLevel().substring(1, this.getPaintingLevel().length() - 1));
-            } else if (this.getPaintingLevel().startsWith("%") && !this.getPaintingLevel().endsWith("%")) {
-                wrapper.likeLeft("painting_level", this.getPaintingLevel().substring(1));
-            } else if (this.getPaintingLevel().endsWith("%")) {
-                wrapper.likeRight("painting_level", this.getPaintingLevel().substring(0, this.getPaintingLevel().length() - 1));
-            } else {
-                wrapper.eq("painting_level", this.getPaintingLevel());
-            }
-        }
+        wrapper.eq(this.getPaintingLevel() != null, "painting_level", this.getPaintingLevel());
         wrapper.eq(this.getPsychologyScore() != null, "psychology_score", this.getPsychologyScore());
-        if (this.getPsychologyLevel() != null) {
-            if (this.getPsychologyLevel().startsWith("%") && this.getPsychologyLevel().endsWith("%")) {
-                wrapper.like("psychology_level", this.getPsychologyLevel().substring(1, this.getPsychologyLevel().length() - 1));
-            } else if (this.getPsychologyLevel().startsWith("%") && !this.getPsychologyLevel().endsWith("%")) {
-                wrapper.likeLeft("psychology_level", this.getPsychologyLevel().substring(1));
-            } else if (this.getPsychologyLevel().endsWith("%")) {
-                wrapper.likeRight("psychology_level", this.getPsychologyLevel().substring(0, this.getPsychologyLevel().length() - 1));
-            } else {
-                wrapper.eq("psychology_level", this.getPsychologyLevel());
-            }
-        }
+        wrapper.eq(this.getPsychologyLevel() != null, "psychology_level", this.getPsychologyLevel());
         wrapper.eq(this.getGeneralTechnologyScore() != null, "general_technology_score", this.getGeneralTechnologyScore());
-        if (this.getGeneralTechnologyLevel() != null) {
-            if (this.getGeneralTechnologyLevel().startsWith("%") && this.getGeneralTechnologyLevel().endsWith("%")) {
-                wrapper.like("general_technology_level", this.getGeneralTechnologyLevel().substring(1, this.getGeneralTechnologyLevel().length() - 1));
-            } else if (this.getGeneralTechnologyLevel().startsWith("%") && !this.getGeneralTechnologyLevel().endsWith("%")) {
-                wrapper.likeLeft("general_technology_level", this.getGeneralTechnologyLevel().substring(1));
-            } else if (this.getGeneralTechnologyLevel().endsWith("%")) {
-                wrapper.likeRight("general_technology_level", this.getGeneralTechnologyLevel().substring(0, this.getGeneralTechnologyLevel().length() - 1));
-            } else {
-                wrapper.eq("general_technology_level", this.getGeneralTechnologyLevel());
-            }
-        }
+        wrapper.eq(this.getGeneralTechnologyLevel() != null, "general_technology_level", this.getGeneralTechnologyLevel());
         wrapper.eq(this.getInformationTechnologyScore() != null, "information_technology_score", this.getInformationTechnologyScore());
-        if (this.getInformationTechnologyLevel() != null) {
-            if (this.getInformationTechnologyLevel().startsWith("%") && this.getInformationTechnologyLevel().endsWith("%")) {
-                wrapper.like("information_technology_level", this.getInformationTechnologyLevel().substring(1, this.getInformationTechnologyLevel().length() - 1));
-            } else if (this.getInformationTechnologyLevel().startsWith("%") && !this.getInformationTechnologyLevel().endsWith("%")) {
-                wrapper.likeLeft("information_technology_level", this.getInformationTechnologyLevel().substring(1));
-            } else if (this.getInformationTechnologyLevel().endsWith("%")) {
-                wrapper.likeRight("information_technology_level", this.getInformationTechnologyLevel().substring(0, this.getInformationTechnologyLevel().length() - 1));
-            } else {
-                wrapper.eq("information_technology_level", this.getInformationTechnologyLevel());
-            }
-        }
-        if (this.getOther() != null) {
-            if (this.getOther().startsWith("%") && this.getOther().endsWith("%")) {
-                wrapper.like("other", this.getOther().substring(1, this.getOther().length() - 1));
-            } else if (this.getOther().startsWith("%") && !this.getOther().endsWith("%")) {
-                wrapper.likeLeft("other", this.getOther().substring(1));
-            } else if (this.getOther().endsWith("%")) {
-                wrapper.likeRight("other", this.getOther().substring(0, this.getOther().length() - 1));
-            } else {
-                wrapper.eq("other", this.getOther());
-            }
-        }
+        wrapper.eq(this.getInformationTechnologyLevel() != null, "information_technology_level", this.getInformationTechnologyLevel());
         wrapper.eq(this.getCreateTime() != null, "create_time", this.getCreateTime());
         wrapper.ge(this.getCreateTimeFrom() != null, "create_time", this.getCreateTimeFrom());
         wrapper.lt(this.getCreateTimeTo() != null, "create_time", this.getCreateTimeTo());

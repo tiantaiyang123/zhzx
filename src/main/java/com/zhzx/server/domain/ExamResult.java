@@ -12,6 +12,8 @@ import java.io.Serializable;
 
 import com.zhzx.server.rest.res.ApiCode;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -180,6 +182,60 @@ public class ExamResult extends BaseDomain {
     @ApiModelProperty(value = "年级排名", required = true)
     private Integer gradeRank;
     /**
+     * 语文学业等级
+     */
+    @TableField(value = "chinese_level")
+    @ApiModelProperty(value = "语文学业等级")
+    private String chineseLevel;
+    /**
+     * 数学学业等级
+     */
+    @TableField(value = "math_level")
+    @ApiModelProperty(value = "数学学业等级")
+    private String mathLevel;
+    /**
+     * 英语学业等级
+     */
+    @TableField(value = "english_level")
+    @ApiModelProperty(value = "英语学业等级")
+    private String englishLevel;
+    /**
+     * 物理学业等级
+     */
+    @TableField(value = "physics_level")
+    @ApiModelProperty(value = "物理学业等级")
+    private String physicsLevel;
+    /**
+     * 化学学业等级
+     */
+    @TableField(value = "chemistry_level")
+    @ApiModelProperty(value = "化学学业等级")
+    private String chemistryLevel;
+    /**
+     * 生物学业等级
+     */
+    @TableField(value = "biology_level")
+    @ApiModelProperty(value = "生物学业等级")
+    private String biologyLevel;
+    /**
+     * 历史学业等级
+     */
+    @TableField(value = "history_level")
+    @ApiModelProperty(value = "历史学业等级")
+    private String historyLevel;
+    /**
+     * 政治学业等级
+     */
+    @TableField(value = "politics_level")
+    @ApiModelProperty(value = "政治学业等级")
+    private String politicsLevel;
+    /**
+     * 地理学业等级
+     */
+    @TableField(value = "geography_level")
+    @ApiModelProperty(value = "地理学业等级")
+    private String geographyLevel;
+    /**
      * 其他成绩信息
      */
     @TableField(value = "other", select = false)
@@ -220,6 +276,45 @@ public class ExamResult extends BaseDomain {
         }
         if (this.getUpdateTime() == null) {
             this.setUpdateTime(new java.util.Date());
+        }
+        if (this.getChineseScore() == null) {
+            this.setChineseScore(BigDecimal.ZERO);
+        }
+        if (this.getMathScore() == null) {
+            this.setMathScore(BigDecimal.ZERO);
+        }
+        if (this.getEnglishScore() == null) {
+            this.setEnglishScore(BigDecimal.ZERO);
+        }
+        if (this.getPhysicsScore() == null) {
+            this.setPhysicsScore(BigDecimal.ZERO);
+        }
+        if (this.getHistoryScore() == null) {
+            this.setHistoryScore(BigDecimal.ZERO);
+        }
+        if (this.getChemistryScore() == null) {
+            this.setChemistryScore(BigDecimal.ZERO);
+        }
+        if (this.getChemistryWeightedScore() == null) {
+            this.setChemistryWeightedScore(BigDecimal.ZERO);
+        }
+        if (this.getBiologyScore() == null) {
+            this.setBiologyScore(BigDecimal.ZERO);
+        }
+        if (this.getBiologyWeightedScore() == null) {
+            this.setBiologyWeightedScore(BigDecimal.ZERO);
+        }
+        if (this.getPoliticsScore() == null) {
+            this.setPoliticsScore(BigDecimal.ZERO);
+        }
+        if (this.getPoliticsWeightedScore() == null) {
+            this.setPoliticsWeightedScore(BigDecimal.ZERO);
+        }
+        if (this.getGeographyScore() == null) {
+            this.setGeographyScore(BigDecimal.ZERO);
+        }
+        if (this.getGeographyWeightedScore() == null) {
+            this.setGeographyWeightedScore(BigDecimal.ZERO);
         }
         return this;
     }

@@ -10,6 +10,10 @@
         select * from dat_exam_score_report ${ew.customSqlSegment} LIMIT 1
     </select>
 
+    <select id="selectList" resultMap="com.zhzx.server.repository.base.ExamScoreReportBaseMapper.ResultMap">
+        select * from dat_exam_score_report ${ew.customSqlSegment}
+    </select>
+
     <select id="selectPage" resultMap="com.zhzx.server.repository.base.ExamScoreReportBaseMapper.ResultMap">
         select * from dat_exam_score_report ${ew.customSqlSegment}
     </select>

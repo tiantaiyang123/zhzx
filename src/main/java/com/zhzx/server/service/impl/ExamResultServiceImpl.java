@@ -36,6 +36,7 @@ import com.zhzx.server.service.ExamResultService;
 import com.zhzx.server.service.ExamService;
 import com.zhzx.server.service.SubjectService;
 import com.zhzx.server.util.CellUtils;
+import com.zhzx.server.util.JsonUtils;
 import com.zhzx.server.util.StringUtils;
 import com.zhzx.server.util.TwxUtils;
 import org.apache.commons.beanutils.BeanUtils;
@@ -58,10 +59,14 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamResult> implements ExamResultService {
+
+    @Resource
+    private ExamResultMinorMapper examResultMinorMapper;
 
     @Resource
     private ExamMapper examMapper;
@@ -1247,6 +1252,53 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
         return map;
     }
 
+    @Override
+    public List<ExamResult> searchByPageExistOrDefault(Long schoolyardId, Long academicYearSemesterId, Long gradeId, Long examId, Long clazzId, Long studentId, String studentName, String orderByClause) {
+        List<ExamResult> res = new ArrayList<>();
+        if (null == clazzId || null == examId || null == academicYearSemesterId) return res;
+
+        IPage<ExamResult> page = new Page<>(1, 100);
+        page = this.getBaseMapper().searchExamResult(page, schoolyardId, academicYearSemesterId, gradeId, examId, clazzId, studentId, studentName, orderByClause);
+        Map<Long, ExamResult> examResultMap = page.getRecords().stream().collect(Collectors.toMap(ExamResult::getStudentId, Function.identity()));
+
+        List<Student> studentList = this.studentMapper.listByClazzStudent(clazzId, academicYearSemesterId, studentName);
+        if (null != studentId) studentList = studentList.stream().filter(item -> studentId.equals(item.getId())).collect(Collectors.toList());
+        studentList.sort(Comparator.comparing(item -> Integer.parseInt(item.getStudentNumber()), Comparator.naturalOrder()));
+
+        studentList.forEach(item -> {
+            ExamResult examResult = examResultMap.getOrDefault(item.getId(), new ExamResult());
+            if (null == examResult.getId()) {
+                examResult.setClazzId(clazzId);
+                examResult.setStudentId(item.getId());
+                examResult.setExamId(examId);
+            }
+            res.add(examResult);
+         });
+
+        return res;
+    }
+
+    @Override
+    public List<ExamResult> batchCreateOrUpdate(List<ExamResult> entityList) {
+        entityList = entityList.stream().filter(item -> null != item.getTotalScore() && item.getTotalScore().compareTo(BigDecimal.ZERO) > 0).collect(Collectors.toList());
+
+        entityList.forEach(item -> {
+            if (null == item.getId()) {
+                item.setDefault().validate(true);
+                this.baseMapper.insert(item);
+            } else {
+                this.baseMapper.updateById(item);
+            }
+
+            if (null != item.getExamResultMinor()) {
+                ExamResultMinor examResultMinor = item.getExamResultMinor();
+                this.examResultMinorMapper.insert(examResultMinor);
+            }
+        });
+
+        return entityList;
+    }
+
     private Map<Integer, List<ExamChartDto>> getChartInfo2(String s, List<ExamClazzAnalyseClazzAndStudentDto> studentConditionList) throws Exception {
         Map<Integer, List<ExamChartDto>> chatInfo = new HashMap<>();
         for (int i = 1; i <= 8; i++) {
@@ -1585,15 +1637,18 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean calculate(Long examId, String name) {
+    public Boolean calculate(Long examId, String name, String includeWeighted) {
         Exam exam = this.examMapper.selectById(examId);
         if (exam == null) {
             throw new ApiCode.ApiException(-5, "考试不存在");
         }
+
+        // 不算赋分的考试
         if (YesNoEnum.NO.equals(exam.getCalNaturalScore())) {
-            throw new ApiCode.ApiException(-5, "本次考试不能计算赋分！");
+            includeWeighted = "01";
         }
 
+        // 学业等级设置参数
         LambdaQueryWrapper<ExamGoalNaturalTemplate> wrapper = Wrappers.<ExamGoalNaturalTemplate>lambdaQuery()
                 .eq(ExamGoalNaturalTemplate::getGradeId, exam.getGrade().getId())
                 .eq(ExamGoalNaturalTemplate::getName, name);
@@ -1622,25 +1677,37 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
         }
         Map<String, ExamGoalNaturalTemplate> stringExamGoalNaturalTemplateMap = examGoalNaturalTemplates
                     .stream().collect(Collectors.toMap(o -> o.getSubject().getSubjectAlias(), o1 -> o1));
+
         // 全年级学生分数
-        List<ExamCalculateWeightedScoreDto> allScoreList = this.getBaseMapper().selectWeightedScoreBySubject(examId);
-        if (CollectionUtils.isEmpty(allScoreList)) {
+        IPage<ExamResult> page = this.baseMapper.searchExamResult(new Page<>(1, 2000),null, null, null, examId, null, null, null, null);
+        List<ExamResult> examResultList = page.getRecords();
+        if (CollectionUtils.isEmpty(examResultList)) {
             return true;
         }
+
+        // 存储所有学科分数和学业等级设置参数
         Map<String, List<BigDecimal>> subjectScoreMap = new HashMap<>();
+        Map<String, Subject> subjectMap = examGoalNaturalTemplates.stream().collect(Collectors.toMap(item -> item.getSubject().getSubjectAlias(), ExamGoalNaturalTemplate::getSubject));
         try {
-            for (ExamCalculateWeightedScoreDto item : allScoreList) {
-                if (!StringUtils.isNullOrEmpty(item.getWeightedSubjects())) {
-                    String[] arr = item.getWeightedSubjects().split("[,]");
-                    for (String s : arr) {
-                        String methodName = "get" + s.substring(0, 1).toUpperCase() + s.substring(1) + "Score";
-                        Method method = ExamCalculateWeightedScoreDto.class.getMethod(methodName);
-                        BigDecimal curr = (BigDecimal) method.invoke(item);
-                        if (curr.compareTo(BigDecimal.ZERO) > 0) {
-                            subjectScoreMap.computeIfAbsent(s, o -> new ArrayList<>()).add((BigDecimal) method.invoke(item));
+            for (ExamResult examResult : examResultList) {
+                for (Map.Entry<String, Subject> entry : subjectMap.entrySet()) {
+                    String key = entry.getKey();
+                    Subject subject = entry.getValue();
+                    String methodName = "get" + key.substring(0, 1).toUpperCase() + key.substring(1) + "Score";
+                    BigDecimal score = BigDecimal.ZERO;
+                    if (YesNoEnum.NO.equals(subject.getHasWeight()) && YesNoEnum.NO.equals(subject.getIsMain())) {
+                        if (null != examResult.getExamResultMinor()) {
+                            Method method = ExamResultMinor.class.getMethod(methodName);
+                            score = (BigDecimal) method.invoke(examResult.getExamResultMinor());
                         }
+                    } else {
+                        Method method = ExamResult.class.getMethod(methodName);
+                        score = (BigDecimal) method.invoke(examResult);
                     }
-                    item.setArr(arr);
+
+                    if (BigDecimal.ZERO.compareTo(score) < 0) {
+                        subjectScoreMap.computeIfAbsent(key, o -> new ArrayList<>()).add(score);
+                    }
                 }
             }
         } catch (Exception e0) {
@@ -1653,23 +1720,33 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
         // 科目参与人数, 科目排名(百分比), 科目分数, 区间最高分, 区间最低分, 赋分
         BigDecimal joinCnt, rank, score, originMax, originMin, weightScore;
         try {
-            for (ExamCalculateWeightedScoreDto item : allScoreList) {
-                if (item.getArr() != null && item.getArr().length > 0) {
-                    for (String s : item.getArr()) {
-                        String reflectFiled = s.substring(0, 1).toUpperCase() + s.substring(1);
-                        Method method = ExamCalculateWeightedScoreDto.class.getMethod("get" + reflectFiled + "Score");
-                        score = (BigDecimal) method.invoke(item);
+            for (ExamResult examResult : examResultList) {
+                    for (Map.Entry<String, Subject> entry : subjectMap.entrySet()) {
+                        String key = entry.getKey();
+                        Subject subject = entry.getValue();
+                        String methodName = key.substring(0, 1).toUpperCase() + key.substring(1);
+                        boolean isMinor = true;
+                        if (YesNoEnum.NO.equals(subject.getHasWeight()) && YesNoEnum.NO.equals(subject.getIsMain())) {
+                            if (null != examResult.getExamResultMinor()) {
+                                Method method = ExamResultMinor.class.getMethod(methodName + "Score");
+                                score = (BigDecimal) method.invoke(examResult.getExamResultMinor());
+                            } else {
+                                score = BigDecimal.ZERO;
+                            }
+                        } else {
+                            isMinor = false;
+                            Method method = ExamResult.class.getMethod(methodName + "Score");
+                            score = (BigDecimal) method.invoke(examResult);
+                        }
+
                         if (score.compareTo(BigDecimal.ZERO) == 0) {
                             continue;
                         }
-                        List<BigDecimal> currScoreList = subjectScoreMap.get(s);
+
+                        List<BigDecimal> currScoreList = subjectScoreMap.get(key);
                         joinCnt = BigDecimal.valueOf(currScoreList.size());
                         rank = BigDecimal.valueOf(TwxUtils.binarySearchEnhance1(currScoreList, score)).multiply(hundred).divide(joinCnt, 2, RoundingMode.HALF_UP);
-                        // 当前学科是否存在计算规则
-                        if (!stringExamGoalNaturalTemplateMap.containsKey(s)) {
-                            continue;
-                        }
-                        ExamGoalNaturalTemplate examGoalNaturalTemplate = stringExamGoalNaturalTemplateMap.get(s);
+                        ExamGoalNaturalTemplate examGoalNaturalTemplate = stringExamGoalNaturalTemplateMap.get(key);
 
                         int begin = 1, end = currScoreList.size();
                         int mapLeft = 99, mapRight = 30;
@@ -1677,30 +1754,36 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
                         BigDecimal ratioB = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioB());
                         BigDecimal ratioC = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioC());
                         BigDecimal ratioD = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioD());
+                        String level;
                         if (ExamNaturalSettingEnum.COUNT.equals(examGoalNaturalTemplate.getSettingType())) {
                             ratioB = ratioB.add(ratioA);
                             ratioC = ratioC.add(ratioB);
                             ratioD = ratioD.add(ratioC);
                             // 获取对应等级区间
                             if (rank.compareTo(ratioA) <= 0) {
+                                level = "A";
                                 mapRight = 86;
                                 end = joinCnt.multiply(ratioA).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                             } else if (rank.compareTo(ratioB) <= 0) {
+                                level = "B";
                                 mapLeft = 85;
                                 mapRight = 71;
                                 begin = joinCnt.multiply(ratioA).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                                 end = joinCnt.multiply(ratioB).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                             } else if (rank.compareTo(ratioC) <= 0) {
+                                level = "C";
                                 mapLeft = 70;
                                 mapRight = 56;
                                 begin = joinCnt.multiply(ratioB).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                                 end = joinCnt.multiply(ratioC).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                             } else if (rank.compareTo(ratioD) <= 0) {
+                                level = "D";
                                 mapLeft = 55;
                                 mapRight = 41;
                                 begin = joinCnt.multiply(ratioC).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                                 end = joinCnt.multiply(ratioD).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                             } else {
+                                level = "E";
                                 mapLeft = 40;
                                 begin = joinCnt.multiply(ratioD).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                             }
@@ -1719,21 +1802,26 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
                             BigDecimal[] bigDecimals;
                             // 获取对应等级区间 以及区间实际最高最低分
                             if (score.compareTo(ratioA) <= 0) {
+                                level = "A";
                                 mapRight = 86;
                                 bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, currScoreList.get(0), ratioA);
                             } else if (score.compareTo(ratioB) <= 0) {
+                                level = "B";
                                 mapLeft = 85;
                                 mapRight = 71;
                                 bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioA.add(BigDecimal.ONE), ratioB);
                             } else if (score.compareTo(ratioC) <= 0) {
+                                level = "C";
                                 mapLeft = 70;
                                 mapRight = 56;
                                 bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioB.add(BigDecimal.ONE), ratioC);
                             } else if (score.compareTo(ratioD) <= 0) {
+                                level = "D";
                                 mapLeft = 55;
                                 mapRight = 41;
                                 bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioC.add(BigDecimal.ONE), ratioD);
                             } else {
+                                level = "E";
                                 mapLeft = 40;
                                 bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioD.add(BigDecimal.ONE), currScoreList.get(currScoreList.size() - 1));
                             }
@@ -1750,23 +1838,26 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
                             weightScore = BigDecimal.valueOf(mapLeft).add(scale.multiply(BigDecimal.valueOf(mapRight)))
                                     .divide(BigDecimal.ONE.add(scale), 0, RoundingMode.HALF_UP);
                         }
-                        Method method1 = ExamCalculateWeightedScoreDto.class.getMethod("set" + reflectFiled + "WeightedScore", BigDecimal.class);
-                        method1.invoke(item, weightScore);
+                        if (!"01".equals(includeWeighted) && YesNoEnum.YES.equals(subject.getHasWeight())) {
+                            Method method1 = ExamResult.class.getMethod("set" + methodName + "WeightedScore", BigDecimal.class);
+                            method1.invoke(examResult, weightScore);
+                        }
+                        // 设置学业等级
+                        Method method1 = ExamResult.class.getMethod("set" + methodName + "Level", String.class);
+                        method1.invoke(examResult, level);
                     }
-                    item.setUpdateTime(now);
-                    item.setTotalWeightedScore(item.getChineseScore().add(item.getMathScore())
-                            .add(item.getEnglishScore()).add(item.getPhysicsScore()).add(item.getHistoryScore()
-                                    .add(item.getBiologyWeightedScore()).add(item.getChemistryWeightedScore())
-                                    .add(item.getGeographyWeightedScore()).add(item.getPoliticsWeightedScore())));
-                }
+                examResult.setTotalWeightedScore(examResult.getChineseScore().add(examResult.getMathScore())
+                            .add(examResult.getEnglishScore()).add(examResult.getPhysicsScore()).add(examResult.getHistoryScore()
+                                    .add(examResult.getBiologyWeightedScore()).add(examResult.getChemistryWeightedScore())
+                                    .add(examResult.getGeographyWeightedScore()).add(examResult.getPoliticsWeightedScore())));
             }
         } catch (Exception e1) {
             throw new ApiCode.ApiException(-5, e1.getClass().toString());
         }
 
-        int size = allScoreList.size();
-        for (int i = 0, j = Math.min(100, size); i <= size;) {
-            this.getBaseMapper().updateWeightedScore(allScoreList.subList(i, j));
+        int size = examResultList.size();
+        for (int i = 0, j = Math.min(100, size); i <= size; ) {
+            this.getBaseMapper().updateWeightedScore(examResultList.subList(i, j));
             i = (j == size ? j + 1 : j);
             j = Math.min(j + 100, size);
         }
@@ -1791,7 +1882,6 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
         examGoalNaturalMapper.delete(Wrappers.<ExamGoalNatural>lambdaQuery()
                 .eq(ExamGoalNatural::getExamId, examId).in(ExamGoalNatural::getSubjectId, subjectIds));
         examGoalNaturalMapper.batchInsert(insertList);
-
         examMapper.update(null, Wrappers.<Exam>lambdaUpdate().eq(Exam::getId, examId).set(Exam::getIsPublish, YesNoEnum.NO));
         return true;
     }

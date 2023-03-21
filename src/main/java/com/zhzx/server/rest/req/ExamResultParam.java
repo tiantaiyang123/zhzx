@@ -136,6 +136,51 @@ public class ExamResultParam implements Serializable {
     @ApiModelProperty(value = "年级排名")
     private Integer gradeRank;
     /**
+     * 语文学业等级
+     */
+    @ApiModelProperty(value = "语文学业等级")
+    private String chineseLevel;
+    /**
+     * 数学学业等级
+     */
+    @ApiModelProperty(value = "数学学业等级")
+    private String mathLevel;
+    /**
+     * 英语学业等级
+     */
+    @ApiModelProperty(value = "英语学业等级")
+    private String englishLevel;
+    /**
+     * 物理学业等级
+     */
+    @ApiModelProperty(value = "物理学业等级")
+    private String physicsLevel;
+    /**
+     * 化学学业等级
+     */
+    @ApiModelProperty(value = "化学学业等级")
+    private String chemistryLevel;
+    /**
+     * 生物学业等级
+     */
+    @ApiModelProperty(value = "生物学业等级")
+    private String biologyLevel;
+    /**
+     * 历史学业等级
+     */
+    @ApiModelProperty(value = "历史学业等级")
+    private String historyLevel;
+    /**
+     * 政治学业等级
+     */
+    @ApiModelProperty(value = "政治学业等级")
+    private String politicsLevel;
+    /**
+     * 地理学业等级
+     */
+    @ApiModelProperty(value = "地理学业等级")
+    private String geographyLevel;
+    /**
      * 其他成绩信息
      */
     @ApiModelProperty(value = "其他成绩信息")
@@ -204,6 +249,15 @@ public class ExamResultParam implements Serializable {
         wrapper.eq(this.getGeographyWeightedScore() != null, "geography_weighted_score", this.getGeographyWeightedScore());
         wrapper.eq(this.getClazzRank() != null, "clazz_rank", this.getClazzRank());
         wrapper.eq(this.getGradeRank() != null, "grade_rank", this.getGradeRank());
+        wrapper.eq(this.getChineseLevel() != null, "chinese_level", this.getChineseLevel());
+        wrapper.eq(this.getMathLevel() != null, "math_level", this.getMathLevel());
+        wrapper.eq(this.getEnglishLevel() != null, "english_level", this.getEnglishLevel());
+        wrapper.eq(this.getPhysicsLevel() != null, "physics_level", this.getPhysicsLevel());
+        wrapper.eq(this.getChemistryLevel() != null, "chemistry_level", this.getChemistryLevel());
+        wrapper.eq(this.getHistoryLevel() != null, "history_level", this.getHistoryLevel());
+        wrapper.eq(this.getBiologyLevel() != null, "biology_level", this.getBiologyLevel());
+        wrapper.eq(this.getPoliticsLevel() != null, "politics_level", this.getPoliticsLevel());
+        wrapper.eq(this.getGeographyLevel() != null, "geography_level", this.getGeographyLevel());
         if (this.getOther() != null) {
             if (this.getOther().startsWith("%") && this.getOther().endsWith("%")) {
                 wrapper.like("other", this.getOther().substring(1, this.getOther().length() - 1));

@@ -33,7 +33,15 @@
                 biology_weighted_score = #{et.biologyWeightedScore, jdbcType=DECIMAL},
                 politics_weighted_score = #{et.politicsWeightedScore, jdbcType=DECIMAL},
                 geography_weighted_score = #{et.geographyWeightedScore, jdbcType=DECIMAL},
-                update_time = #{et.updateTime, jdbcType=TIMESTAMP}
+                chinese_level = #{et.chineseLevel, jdbcType=VARCHAR},
+                math_level = #{et.mathLevel, jdbcType=VARCHAR},
+                english_level = #{et.englishLevel, jdbcType=VARCHAR},
+                physics_level = #{et.physicsLevel, jdbcType=VARCHAR},
+                chemistry_level = #{et.chemistryLevel, jdbcType=VARCHAR},
+                biology_level = #{et.biologyLevel, jdbcType=VARCHAR},
+                history_level = #{et.historyLevel, jdbcType=VARCHAR},
+                politics_level = #{et.politicsLevel, jdbcType=VARCHAR},
+                geography_level = #{et.geographyLevel, jdbcType=VARCHAR}
             where id = #{et.id}
         </foreach>
     </update>
@@ -267,12 +275,18 @@
         select
                a.*,
                b.id AS minor_id,
-               b.music_score AS minor_music_score, b.music_level AS minor_music_level,
-               b.sports_score AS minor_sports_score, b.sports_level AS minor_sports_level,
-               b.painting_score AS minor_painting_score, b.painting_level AS minor_painting_level,
-               b.psychology_score AS minor_psychology_score, b.psychology_level AS minor_psychology_level,
-               b.general_technology_score AS minor_general_technology_score, b.general_technology_level AS minor_general_technology_level,
-               b.information_technology_score AS minor_information_technology_score, b.information_technology_level AS minor_information_technology_level,
+               b.music_score AS minor_music_score,
+               b.music_level AS minor_music_level,
+               b.sports_score AS minor_sports_score,
+               b.sports_level AS minor_sports_level,
+               b.painting_score AS minor_painting_score,
+               b.painting_level AS minor_painting_level,
+               b.psychology_score AS minor_psychology_score,
+               b.psychology_level AS minor_psychology_level,
+               b.general_technology_score AS minor_general_technology_score,
+               b.general_technology_level AS minor_general_technology_level,
+               b.information_technology_score AS minor_information_technology_score,
+               b.information_technology_level AS minor_information_technology_level,
                b.other AS minor_other, b.create_time AS minor_create_time, b.update_time AS minor_update_time
         from dat_exam_result a
         left join dat_exam_result_minor b on a.clazz_id = b.clazz_id and a.exam_id=b.exam_id and a.student_id=b.student_id
@@ -537,15 +551,6 @@
         where t1.id=#{examId}
         order by t.id
     </select>
-    <select id = "selectWeightedScoreBySubject" resultType="com.zhzx.server.dto.exam.ExamCalculateWeightedScoreDto">
-        select
-        <include refid="Base_Column_List_To_Bean"></include>,
-        (select ifnull(group_concat(subject_alias order by id),'') from sys_subject where is_main='YES' and has_weight='YES' and find_in_set(id, t1.clazz_division) > 0) AS weightedSubjects
-        from dat_exam_result t
-        left join sys_clazz t1 on t1.id=t.clazz_id
-        where t.exam_id=#{examId}
-    </select>
-
     <select id="queryExamResultByPage" resultType="java.util.Map">
         select
         <include refid="Base_Column_List_To_Bean"></include>,

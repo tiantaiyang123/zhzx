@@ -26,5 +26,7 @@ public interface ExamScoreReportService extends IService<ExamScoreReport> {
 
     void calculate(Long subjectId, Long clazzId, Long examIdMiddle, Long examIdEnd);
 
-    Object batchCreateOrUpdate(Long subjectId, Long clazzId, List<ExamScoreReport> entityList);
+    List<ExamScoreReport> batchCreateOrUpdate(List<ExamScoreReport> entityList);
+
+    List<ExamScoreReport> searchExistOrDefault(Long subjectId, Long clazzId, Long academicYearSemesterId);
 }

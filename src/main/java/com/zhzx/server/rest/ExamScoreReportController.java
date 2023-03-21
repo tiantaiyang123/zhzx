@@ -198,10 +198,16 @@ public class ExamScoreReportController {
 
     @PostMapping("/batch-create-or-update")
     @ApiOperation("批量新增或者编辑")
-    public ApiResponse<List<ExamScoreReport>> batchCreateOrUpdate(@RequestBody List<ExamScoreReport> entityList,
-                                                   @RequestParam(value = "subjectId") Long subjectId,
-                                                   @RequestParam(value = "clazzId") Long clazzId) {
-        return ApiResponse.ok(this.examScoreReportService.batchCreateOrUpdate(subjectId, clazzId, entityList));
+    public ApiResponse<List<ExamScoreReport>> batchCreateOrUpdate(@RequestBody List<ExamScoreReport> entityList) {
+        return ApiResponse.ok(this.examScoreReportService.batchCreateOrUpdate(entityList));
+    }
+
+    @GetMapping("/search-exist-or-default")
+    @ApiOperation("批量新增或者编辑前置接口 查询默认值")
+    public ApiResponse<List<ExamScoreReport>> searchExistOrDefault(@RequestParam(value = "subjectId", required = false) Long subjectId,
+                                                                   @RequestParam(value = "academicYearSemesterId", required = false) Long academicYearSemesterId,
+                                                                   @RequestParam(value = "clazzId", required = false) Long clazzId) {
+        return ApiResponse.ok(this.examScoreReportService.searchExistOrDefault(subjectId, clazzId, academicYearSemesterId));
     }
 
     @GetMapping("/calculate")

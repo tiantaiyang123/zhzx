@@ -37,13 +37,15 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class ExamScoreReportServiceImpl extends ServiceImpl<ExamScoreReportMapper, ExamScoreReport> implements ExamScoreReportService {
+
+    @Resource
+    private StudentMapper studentMapper;
 
     @Override
     public int updateAllFieldsById(ExamScoreReport entity) {
@@ -52,9 +54,6 @@ public class ExamScoreReportServiceImpl extends ServiceImpl<ExamScoreReportMappe
 
     @Value("${web.upload-path}")
     private String uploadPath;
-
-    @Resource
-    private StudentMapper studentMapper;
 
     @Resource
     private ExamMapper examMapper;
@@ -163,18 +162,13 @@ public class ExamScoreReportServiceImpl extends ServiceImpl<ExamScoreReportMappe
     }
 
     @Override
-    public Object batchCreateOrUpdate(Long subjectId, Long clazzId, List<ExamScoreReport> entityList) {
+    public List<ExamScoreReport> batchCreateOrUpdate(List<ExamScoreReport> entityList) {
+        entityList = entityList.stream().filter(item -> null != item.getUsualScore() && item.getUsualScore().compareTo(0L) > 0).collect(Collectors.toList());
+
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         entityList.forEach(entity -> {
             entity.setEditorId(user.getId());
-            entity.setEditorName(user.getUsername());
-            if (null == entity.getId()) {
-                entity.setClazzId(clazzId);
-                entity.setSubjectId(subjectId);
-                entity.setMidScore(0L);
-                entity.setEndScore(0L);
-                entity.setTotalScore(0L);
-            }
+            entity.setEditorName(user.getRealName());
             entity.setDefault().validate(true);
         });
 
@@ -184,6 +178,38 @@ public class ExamScoreReportServiceImpl extends ServiceImpl<ExamScoreReportMappe
         });
 
         return entityList;
+    }
+
+    @Override
+    public List<ExamScoreReport> searchExistOrDefault(Long subjectId, Long clazzId, Long academicYearSemesterId) {
+        List<ExamScoreReport> res = new ArrayList<>();
+
+        if (null == subjectId || null == clazzId || null == academicYearSemesterId) return res;
+
+        List<Student> studentList = this.studentMapper.listByClazzStudent(clazzId, academicYearSemesterId, null);
+        studentList.sort(Comparator.comparing(item -> Integer.parseInt(item.getStudentNumber()), Comparator.naturalOrder()));
+
+        Map<Long, ExamScoreReport> examScoreReportMap = this.baseMapper.selectList(Wrappers.<ExamScoreReport>lambdaQuery()
+                .eq(ExamScoreReport::getClazzId, clazzId)
+                .eq(ExamScoreReport::getSubjectId, subjectId)
+        ).stream().collect(Collectors.toMap(ExamScoreReport::getStudentId, Function.identity()));
+
+        studentList.forEach(item -> {
+            ExamScoreReport examScoreReport = examScoreReportMap.getOrDefault(item.getId(), new ExamScoreReport());
+            if (null == examScoreReport.getId()) {
+                examScoreReport.setClazzId(clazzId);
+                examScoreReport.setSubjectId(subjectId);
+                examScoreReport.setStudentId(item.getId());
+                examScoreReport.setStudent(item);
+                examScoreReport.setUsualScore(0L);
+                examScoreReport.setTotalScore(0L);
+                examScoreReport.setMidScore(0L);
+                examScoreReport.setEndScore(0L);
+            }
+            res.add(examScoreReport);
+        });
+
+        return res;
     }
 
     /**

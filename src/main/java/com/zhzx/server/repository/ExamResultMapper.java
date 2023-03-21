@@ -27,7 +27,7 @@ public interface ExamResultMapper extends ExamResultBaseMapper {
                                  @Param("examId") Long examId,
                                  @Param("academicYearSemesterId") Long academicYearSemesterId);
 
-    void updateWeightedScore(@Param("entity") List<ExamCalculateWeightedScoreDto> examResultList);
+    void updateWeightedScore(@Param("entity") List<ExamResult> examResultList);
 
     void updateRank(@Param("entity") List<ExamResult> examResultList);
 
@@ -74,8 +74,6 @@ public interface ExamResultMapper extends ExamResultBaseMapper {
                                                                      @Param("studentId") Long studentId,
                                                                      @Param("clazzNature") String clazzNature,
                                                                      @Param("clazzId") Long clazzId);
-
-    List<ExamCalculateWeightedScoreDto> selectWeightedScoreBySubject(@Param("examId") Long examId);
 
     IPage<ExamResult> searchExamResult(IPage<ExamResult> page,
                                        @Param("schoolyardId") Long schoolyardId,

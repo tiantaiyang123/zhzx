@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhzx.server.domain.Clazz;
 import com.zhzx.server.domain.Exam;
 import com.zhzx.server.domain.ExamResult;
+import com.zhzx.server.domain.ExamScoreReport;
 import com.zhzx.server.dto.exam.*;
 import com.zhzx.server.enums.ClazzNatureEnum;
 import com.zhzx.server.enums.GenderEnum;
@@ -205,10 +206,11 @@ public class ExamResultController {
     }
 
     @GetMapping("calculate")
-    @ApiOperation("计算年级赋分")
+    @ApiOperation("计算年级赋分和学业等级")
     public ApiResponse<Boolean> calculate(@RequestParam(value = "examId") Long examId,
-                                          @RequestParam(value = "name") String name) {
-        return ApiResponse.ok(this.examResultService.calculate(examId, name));
+                                          @RequestParam(value = "name") String name,
+                                          @RequestParam(value = "includeWeighted", required = false, defaultValue = "01") String includeWeighted) {
+        return ApiResponse.ok(this.examResultService.calculate(examId, name, includeWeighted));
     }
 
     @GetMapping("score-pager")
@@ -427,6 +429,30 @@ public class ExamResultController {
     ) {
         IPage<ExamResult> page = new Page<>(pageNum, pageSize);
         return ApiResponse.ok(this.examResultService.searchExamResult(page, schoolyardId, academicYearSemesterId, gradeId, examId, clazzId, studentId, studentName, orderByClause));
+    }
+
+    /**
+     * 分页查询成绩
+     */
+    @GetMapping("/search-exam-result/exist-or-default")
+    @ApiOperation("批量新增或者编辑前置接口 查询默认值")
+    public ApiResponse<List<ExamResult>> searchByPageExistOrDefault(
+            @RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
+            @RequestParam(value = "academicYearSemesterId", required = false) Long academicYearSemesterId,
+            @RequestParam(value = "gradeId", required = false) Long gradeId,
+            @RequestParam(value = "examId", required = false) Long examId,
+            @RequestParam(value = "clazzId", required = false) Long clazzId,
+            @RequestParam(value = "studentId", required = false) Long studentId,
+            @RequestParam(value = "studentName", required = false) String studentName,
+            @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause
+    ) {
+        return ApiResponse.ok(this.examResultService.searchByPageExistOrDefault(schoolyardId, academicYearSemesterId, gradeId, examId, clazzId, studentId, studentName, orderByClause));
+    }
+
+    @PostMapping("/batch-create-or-update")
+    @ApiOperation("批量新增或者编辑")
+    public ApiResponse<List<ExamResult>> batchCreateOrUpdate(@RequestBody List<ExamResult> entityList) {
+        return ApiResponse.ok(this.examResultService.batchCreateOrUpdate(entityList));
     }
 
     /**

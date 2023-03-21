@@ -35,13 +35,13 @@
     </sql>
     <insert id="batchInsert">
         insert into dat_exam_result_minor (
-            exam_id, student_id, clazz_id, music_score, music_level, sports_score, sports_level, painting_score, painting_level, psychology_score, psychology_level, general_technology_score, general_technology_level, information_technology_score, information_technology_level, other
+        exam_id, student_id, clazz_id, music_score, music_level, sports_score, sports_level, painting_score, painting_level, psychology_score, psychology_level, general_technology_score, general_technology_level, information_technology_score, information_technology_level, other
         )
         values
         <foreach collection="records" item="record" separator=",">
-        (
+            (
             #{record.examId, jdbcType=BIGINT}, #{record.studentId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.musicScore, jdbcType=DECIMAL}, #{record.musicLevel, jdbcType=VARCHAR}, #{record.sportsScore, jdbcType=DECIMAL}, #{record.sportsLevel, jdbcType=VARCHAR}, #{record.paintingScore, jdbcType=DECIMAL}, #{record.paintingLevel, jdbcType=VARCHAR}, #{record.psychologyScore, jdbcType=DECIMAL}, #{record.psychologyLevel, jdbcType=VARCHAR}, #{record.generalTechnologyScore, jdbcType=DECIMAL}, #{record.generalTechnologyLevel, jdbcType=VARCHAR}, #{record.informationTechnologyScore, jdbcType=DECIMAL}, #{record.informationTechnologyLevel, jdbcType=VARCHAR}, #{record.other, jdbcType=VARCHAR}
-        )
+            )
         </foreach>
     </insert>
     <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamResultMinor">

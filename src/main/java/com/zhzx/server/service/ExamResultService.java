@@ -46,7 +46,7 @@ public interface ExamResultService extends IService<ExamResult> {
 
     Map<String, Object> studentAnalyse(Long schoolyardId, Long academicYearSemesterId, Long clazzId, Long studentId, String type);
 
-    Boolean calculate(Long examId, String name);
+    Boolean calculate(Long examId, String name, String includeWeighted);
 
     Map<String, Object> clazzTrendStation(Long gradeId);
 
@@ -71,4 +71,8 @@ public interface ExamResultService extends IService<ExamResult> {
     Map<String, Object> studentAnalysePager(Long schoolyardId, Long examPublishId, Long studentId, String type);
 
     Map<Long, Object> subjectJoinCount(List<Long> examIds, ClazzNatureEnum clazzNatureEnum);
+
+    List<ExamResult> searchByPageExistOrDefault(Long schoolyardId, Long academicYearSemesterId, Long gradeId, Long examId, Long clazzId, Long studentId, String studentName, String orderByClause);
+
+    List<ExamResult> batchCreateOrUpdate(List<ExamResult> entityList);
 }

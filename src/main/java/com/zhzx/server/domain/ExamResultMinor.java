@@ -4,7 +4,7 @@
  * 模型名称：副科考试结果表
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.domain;
 
@@ -135,14 +135,14 @@ public class ExamResultMinor extends BaseDomain {
     @ApiModelProperty(value = "其他成绩信息")
     private String other;
     /**
-     * 
+     *
      */
     @TableField(value = "create_time")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "", required = true)
     private java.util.Date createTime;
     /**
-     * 
+     *
      */
     @TableField(value = "update_time")
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")

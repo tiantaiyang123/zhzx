@@ -6,17 +6,13 @@
 
 package com.zhzx.server.util;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class JsonUtils {
 
@@ -34,6 +30,15 @@ public class JsonUtils {
             e.printStackTrace();
         }
 
+        return null;
+    }
+
+    public static Map<String, Object> objectToMap(Object obj) {
+        try {
+            return JSON.readValue(toJson(obj), new TypeReference<Map<String, Object>>() {});
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }

@@ -158,10 +158,6 @@ public class ExamScoreReport extends BaseDomain {
             if (throwException) throw new ApiCode.ApiException(-1, "期末成绩不能为空！");
             return false;
         }
-        if (this.getTotalScore() == null) {
-            if (throwException) throw new ApiCode.ApiException(-1, "总评成绩不能为空！");
-            return false;
-        }
         if (this.getEditorId() == null) {
             if (throwException) throw new ApiCode.ApiException(-1, "操作人ID sys_user.id不能为空！");
             return false;

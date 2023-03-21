@@ -23,6 +23,15 @@
         <result column="geography_weighted_score" jdbcType="DECIMAL" property="geographyWeightedScore" />
         <result column="clazz_rank" jdbcType="INTEGER" property="clazzRank" />
         <result column="grade_rank" jdbcType="INTEGER" property="gradeRank" />
+        <result column="chinese_level" jdbcType="VARCHAR" property="chineseLevel" />
+        <result column="math_level" jdbcType="VARCHAR" property="mathLevel" />
+        <result column="english_level" jdbcType="VARCHAR" property="englishLevel" />
+        <result column="physics_level" jdbcType="VARCHAR" property="physicsLevel" />
+        <result column="chemistry_level" jdbcType="VARCHAR" property="chemistryLevel" />
+        <result column="biology_level" jdbcType="VARCHAR" property="biologyLevel" />
+        <result column="history_level" jdbcType="VARCHAR" property="historyLevel" />
+        <result column="politics_level" jdbcType="VARCHAR" property="politicsLevel" />
+        <result column="geography_level" jdbcType="VARCHAR" property="geographyLevel" />
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     </resultMap>
@@ -36,23 +45,23 @@
                      select="com.zhzx.server.repository.ClazzMapper.selectById" />
     </resultMap>
     <sql id="Base_Column_List">
-        id, exam_id, student_id, clazz_id, total_score, total_weighted_score, chinese_score, math_score, english_score, physics_score, chemistry_score, chemistry_weighted_score, biology_score, biology_weighted_score, history_score, politics_score, politics_weighted_score, geography_score, geography_weighted_score, clazz_rank, grade_rank, other, create_time, update_time
+        id, exam_id, student_id, clazz_id, total_score, total_weighted_score, chinese_score, math_score, english_score, physics_score, chemistry_score, chemistry_weighted_score, biology_score, biology_weighted_score, history_score, politics_score, politics_weighted_score, geography_score, geography_weighted_score, clazz_rank, grade_rank, chinese_level, math_level, english_level, physics_level, chemistry_level, biology_level, history_level, politics_level, geography_level, other, create_time, update_time
     </sql>
     <sql id="Base_Column_List_With_Prefix">
-        t.id, t.exam_id, t.student_id, t.clazz_id, t.total_score, t.total_weighted_score, t.chinese_score, t.math_score, t.english_score, t.physics_score, t.chemistry_score, t.chemistry_weighted_score, t.biology_score, t.biology_weighted_score, t.history_score, t.politics_score, t.politics_weighted_score, t.geography_score, t.geography_weighted_score, t.clazz_rank, t.grade_rank, t.other, t.create_time, t.update_time
+        t.id, t.exam_id, t.student_id, t.clazz_id, t.total_score, t.total_weighted_score, t.chinese_score, t.math_score, t.english_score, t.physics_score, t.chemistry_score, t.chemistry_weighted_score, t.biology_score, t.biology_weighted_score, t.history_score, t.politics_score, t.politics_weighted_score, t.geography_score, t.geography_weighted_score, t.clazz_rank, t.grade_rank, t.chinese_level, t.math_level, t.english_level, t.physics_level, t.chemistry_level, t.biology_level, t.history_level, t.politics_level, t.geography_level, t.other, t.create_time, t.update_time
     </sql>
     <sql id="Base_Column_List_Full_With_Prefix">
-        t.id, t.exam_id, t.student_id, t.clazz_id, t.total_score, t.total_weighted_score, t.chinese_score, t.math_score, t.english_score, t.physics_score, t.chemistry_score, t.chemistry_weighted_score, t.biology_score, t.biology_weighted_score, t.history_score, t.politics_score, t.politics_weighted_score, t.geography_score, t.geography_weighted_score, t.clazz_rank, t.grade_rank, t.other, t.create_time, t.update_time
+        t.id, t.exam_id, t.student_id, t.clazz_id, t.total_score, t.total_weighted_score, t.chinese_score, t.math_score, t.english_score, t.physics_score, t.chemistry_score, t.chemistry_weighted_score, t.biology_score, t.biology_weighted_score, t.history_score, t.politics_score, t.politics_weighted_score, t.geography_score, t.geography_weighted_score, t.clazz_rank, t.grade_rank, t.chinese_level, t.math_level, t.english_level, t.physics_level, t.chemistry_level, t.biology_level, t.history_level, t.politics_level, t.geography_level, t.other, t.create_time, t.update_time
     </sql>
     <insert id="batchInsert">
         insert into dat_exam_result (
-            exam_id, student_id, clazz_id, total_score, total_weighted_score, chinese_score, math_score, english_score, physics_score, chemistry_score, chemistry_weighted_score, biology_score, biology_weighted_score, history_score, politics_score, politics_weighted_score, geography_score, geography_weighted_score, clazz_rank, grade_rank, other
+        exam_id, student_id, clazz_id, total_score, total_weighted_score, chinese_score, math_score, english_score, physics_score, chemistry_score, chemistry_weighted_score, biology_score, biology_weighted_score, history_score, politics_score, politics_weighted_score, geography_score, geography_weighted_score, clazz_rank, grade_rank, chinese_level, math_level, english_level, physics_level, chemistry_level, biology_level, history_level, politics_level, geography_level, other
         )
         values
         <foreach collection="records" item="record" separator=",">
-        (
-            #{record.examId, jdbcType=BIGINT}, #{record.studentId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.totalScore, jdbcType=DECIMAL}, #{record.totalWeightedScore, jdbcType=DECIMAL}, #{record.chineseScore, jdbcType=DECIMAL}, #{record.mathScore, jdbcType=DECIMAL}, #{record.englishScore, jdbcType=DECIMAL}, #{record.physicsScore, jdbcType=DECIMAL}, #{record.chemistryScore, jdbcType=DECIMAL}, #{record.chemistryWeightedScore, jdbcType=DECIMAL}, #{record.biologyScore, jdbcType=DECIMAL}, #{record.biologyWeightedScore, jdbcType=DECIMAL}, #{record.historyScore, jdbcType=DECIMAL}, #{record.politicsScore, jdbcType=DECIMAL}, #{record.politicsWeightedScore, jdbcType=DECIMAL}, #{record.geographyScore, jdbcType=DECIMAL}, #{record.geographyWeightedScore, jdbcType=DECIMAL}, #{record.clazzRank, jdbcType=INTEGER}, #{record.gradeRank, jdbcType=INTEGER}, #{record.other, jdbcType=VARCHAR}
-        )
+            (
+            #{record.examId, jdbcType=BIGINT}, #{record.studentId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.totalScore, jdbcType=DECIMAL}, #{record.totalWeightedScore, jdbcType=DECIMAL}, #{record.chineseScore, jdbcType=DECIMAL}, #{record.mathScore, jdbcType=DECIMAL}, #{record.englishScore, jdbcType=DECIMAL}, #{record.physicsScore, jdbcType=DECIMAL}, #{record.chemistryScore, jdbcType=DECIMAL}, #{record.chemistryWeightedScore, jdbcType=DECIMAL}, #{record.biologyScore, jdbcType=DECIMAL}, #{record.biologyWeightedScore, jdbcType=DECIMAL}, #{record.historyScore, jdbcType=DECIMAL}, #{record.politicsScore, jdbcType=DECIMAL}, #{record.politicsWeightedScore, jdbcType=DECIMAL}, #{record.geographyScore, jdbcType=DECIMAL}, #{record.geographyWeightedScore, jdbcType=DECIMAL}, #{record.clazzRank, jdbcType=INTEGER}, #{record.gradeRank, jdbcType=INTEGER}, #{record.chineseLevel, jdbcType=VARCHAR}, #{record.mathLevel, jdbcType=VARCHAR}, #{record.englishLevel, jdbcType=VARCHAR}, #{record.physicsLevel, jdbcType=VARCHAR}, #{record.chemistryLevel, jdbcType=VARCHAR}, #{record.biologyLevel, jdbcType=VARCHAR}, #{record.historyLevel, jdbcType=VARCHAR}, #{record.politicsLevel, jdbcType=VARCHAR}, #{record.geographyLevel, jdbcType=VARCHAR}, #{record.other, jdbcType=VARCHAR}
+            )
         </foreach>
     </insert>
     <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.ExamResult">
@@ -78,6 +87,15 @@
             geography_weighted_score = #{et.geographyWeightedScore, jdbcType=DECIMAL},
             clazz_rank = #{et.clazzRank, jdbcType=INTEGER},
             grade_rank = #{et.gradeRank, jdbcType=INTEGER},
+            chinese_level = #{et.chineseLevel, jdbcType=VARCHAR},
+            math_level = #{et.mathLevel, jdbcType=VARCHAR},
+            english_level = #{et.englishLevel, jdbcType=VARCHAR},
+            physics_level = #{et.physicsLevel, jdbcType=VARCHAR},
+            chemistry_level = #{et.chemistryLevel, jdbcType=VARCHAR},
+            biology_level = #{et.biologyLevel, jdbcType=VARCHAR},
+            history_level = #{et.historyLevel, jdbcType=VARCHAR},
+            politics_level = #{et.politicsLevel, jdbcType=VARCHAR},
+            geography_level = #{et.geographyLevel, jdbcType=VARCHAR},
             other = #{et.other, jdbcType=VARCHAR},
         </trim>
         where id = #{et.id}
