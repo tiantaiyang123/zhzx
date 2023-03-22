@@ -1271,6 +1271,7 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
                 examResult.setClazzId(clazzId);
                 examResult.setStudentId(item.getId());
                 examResult.setExamId(examId);
+                examResult.setStudent(item);
             }
             res.add(examResult);
          });
