@@ -327,7 +327,7 @@ public class ExamResultController {
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
     public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
-        return ApiResponse.ok(this.examResultService.removeById(id));
+        return ApiResponse.ok(this.examResultService.removeAll(id));
     }
 
     /**

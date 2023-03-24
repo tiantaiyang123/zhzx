@@ -75,4 +75,6 @@ public interface ExamResultService extends IService<ExamResult> {
     List<ExamResult> searchByPageExistOrDefault(Long schoolyardId, Long academicYearSemesterId, Long gradeId, Long examId, Long clazzId, Long studentId, String studentName, String orderByClause);
 
     List<ExamResult> batchCreateOrUpdate(List<ExamResult> entityList);
+
+    Integer removeAll(Long id);
 }

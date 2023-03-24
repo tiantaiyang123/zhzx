@@ -1300,6 +1300,20 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
         return entityList;
     }
 
+    @Override
+    @Transactional( rollbackFor = Exception.class)
+    public Integer removeAll(Long id) {
+        ExamResult examResult = this.baseMapper.selectById(id);
+        if (null != examResult) {
+            this.baseMapper.deleteById(id);
+            this.examResultMinorMapper.delete(Wrappers.<ExamResultMinor>lambdaQuery()
+                    .eq(ExamResultMinor::getClazzId, examResult.getClazzId())
+                    .eq(ExamResultMinor::getStudentId, examResult.getStudentId())
+                    .eq(ExamResultMinor::getExamId, examResult.getExamId()));
+        }
+        return 1;
+    }
+
     private Map<Integer, List<ExamChartDto>> getChartInfo2(String s, List<ExamClazzAnalyseClazzAndStudentDto> studentConditionList) throws Exception {
         Map<Integer, List<ExamChartDto>> chatInfo = new HashMap<>();
         for (int i = 1; i <= 8; i++) {
