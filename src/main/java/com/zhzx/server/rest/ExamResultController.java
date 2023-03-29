@@ -278,17 +278,6 @@ public class ExamResultController {
     @PostMapping("/")
     @ApiOperation("新增")
     public ApiResponse<ExamResult> add(@RequestBody ExamResult entity) {
-        BigDecimal partScore = entity.getChineseScore().add(entity.getMathScore())
-                .add(entity.getEnglishScore()).add(entity.getPhysicsScore())
-                .add(entity.getHistoryScore());
-        if (entity.getTotalScore() == null) {
-            entity.setTotalScore(partScore.add(entity.getChemistryScore()).add(entity.getBiologyScore())
-                    .add(entity.getPoliticsScore()).add(entity.getGeographyScore()));
-        }
-        if (entity.getTotalWeightedScore() == null) {
-            entity.setTotalWeightedScore(entity.getChemistryWeightedScore().add(entity.getBiologyWeightedScore())
-                    .add(entity.getPoliticsWeightedScore()).add(entity.getGeographyWeightedScore()));
-        }
         entity.setDefault().validate(true);
         this.examResultService.save(entity);
         return ApiResponse.ok(this.examResultService.getById(entity.getId()));

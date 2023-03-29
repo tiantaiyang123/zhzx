@@ -1281,7 +1281,7 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
 
     @Override
     public List<ExamResult> batchCreateOrUpdate(List<ExamResult> entityList) {
-        entityList = entityList.stream().filter(item -> null != item.getTotalScore() && item.getTotalScore().compareTo(BigDecimal.ZERO) > 0).collect(Collectors.toList());
+        entityList = entityList.stream().peek(ExamResult::setDefault).filter(item -> item.getTotalScore().compareTo(BigDecimal.ZERO) > 0).collect(Collectors.toList());
 
         entityList.forEach(item -> {
             if (null == item.getId()) {
@@ -1293,7 +1293,11 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
 
             if (null != item.getExamResultMinor()) {
                 ExamResultMinor examResultMinor = item.getExamResultMinor();
-                this.examResultMinorMapper.insert(examResultMinor);
+                if (null == examResultMinor.getId()) {
+                    this.examResultMinorMapper.insert(examResultMinor);
+                } else{
+                    this.examResultMinorMapper.updateById(examResultMinor);
+                }
             }
         });
 

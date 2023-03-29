@@ -316,6 +316,17 @@ public class ExamResult extends BaseDomain {
         if (this.getGeographyWeightedScore() == null) {
             this.setGeographyWeightedScore(BigDecimal.ZERO);
         }
+        BigDecimal partScore = this.getChineseScore().add(this.getMathScore())
+                .add(this.getEnglishScore()).add(this.getPhysicsScore())
+                .add(this.getHistoryScore());
+        if (this.getTotalScore() == null) {
+            this.setTotalScore(partScore.add(this.getChemistryScore()).add(this.getBiologyScore())
+                    .add(this.getPoliticsScore()).add(this.getGeographyScore()));
+        }
+        if (this.getTotalWeightedScore() == null) {
+            this.setTotalWeightedScore(partScore.add(this.getChemistryWeightedScore()).add(this.getBiologyWeightedScore())
+                    .add(this.getPoliticsWeightedScore()).add(this.getGeographyWeightedScore()));
+        }
         return this;
     }
 
