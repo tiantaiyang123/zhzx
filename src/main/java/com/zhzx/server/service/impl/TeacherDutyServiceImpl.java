@@ -484,9 +484,6 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-            String dateCellOffset = CellUtils.getCellValue(sheet.getRow(1).getCell(1)).replace("班", "");
-            Long offset = Long.parseLong(dateCellOffset) - 1;
-
             List<Clazz> clazzList = this.clazzMapper.selectList(Wrappers.<Clazz>lambdaQuery()
                     .eq(Clazz::getGradeId, gradeId)
                     .eq(Clazz::getAcademicYearSemesterId, academicYearSemesterId)
@@ -538,6 +535,9 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     else if (CellType.NUMERIC.equals(cell.getCellType()))
                         cellValue = String.valueOf(cell.getNumericCellValue());
 
+                    String dateCellOffset = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(columnIndex)).replace("班", "");
+                    Long offset = Long.parseLong(dateCellOffset);
+
                     if(staffMap.containsKey(cellValue)){
                         hasValue = true;
 
@@ -547,9 +547,9 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                         if(teacherDutyClazzMap.containsKey(cellValue + teacherDuty.getDutyType())){
                             NightDutyClassDto nightDutyClassDto = new NightDutyClassDto();
                             if(teacherDuty.getDutyType().equals(TeacherDutyTypeEnum.STAGE_ONE)){
-                                nightDutyClassDto.setClazzId(offset + Long.valueOf(columnIndex));
+                                nightDutyClassDto.setClazzId(offset);
                             }else{
-                                nightDutyClassDto.setClazzId(offset + Long.valueOf(columnIndex - stage));
+                                nightDutyClassDto.setClazzId(offset);
                             }
 
                             List<NightDutyClassDto> nightDutyClassDtoList = teacherDutyClazzMap.get(cellValue + teacherDuty.getDutyType());
@@ -565,9 +565,9 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                             List<NightDutyClassDto> clazzes = new ArrayList<>();
                             NightDutyClassDto nightDutyClassDto = new NightDutyClassDto();
                             if(teacherDuty.getDutyType().equals(TeacherDutyTypeEnum.STAGE_ONE)){
-                                nightDutyClassDto.setClazzId(offset + Long.valueOf(columnIndex));
+                                nightDutyClassDto.setClazzId(offset);
                             }else{
-                                nightDutyClassDto.setClazzId(offset + Long.valueOf(columnIndex - stage));
+                                nightDutyClassDto.setClazzId(offset);
                             }
                             clazzes.add(nightDutyClassDto);
                             teacherDutyClazzMap.put(cellValue + teacherDuty.getDutyType(),clazzes);
