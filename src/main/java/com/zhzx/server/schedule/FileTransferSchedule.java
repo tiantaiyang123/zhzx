@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
-@Component
+//@Component
 @Slf4j
 public class FileTransferSchedule {
 

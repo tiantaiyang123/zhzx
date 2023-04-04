@@ -535,7 +535,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     else if (CellType.NUMERIC.equals(cell.getCellType()))
                         cellValue = String.valueOf(cell.getNumericCellValue());
 
-                    String dateCellOffset = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(columnIndex)).replace("班", "");
+                    String dateCellOffset = CellUtils.getCellValue(sheet.getRow(1).getCell(columnIndex)).replace("班", "");
                     Long offset = Long.parseLong(dateCellOffset);
 
                     if(staffMap.containsKey(cellValue)){

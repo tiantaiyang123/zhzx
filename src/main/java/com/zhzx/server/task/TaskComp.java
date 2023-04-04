@@ -699,8 +699,12 @@ public class TaskComp {
                             .eq(StaffMessageRefuse::getName,"领导值班")
                             .eq(StaffMessageRefuse::getStatus,YesNoEnum.YES)
                     );
+                    String suffix = " 总值班";
+                    if ("雨花校区".equals(leaderDuty.getSchoolyard().getName())) {
+                        suffix = "\r\n友情提示：雨花校区总值班室密码：159369";
+                    }
                     if(staffMessageRefuse == null){
-                        wxSendMessageService.sendTeacherMessage(prefix + "\r\n"+DateUtils.format(leaderDuty.getStartTime(),"yyyy-MM-dd")+" 总值班",staffList);
+                        wxSendMessageService.sendTeacherMessage(prefix + "\r\n"+DateUtils.format(leaderDuty.getStartTime(),"yyyy-MM-dd")+ suffix,staffList);
                     }
                 }catch (Exception e){
                     log.error(e.getMessage());
