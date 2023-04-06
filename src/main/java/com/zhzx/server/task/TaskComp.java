@@ -506,10 +506,10 @@ public class TaskComp {
                     boolean gradeTotalDuty = false;
                     for(TeacherDutyDto teacherDutyDto : teacherDutyDtoList){
                         if(Objects.equals(TeacherDutyTypeEnum.STAGE_ONE,teacherDutyDto.getDutyType())){
-                            String clazzName = teacherDutyDto.getTeacherDutyClazzList().stream().map(item->item.getGradeName().replace("年级","")+item.getClazzName() == null ? " " : item.getGradeName().replace("年级","")+item.getClazzName()).collect(Collectors.joining("，"));
+                            String clazzName = teacherDutyDto.getTeacherDutyClazzList().stream().map(NightDutyClassDto::getClazzRemark).collect(Collectors.joining("，"));
                             stringBuilder.append("\r\n第一阶段："+ clazzName);
                         }else if(Objects.equals(TeacherDutyTypeEnum.STAGE_TWO,teacherDutyDto.getDutyType())){
-                            String clazzName = teacherDutyDto.getTeacherDutyClazzList().stream().map(item->item.getGradeName().replace("年级","")+item.getClazzName() == null ? " " : item.getGradeName().replace("年级","")+item.getClazzName()).collect(Collectors.joining("，"));
+                            String clazzName = teacherDutyDto.getTeacherDutyClazzList().stream().map(NightDutyClassDto::getClazzRemark).collect(Collectors.joining("，"));
                             stringBuilder.append("\r\n第二阶段："+ clazzName);
                         }else if(Objects.equals(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY,teacherDutyDto.getDutyType()) && TeacherDutyModeEnum.HOLIDAY.equals(teacherDutyDto.getDutyMode())){
                             String clazzName = teacherDutyDto.getTeacherDutyClazzList().get(0).getGradeName();
@@ -606,10 +606,10 @@ public class TaskComp {
                     int len = stringBuilder.length();
                     for (TeacherDutyDto teacherDutyDto : teacherDutyDtoList) {
                         if (Objects.equals(TeacherDutyTypeEnum.STAGE_ONE, teacherDutyDto.getDutyType())) {
-                            String clazzName = teacherDutyDto.getTeacherDutyClazzList().stream().map(item -> item.getGradeName().replace("年级", "") + item.getClazzName() == null ? " " : item.getGradeName().replace("年级", "") + item.getClazzName()).collect(Collectors.joining(","));
+                            String clazzName = teacherDutyDto.getTeacherDutyClazzList().stream().map(NightDutyClassDto::getClazzRemark).collect(Collectors.joining(","));
                             stringBuilder.append("\r\n第一阶段：" + clazzName);
                         } else if (Objects.equals(TeacherDutyTypeEnum.STAGE_TWO, teacherDutyDto.getDutyType())) {
-                            String clazzName = teacherDutyDto.getTeacherDutyClazzList().stream().map(item -> item.getGradeName().replace("年级", "") + item.getClazzName() == null ? " " : item.getGradeName().replace("年级", "") + item.getClazzName()).collect(Collectors.joining(","));
+                            String clazzName = teacherDutyDto.getTeacherDutyClazzList().stream().map(NightDutyClassDto::getClazzRemark).collect(Collectors.joining(","));
                             stringBuilder.append("\r\n第二阶段：" + clazzName);
                         } else if (Objects.equals(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY, teacherDutyDto.getDutyType()) && TeacherDutyModeEnum.HOLIDAY.equals(teacherDutyDto.getDutyMode())) {
                             String clazzName = teacherDutyDto.getTeacherDutyClazzList().get(0).getGradeName();

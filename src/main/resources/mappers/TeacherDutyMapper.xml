@@ -19,6 +19,7 @@
         <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName" />
         <result column="phone" jdbcType="VARCHAR" property="phone" />
         <result column="clazzName" jdbcType="VARCHAR" property="clazzName" />
+        <result column="clazzRemark" jdbcType="VARCHAR" property="clazzRemark" />
         <result column="clazzId" jdbcType="VARCHAR" property="clazzId" />
         <result column="teacherName" jdbcType="VARCHAR" property="teacherName" />
         <result column="shouldStudentCount" jdbcType="BIGINT" property="shouldStudentCount" />
@@ -62,6 +63,7 @@
           else if(dns.should_student_count = 0,sc.night_stage_two_num,dns.should_student_count)  end
         )as sc_shouldStudentCount,
         dns.actual_student_count as sc_actualStudentCount,
+        sc.clazz_level as sc_clazzRemark,
         sc.name as sc_clazzName ,sc.id as sc_clazzId,sg.name as sc_gradeName, sc.head_teacher as sc_teacherName,ss.phone as sc_phone,sc.student_count as sc_allStudentCount,
         snsa.id as sc_snsa_id,snsa.register_date as sc_snsa_register_date,snsa.student_id as sc_snsa_student_id,
         snsa.stage as sc_snsa_stage,snsa.should_num as sc_snsa_should_num,snsa.actual_num as sc_snsa_actual_num,
