@@ -8,14 +8,13 @@
 
 package com.zhzx.server.service.impl;
 
-import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -28,15 +27,12 @@ import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.repository.MessageMapper;
 import com.zhzx.server.repository.MessageTaskReceiverMapper;
 import com.zhzx.server.rest.res.ApiCode;
-import com.zhzx.server.service.MessageTemplateService;
 import com.zhzx.server.util.JsonToCornUtils;
 import org.apache.shiro.SecurityUtils;
-import org.quartz.CronExpression;
 import org.springframework.stereotype.Service;
 import com.zhzx.server.service.MessageTaskService;
 import com.zhzx.server.repository.MessageTaskMapper;
 import com.zhzx.server.domain.MessageTask;
-import com.zhzx.server.rest.req.MessageTaskParam;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -76,16 +72,18 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
         entity.setCron(corn);
         entity.setDefault().validate(true);
         this.baseMapper.insert(entity);
-        Map<Long,Long> map = new HashMap<>();
-        entity.getMessageTaskReceiverList().stream().forEach(messageTaskReceiver -> {
-            if(!map.containsKey(messageTaskReceiver.getReceiverId())){
-                messageTaskReceiver.setMessageTaskId(entity.getId());
-                messageTaskReceiver.setReceiverType(entity.getReceiverType());
-                messageTaskReceiver.setDefault().validate(true);
-                map.put(messageTaskReceiver.getReceiverId(),messageTaskReceiver.getReceiverId());
-            }
+
+        List<MessageTaskReceiver> messageTaskReceiverList = entity.getMessageTaskReceiverList().stream().collect(
+                Collectors.collectingAndThen(
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(MessageTaskReceiver::getReceiverId))), ArrayList::new
+                )
+        );
+        messageTaskReceiverList.forEach(messageTaskReceiver -> {
+            messageTaskReceiver.setMessageTaskId(entity.getId());
+            messageTaskReceiver.setReceiverType(entity.getReceiverType());
+            messageTaskReceiver.setDefault().validate(true);
         });
-        messageTaskReceiverMapper.batchInsert(entity.getMessageTaskReceiverList());
+        messageTaskReceiverMapper.batchInsert(messageTaskReceiverList);
         return entity;
     }
 
@@ -117,16 +115,17 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
         messageTaskReceiverMapper.delete(Wrappers.<MessageTaskReceiver>lambdaQuery()
                 .eq(MessageTaskReceiver::getMessageTaskId,entity.getId())
         );
-        Map<Long,Long> map = new HashMap<>();
-        entity.getMessageTaskReceiverList().stream().forEach(messageTaskReceiver -> {
-            if(!map.containsKey(messageTaskReceiver.getReceiverId())){
-                messageTaskReceiver.setMessageTaskId(entity.getId());
-                messageTaskReceiver.setReceiverType(entity.getReceiverType());
-                messageTaskReceiver.setDefault().validate(true);
-                map.put(messageTaskReceiver.getReceiverId(),messageTaskReceiver.getReceiverId());
-            }
+        List<MessageTaskReceiver> messageTaskReceiverList = entity.getMessageTaskReceiverList().stream().collect(
+                Collectors.collectingAndThen(
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(MessageTaskReceiver::getReceiverId))), ArrayList::new
+                )
+        );
+        messageTaskReceiverList.forEach(messageTaskReceiver -> {
+            messageTaskReceiver.setMessageTaskId(entity.getId());
+            messageTaskReceiver.setReceiverType(entity.getReceiverType());
+            messageTaskReceiver.setDefault().validate(true);
         });
-        messageTaskReceiverMapper.batchInsert(entity.getMessageTaskReceiverList());
+        messageTaskReceiverMapper.batchInsert(messageTaskReceiverList);
         Integer message = messageMapper.update(new Message(),Wrappers.<Message>lambdaUpdate()
                 .set(Message::getContent,entity.getContent())
                 .set(Message::getTitle,entity.getTitle())
