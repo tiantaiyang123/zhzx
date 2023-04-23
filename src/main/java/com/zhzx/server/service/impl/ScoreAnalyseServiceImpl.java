@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhzx.server.domain.*;
+import com.zhzx.server.dto.StaffLessonTeacherDto;
 import com.zhzx.server.dto.exam.*;
 import com.zhzx.server.enums.ClazzNatureEnum;
 import com.zhzx.server.enums.FunctionEnum;
@@ -43,6 +44,9 @@ public class ScoreAnalyseServiceImpl implements ScoreAnalyseService {
 
     @Resource
     private SubjectMapper subjectMapper;
+
+    @Resource
+    private StaffLessonTeacherMapper staffLessonTeacherMapper;
 
     @Resource
     private ClazzMapper clazzMapper;
@@ -461,6 +465,9 @@ public class ScoreAnalyseServiceImpl implements ScoreAnalyseService {
         if (CollectionUtils.isNotEmpty(examResultSimpleDtoList)) {
             Subject subject = subjectMapper.selectOne(Wrappers.<Subject>lambdaQuery().eq(Subject::getId, subjectId));
             if (subject != null) {
+                List<StaffLessonTeacherDto> staffLessonTeacherDtos = this.staffLessonTeacherMapper.selectByGradeAndClazz(null, subjectId, null, clazzIds);
+                Map<String, List<StaffLessonTeacherDto>> staffLessonTeacherMap = staffLessonTeacherDtos.stream().collect(Collectors.groupingBy(item -> item.getClazzId().toString().concat(item.getSubjectId().toString())));
+
                 this.generateScore(examResultSimpleDtoList, subject.getSubjectAlias());
                 Map<Long, List<ExamResultSimpleDto>> map = examResultSimpleDtoList.stream().collect(Collectors.groupingBy(ExamResultSimpleDto::getClazzId));
                 BigDecimal goodScore = BigDecimal.valueOf(subject.getMaxScore() * 0.85);
@@ -475,6 +482,7 @@ public class ScoreAnalyseServiceImpl implements ScoreAnalyseService {
                     List<ExamResultSimpleDto> v = entry.getValue();
                     tmp.put("clazzName", v.get(0).getClazzName());
                     tmp.put("clazzId", entry.getKey());
+                    tmp.put("teacher", staffLessonTeacherMap.get(entry.getKey().toString().concat(subjectId.toString())));
                     tmp.put("studentCount", v.get(0).getStudentCount());
                     List<BigDecimal> decimalList = v.stream().map(ExamResultSimpleDto::getScore).filter(score -> score.compareTo(BigDecimal.ZERO) > 0).collect(Collectors.toList());
                     tmp.put("joinCount", decimalList.size());
@@ -594,6 +602,10 @@ public class ScoreAnalyseServiceImpl implements ScoreAnalyseService {
             clazzIds = this.getOrDefault(clazzIds, examId);
             List<ExamGoalWorkBenchDto> examGoalWorkBenchDtoList = this.examGoalMapper.getClazzGoalWorkBench(clazzIds, examGoalDtoList);
             if (CollectionUtils.isNotEmpty(examGoalWorkBenchDtoList)) {
+                List<StaffLessonTeacherDto> staffLessonTeacherList = this.staffLessonTeacherMapper.selectByGradeAndClazz(null, null, null, clazzIds);
+                Map<String, List<StaffLessonTeacherDto>> mStaffLessonTeacher = staffLessonTeacherList.stream().collect(
+                        Collectors.groupingBy(item -> item.getClazzId().toString().concat(item.getSubject().getSubjectAlias()))
+                );
                 Map<String, List<Map<String, Object>>> goalTotalList = new HashMap<>();
                 Map<Long, List<ExamGoalWorkBenchDto>> clazzTotalMap = examGoalWorkBenchDtoList.stream().collect(Collectors.groupingBy(ExamGoalWorkBenchDto::getClazzId));
                 Map<String, List<BigDecimal>[]> map = new HashMap<>();
@@ -616,6 +628,18 @@ public class ScoreAnalyseServiceImpl implements ScoreAnalyseService {
                     map1.put("historyJoinCnt", curr.getHistoryJoinCnt());
                     map1.put("politicsJoinCnt", curr.getPoliticsJoinCnt());
                     map1.put("geographyJoinCnt", curr.getGeographyJoinCnt());
+                    StaffLessonTeacher advisor = staffLessonTeacherList.stream().filter(item -> item.getClazzId().equals(k) && item.getIsClazzAdvisor().equals(YesNoEnum.YES)).findFirst().orElse(null);
+                    map1.put("teacher", advisor == null ? null : advisor.getStaff());
+                    map1.put("chineseTeacher", mStaffLessonTeacher.get(k.toString().concat("chinese")));
+                    map1.put("mathTeacher", mStaffLessonTeacher.get(k.toString().concat("math")));
+                    map1.put("englishTeacher", mStaffLessonTeacher.get(k.toString().concat("english")));
+                    map1.put("physicsTeacher", mStaffLessonTeacher.get(k.toString().concat("physics")));
+                    map1.put("chemistryTeacher", mStaffLessonTeacher.get(k.toString().concat("chemistry")));
+                    map1.put("biologyTeacher", mStaffLessonTeacher.get(k.toString().concat("biology")));
+                    map1.put("historyTeacher", mStaffLessonTeacher.get(k.toString().concat("history")));
+                    map1.put("politicsTeacher", mStaffLessonTeacher.get(k.toString().concat("politics")));
+                    map1.put("geographyTeacher", mStaffLessonTeacher.get(k.toString().concat("geography")));
+
 
                     Map<String, Object> map2 = new HashMap<>();
                     map1.put("goals", map2);

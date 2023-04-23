@@ -64,7 +64,7 @@ public class MySqlConfig {
         bean.setDataSource(datasource);
 
         MybatisConfiguration configuration = new MybatisConfiguration();
-        if (!"prod".equals(env))
+        if ("dev".equals(env))
             configuration.setLogImpl(org.apache.ibatis.logging.stdout.StdOutImpl.class);
         configuration.setUseGeneratedKeys(useGeneratedKeys);
         configuration.setMapUnderscoreToCamelCase(mapUnderscoreToCamelCase);

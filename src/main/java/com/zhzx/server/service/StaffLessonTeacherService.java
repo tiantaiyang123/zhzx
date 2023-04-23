@@ -11,7 +11,9 @@ package com.zhzx.server.service;
 import java.util.List;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhzx.server.domain.StaffLessonTeacher;
+import com.zhzx.server.dto.StaffLessonTeacherDto;
 import com.zhzx.server.rest.req.StaffLessonTeacherParam;
+import org.apache.ibatis.annotations.Param;
 
 public interface StaffLessonTeacherService extends IService<StaffLessonTeacher> {
 
@@ -22,5 +24,6 @@ public interface StaffLessonTeacherService extends IService<StaffLessonTeacher> 
      */
     int updateAllFieldsById(StaffLessonTeacher entity);
 
+    List<StaffLessonTeacherDto> selectByGradeAndClazz(Long gradeId, Long subjectId, Long examId, List<Long> clazzIds);
 
 }

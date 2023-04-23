@@ -8,23 +8,19 @@
 
 package com.zhzx.server.service.impl;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Collection;
-import javax.annotation.Resource;
 
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
+import com.zhzx.server.dto.StaffLessonTeacherDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.zhzx.server.service.StaffLessonTeacherService;
 import com.zhzx.server.repository.StaffLessonTeacherMapper;
 import com.zhzx.server.repository.base.StaffLessonTeacherBaseMapper;
 import com.zhzx.server.domain.StaffLessonTeacher;
-import com.zhzx.server.rest.req.StaffLessonTeacherParam;
 
 @Service
 public class StaffLessonTeacherServiceImpl extends ServiceImpl<StaffLessonTeacherMapper, StaffLessonTeacher> implements StaffLessonTeacherService {
@@ -32,6 +28,11 @@ public class StaffLessonTeacherServiceImpl extends ServiceImpl<StaffLessonTeache
     @Override
     public int updateAllFieldsById(StaffLessonTeacher entity) {
         return this.getBaseMapper().updateAllFieldsById(entity);
+    }
+
+    @Override
+    public List<StaffLessonTeacherDto> selectByGradeAndClazz(Long gradeId, Long subjectId, Long examId, List<Long> clazzIds) {
+        return this.baseMapper.selectByGradeAndClazz(gradeId, subjectId, examId, clazzIds);
     }
 
     /**

@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhzx.server.domain.*;
+import com.zhzx.server.dto.StaffLessonTeacherDto;
 import com.zhzx.server.dto.exam.ExamGradeAnalyseClazzSituationDto;
 import com.zhzx.server.dto.exam.ExamResultSimpleDto;
 import com.zhzx.server.enums.ClazzNatureEnum;
@@ -65,6 +66,9 @@ public class ExamGoalSubServiceImpl extends ServiceImpl<ExamGoalSubMapper, ExamG
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private StaffLessonTeacherMapper staffLessonTeacherMapper;
 
     @Override
     public int updateAllFieldsById(ExamGoalSub entity) {
@@ -272,6 +276,10 @@ public class ExamGoalSubServiceImpl extends ServiceImpl<ExamGoalSubMapper, ExamG
                     maps.keySet().removeIf(next -> !natureList.contains(next));
                 }
             }
+            // 任课教师
+            List<StaffLessonTeacherDto> staffLessonTeacherList = this.staffLessonTeacherMapper.selectByGradeAndClazz(null, subjectId, examId, clazzIds);
+            Map<String, List<StaffLessonTeacherDto>> staffLessonTeacherMap = staffLessonTeacherList.stream().collect(Collectors.groupingBy(item -> item.getClazzId().toString().concat(item.getMSubjectId().toString())));
+
             maps.forEach((k, v) -> {
                 Map<String, Object> mapSingle = new HashMap<>();
                 mapSingle.put("clazzName", "合计");
@@ -298,6 +306,7 @@ public class ExamGoalSubServiceImpl extends ServiceImpl<ExamGoalSubMapper, ExamG
                         Map<String, Object> curr = new HashMap<>();
                         curr.put("clazzName", examResultSimpleDto.getClazzName());
                         curr.put("clazzId", u);
+                        curr.put("teacher", staffLessonTeacherMap.get(u.toString().concat(subjectId.toString())));
                         curr.put("clazzLevel", examResultSimpleDto.getClazzLevel());
                         curr.put("otherDivision", examResultSimpleDto.getOtherDivision());
                         List<BigDecimal> tmpList = t.stream().map(ExamResultSimpleDto::getScore).filter(item -> item.compareTo(BigDecimal.ZERO) > 0).collect(Collectors.toList());

@@ -56,6 +56,9 @@ public class ExamResultController {
     private ExamService examService;
 
     @Resource
+    private StaffLessonTeacherService staffLessonTeacherService;
+
+    @Resource
     private ClazzService clazzService;
 
     @Resource
@@ -126,6 +129,7 @@ public class ExamResultController {
                                                                    @RequestParam(value = "clazzId", required = false, defaultValue = "0") Long clazzId) {
         Map<String, Object> res = new HashMap<>();
         if (examId != null) {
+            res.put("teacher", this.staffLessonTeacherService.selectByGradeAndClazz(null, null, examId, null));
             List<ExamGoalDto> examGoalDtoList = this.examGoalService.getDefault(examId, goalId);
             if (CollectionUtils.isNotEmpty(examGoalDtoList)) {
                 CompletableFuture<Void> c1 = CompletableFuture.runAsync(() -> {

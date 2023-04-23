@@ -16,4 +16,41 @@
     <select id="selectList" resultMap="com.zhzx.server.repository.base.StaffLessonTeacherBaseMapper.ResultMap">
         select * from sys_staff_lesson_teacher ${ew.customSqlSegment}
     </select>
+    
+    <resultMap id="staffInfo_resultMap" type="com.zhzx.server.dto.StaffLessonTeacherDto" extends="com.zhzx.server.repository.base.StaffLessonTeacherBaseMapper.BaseResultMap">
+        <result column="mSubjectId" property="mSubjectId" jdbcType="BIGINT"/>
+        <result column="isClazzAdvisor" property="isClazzAdvisor" jdbcType="VARCHAR"/>
+        <association columnPrefix="ss_" property="staff"
+                     resultMap="com.zhzx.server.repository.base.StaffBaseMapper.BaseResultMap" />
+        <association column="subject_id" property="subject" javaType="com.zhzx.server.domain.Subject"
+                     select="com.zhzx.server.repository.SubjectMapper.selectById" />
+    </resultMap>
+    <select id="selectByGradeAndClazz" resultMap="staffInfo_resultMap">
+        select
+               a.*,
+               #{subjectId} as mSubjectId,
+               ss.name as ss_name,
+               ss.phone as ss_phone,
+               if (d.id is null, 'NO', 'YES') as isClazzAdvisor
+        from sys_staff_lesson_teacher a
+        left join sys_staff ss on a.staff_id=ss.id
+        left join (select distinct ssca.id from sys_staff_clazz_adviser ssca) d on d.id=ss.id
+        where a.is_current='YES'
+        <if test="subjectId != null and subjectId &lt; 90000">
+            and a.subject_id = #{subjectId}
+        </if>
+        <if test="subjectId != null and subjectId > 90000">
+            and d.id is not null
+        </if>
+        <if test="entity != null and entity.size > 0">
+            and a.clazz_id in
+            <foreach collection="entity" separator="," open="(" close=")" item="item" index="index">#{item}</foreach>
+        </if>
+        <if test="gradeId != null">
+            and a.clazz_id in (select id from sys_clazz c where c.grade_id=#{gradeId})
+        </if>
+        <if test="examId != null">
+            and a.clazz_id in (select id from sys_clazz c where c.grade_id=(select d.grade_id from dat_exam d where d.id=#{examId}))
+        </if>
+    </select>
 </mapper>

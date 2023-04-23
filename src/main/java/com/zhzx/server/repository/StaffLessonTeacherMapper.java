@@ -15,6 +15,8 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.zhzx.server.dto.StaffLessonTeacherDto;
+import com.zhzx.server.enums.YesNoEnum;
 import org.springframework.stereotype.Repository;
 import org.apache.ibatis.annotations.Param;
 import com.zhzx.server.domain.StaffLessonTeacher;
@@ -23,5 +25,8 @@ import com.zhzx.server.repository.base.StaffLessonTeacherBaseMapper;
 @Repository
 public interface StaffLessonTeacherMapper extends StaffLessonTeacherBaseMapper {
 
-
+    List<StaffLessonTeacherDto> selectByGradeAndClazz(@Param("gradeId") Long gradeId,
+                                                      @Param("subjectId") Long subjectId,
+                                                      @Param("examId") Long examId,
+                                                      @Param("entity") List<Long> clazzIds);
 }
