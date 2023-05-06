@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhzx.server.domain.TeacherDuty;
 import com.zhzx.server.dto.NightDutyClassDto;
 import com.zhzx.server.dto.TeacherServerFormDto;
+import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.rest.req.TeacherDutyParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.TeacherDutyService;
@@ -192,9 +193,10 @@ public class TeacherDutyController {
                                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeFrom",required = false) Date timeFrom,
                                                                     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeTo",required = false) Date timeTo,
                                                                     @RequestParam(value = "teacherDutyName",required = false) String teacherDutyName,
-                                                                    @RequestParam(value = "gradeId",required = false) Long gradeId) {
+                                                                    @RequestParam(value = "gradeId",required = false) Long gradeId,
+                                                                    @RequestParam(value = "fromApp",required = false, defaultValue = "NO") YesNoEnum fromApp) {
 
-        return ApiResponse.ok(this.teacherDutyService.getTeacherDutyForm(pageNum,pageSize,timeFrom,timeTo,teacherDutyName,gradeId, schoolyardId));
+        return ApiResponse.ok(this.teacherDutyService.getTeacherDutyForm(pageNum,pageSize,timeFrom,timeTo,teacherDutyName,gradeId, schoolyardId, fromApp));
     }
 
     @GetMapping("/export-excel")

@@ -7,10 +7,16 @@
 package com.zhzx.server.util;
 
 import com.zhzx.server.rest.res.ApiCode;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public final class DateUtils {
 
@@ -57,4 +63,22 @@ public final class DateUtils {
         String str1 = format(time,"E");
         return str1.replace("周", "星期");
     }
+
+    public static List<Date> getMonthDays(Date timeFrom, Date timeTo) {
+        if (null == timeFrom || null == timeTo || timeFrom.after(timeTo)) return null;
+
+        List<Date> dateList = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(timeFrom);
+
+        timeTo = parse("23:59", timeTo);
+
+        Date res;
+        while (!(res = calendar.getTime()).after(timeTo)) {
+            dateList.add(res);
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        return dateList;
+    }
+
 }

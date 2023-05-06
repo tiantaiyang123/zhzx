@@ -18,6 +18,7 @@ import com.zhzx.server.dto.TeacherDutyDto;
 import com.zhzx.server.dto.TeacherServerFormDto;
 import com.zhzx.server.enums.RoutineEnum;
 import com.zhzx.server.enums.TeacherDutyTypeEnum;
+import com.zhzx.server.enums.YesNoEnum;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.awt.image.BufferedImage;
@@ -38,7 +39,7 @@ public interface TeacherDutyService extends IService<TeacherDuty> {
 
     Map<Object,Object> nightRoutine(Date time, RoutineEnum type);
 
-    Page<Map<String,Object>> getTeacherDutyForm(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName,Long gradeId, Long schoolyardId);
+    Page<Map<String,Object>> getTeacherDutyForm(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName,Long gradeId, Long schoolyardId, YesNoEnum fromApp);
 
     TeacherDutyDto getGradeTeacherDuty(Date time);
 
