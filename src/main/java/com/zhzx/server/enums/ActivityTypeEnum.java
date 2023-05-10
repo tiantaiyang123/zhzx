@@ -12,6 +12,7 @@ package com.zhzx.server.enums;
 public enum ActivityTypeEnum {
     
     MEETING("晨会"),
+    STOP("暂停"),
     EXERCISE("课间操"),
     RUNNING("跑操");
 

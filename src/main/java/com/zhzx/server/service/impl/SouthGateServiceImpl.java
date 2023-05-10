@@ -21,6 +21,7 @@ import com.zhzx.server.domain.SouthGateImages;
 import com.zhzx.server.domain.User;
 import com.zhzx.server.enums.ClassifyEnum;
 import com.zhzx.server.enums.CommentStateEnum;
+import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.repository.SouthGateImagesMapper;
 import com.zhzx.server.repository.SouthGateMapper;
 import com.zhzx.server.repository.base.SouthGateBaseMapper;
@@ -72,7 +73,6 @@ public class SouthGateServiceImpl extends ServiceImpl<SouthGateMapper, SouthGate
         }else{
             this.baseMapper.updateById(entity);
         }
-
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         if(CollectionUtils.isNotEmpty(entity.getCommentList())){
             List<Long> commentIds = entity.getCommentList().stream().filter(commentDto -> commentDto.getId() != null).map(commentDto -> commentDto.getId()).collect(Collectors.toList());

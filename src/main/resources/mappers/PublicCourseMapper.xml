@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.PublicCourseMapper">
+
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.PublicCourse" extends="com.zhzx.server.repository.base.PublicCourseBaseMapper.BaseResultMap">
+        <association column="teacher_id" property="teacher" javaType="com.zhzx.server.domain.Staff"
+                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+    </resultMap>
+    <select id="selectList" resultMap="ResultMap">
+        select *
+        from sys_public_course
+        ${ew.customSqlSegment}
+    </select>
+
+    <update id="updateTeacherId">
+        update sys_public_course a, sys_staff b set a.teacher_id=b.id
+        where a.grade_id=#{gradeId}
+          and a.academic_year_semester_id=#{academicYearSemesterId}
+          and a.teacher_name=b.name
+    </update>
+</mapper>

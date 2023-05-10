@@ -57,6 +57,10 @@ public class NightStudyDutyGradeImages extends BaseDomain {
     @ApiModelProperty(value = "图片链接", required = true)
     private String url;
 
+    @TableField(value = "remark")
+    @ApiModelProperty(value = "备注")
+    private String remark;
+
     /**
      * 设置默认值
      */

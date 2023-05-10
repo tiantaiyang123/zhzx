@@ -79,6 +79,8 @@ public class TaskComp {
     private NightStudyAttendanceSubMapper nightStudyAttendanceSubMapper;
     @Resource
     private NightStudyMapper nightStudyMapper;
+    @Resource
+    private PublicCourseService publicCourseService;
 
     /**
      * 每1分钟更新班级考勤概况
@@ -741,4 +743,79 @@ public class TaskComp {
         }
         messageService.calculateMessage(time);
     }
+
+    /**
+     * 每天15点，提醒老师明天公开课
+     */
+    @Scheduled(cron = "0 0 15 ? * ?")
+    private void sendPublicCourseMessage() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH,1);
+        List<PublicCourse> publicCourseList = publicCourseService.list(Wrappers.<PublicCourse>lambdaQuery()
+                .apply("to_days(start_time)" + "=" + "to_days({0})", calendar.getTime())
+        );
+        if(CollectionUtils.isNotEmpty(publicCourseList)){
+            List<String> userList = new ArrayList<>();
+
+            Map<String,List<PublicCourse>> map = publicCourseList.stream().collect(Collectors.groupingBy(item->item.getSubjectName()));
+            StringBuilder sb = new StringBuilder();
+            sb.append(DateUtils.format(calendar.getTime(),"yyyy-MM-dd")).append("公开课安排如下:").append("\r\n");
+            for (String subjectName : map.keySet()) {
+                sb.append(subjectName).append(":\r\n");
+                for (PublicCourse publicCourse : map.get(subjectName)) {
+                    sb.append(publicCourse.getTeacherName()).append(" ")
+                            .append(publicCourse.getCourseName()).append(" ")
+                            .append("第").append(publicCourse.getSortOrder()).append("节").append(" ")
+                            .append(publicCourse.getAddress()).append("\r\n");
+                    if(publicCourse.getTeacher().getWxUsername() != null && publicCourse.getTeacher().getWxUsername() != ""){
+                        userList.add(publicCourse.getTeacher().getWxUsername());
+                    }else{
+                        userList.add(publicCourse.getTeacher().getEmployeeNumber());
+                        userList.add(publicCourse.getTeacher().getPhone());
+                        if(NameToPinyin.format(publicCourse.getTeacher().getName()) != null){
+                            userList.add(NameToPinyin.format(publicCourse.getTeacher().getName()));
+                        }
+                    }
+                }
+            }
+            wxSendMessageService.sendTeacherMessage(sb.toString(), userList);
+        }
+    }
+
+    /**
+     * 每天7点，提醒老师今天公开课
+     */
+    @Scheduled(cron = "0 0 7 ? * ?")
+    private void sendTodayPublicCourseMessage() {
+        Date date = new Date();
+        List<PublicCourse> publicCourseList = publicCourseService.list(Wrappers.<PublicCourse>lambdaQuery()
+                .apply("to_days(start_time)" + "=" + "to_days({0})", date)
+        );
+        if(CollectionUtils.isNotEmpty(publicCourseList)){
+            List<String> userList = new ArrayList<>();
+            Map<String,List<PublicCourse>> map = publicCourseList.stream().collect(Collectors.groupingBy(item->item.getSubjectName()));
+            StringBuilder sb = new StringBuilder();
+            sb.append(DateUtils.format(date,"yyyy-MM-dd")).append("公开课安排如下:").append("\r\n");
+            for (String subjectName : map.keySet()) {
+                sb.append(subjectName).append(":\r\n");
+                for (PublicCourse publicCourse : map.get(subjectName)) {
+                    sb.append(publicCourse.getTeacherName()).append(" ")
+                            .append(publicCourse.getCourseName()).append(" ")
+                            .append("第").append(publicCourse.getSortOrder()).append("节").append(" ")
+                            .append(publicCourse.getAddress()).append("\r\n");
+                    if(publicCourse.getTeacher().getWxUsername() != null && publicCourse.getTeacher().getWxUsername() != ""){
+                        userList.add(publicCourse.getTeacher().getWxUsername());
+                    }else{
+                        userList.add(publicCourse.getTeacher().getEmployeeNumber());
+                        userList.add(publicCourse.getTeacher().getPhone());
+                        if(NameToPinyin.format(publicCourse.getTeacher().getName()) != null){
+                            userList.add(NameToPinyin.format(publicCourse.getTeacher().getName()));
+                        }
+                    }
+                }
+            }
+            wxSendMessageService.sendTeacherMessage(sb.toString(), userList);
+        }
+    }
+
 }

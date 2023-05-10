@@ -5,27 +5,28 @@
         <id column="id" jdbcType="BIGINT" property="id" />
         <result column="night_study_duty_id" jdbcType="BIGINT" property="nightStudyDutyId" />
         <result column="grade_id" jdbcType="BIGINT" property="gradeId" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
     </resultMap>
     <resultMap id="ResultMap" type="com.zhzx.server.domain.NightStudyDutyGradeImages" extends="BaseResultMap">
         <result column="url" jdbcType="VARCHAR" property="url" />
     </resultMap>
     <sql id="Base_Column_List">
-        id, night_study_duty_id, grade_id, url
+        id, night_study_duty_id, grade_id, url,remark
     </sql>
     <sql id="Base_Column_List_With_Prefix">
-        t.id, t.night_study_duty_id, t.grade_id, t.url
+        t.id, t.night_study_duty_id, t.grade_id, t.url,t.remark
     </sql>
     <sql id="Base_Column_List_Full_With_Prefix">
-        t.id, t.night_study_duty_id, t.grade_id, t.url
+        t.id, t.night_study_duty_id, t.grade_id, t.url,t.remark
     </sql>
     <insert id="batchInsert">
         insert into day_night_study_duty_grade_images (
-            night_study_duty_id, grade_id, url
+            night_study_duty_id, grade_id, url,remark
         )
         values
         <foreach collection="records" item="record" separator=",">
         (
-            #{record.nightStudyDutyId, jdbcType=BIGINT}, #{record.gradeId, jdbcType=BIGINT}, #{record.url, jdbcType=VARCHAR}
+            #{record.nightStudyDutyId, jdbcType=BIGINT}, #{record.gradeId, jdbcType=BIGINT}, #{record.url, jdbcType=VARCHAR},#{record.remark, jdbcType=VARCHAR}
         )
         </foreach>
     </insert>
@@ -35,6 +36,7 @@
             night_study_duty_id = #{et.nightStudyDutyId, jdbcType=BIGINT},
             grade_id = #{et.gradeId, jdbcType=BIGINT},
             url = #{et.url, jdbcType=VARCHAR},
+            remark = #{et.remark, jdbcType=VARCHAR},
         </trim>
         where id = #{et.id}
     </update>

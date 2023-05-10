@@ -8,9 +8,9 @@ spring:
     name: server-dev
   datasource:
     mysql:
-      jdbc-url: jdbc:mysql://218.94.40.182:13306/zhzx_prod?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=false&allowMultiQueries=true
-      username: zhzx
-      password: Zhzx@208Xzhz
+      jdbc-url: jdbc:mysql://42.192.95.9:3306/zhzx?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=false&allowMultiQueries=true
+      username: root
+      password: XwdTestDB
     mssql:
       jdbc-url: jdbc:sqlserver://10.100.10.111:1433;DatabaseName=AsiaCardserver
       username: EKT
@@ -25,14 +25,14 @@ spring:
 #    configuration:
 #      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 web:
-  upload-path: c:/git/upload/
+  upload-path: E:/_gitlab/upload/
 card:
   consume-record: http://10.100.10.114:8080/ascardapi/api/v1/trans
 upload:
   SYSTEM_TYPE: LINUX
   BASE_URL: 39.105.20.167
   FTP_PORT: 21
-  DOMAIN_URL: http://39.105.20.167:8088
+  DOMAIN_URL: http://192.168.100.133:8088
   DOMAIN_URL_FTP: http://39.105.20.167:21
   COMMON_PATH: zhzx/tmg
   USER_NAME: haha
