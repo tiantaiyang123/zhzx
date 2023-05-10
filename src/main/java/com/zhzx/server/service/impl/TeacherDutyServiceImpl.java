@@ -45,6 +45,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -153,8 +154,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         if (gradeId == null) {
             return new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
         }
-        // TODO: 2022/9/2 2312ewdqwd
-        Page<Map<String,Object>> page = this.getTeacherDutyForm(1, 9999, timeFrom, timeTo, null, gradeId, null);
+        Page<Map<String,Object>> page = this.getTeacherDutyForm(1, 9999, timeFrom, timeTo, null, gradeId, null, YesNoEnum.YES);
         List<Map<String,Object>> list = page.getRecords();
         if (CollectionUtils.isEmpty(page.getRecords())) {
             return new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
@@ -165,12 +165,13 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         clazzList.sort(Comparator.comparing(o -> Integer.parseInt(o.get("name").toString().replace("班", "")), Comparator.naturalOrder()));
 
         int padding = 2;
-        int columnWidth = this.getStringWidthHeight("综治办")[0];
-        int rowHeight = this.getStringWidthHeight("综治办")[1];
+        // 值班老师人名自适应为5个字
+        int columnWidth = this.getStringWidthHeight("综治办半半")[0];
+        int rowHeight = this.getStringWidthHeight("综治办半半")[1];
         int rowHeightDay = rowHeight * 2 + padding * 3;
         int rowHeightOther = rowHeight + padding * 3 / 2;
-        int ascent = this.getStringWidthHeight("综治办")[2];
-        int imageWidth = 80 + (clazzList.size() + 1) * (columnWidth + padding * 3) * 2;
+        int ascent = this.getStringWidthHeight("综治办半半")[2];
+        int imageWidth = 80 + 80  + (clazzList.size() + 1) * (columnWidth + padding * 3) * 2;
         int imageHeight = rowHeightDay + rowHeightOther * gradeList.size();
         BufferedImage image = new BufferedImage(imageWidth + 20, imageHeight + 20, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = (Graphics2D) image.getGraphics();
@@ -181,9 +182,14 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         graphics.setColor(Color.black);
         graphics.drawRect(10, 10, imageWidth, imageHeight);
         graphics.drawLine(10, 10 + rowHeightDay, 10 + imageWidth, 10 + rowHeightDay);
-        graphics.drawLine(90, 10 + rowHeightOther, 90 + (columnWidth + 3 * padding) * clazzList.size() * 2, 10 + rowHeightOther);
-        int x = 90, middle = (rowHeight + padding * 3) / 2;
-        graphics.drawString("日期", 10 + (80 - this.getStringWidthHeight("日期")[0]) / 2, 5 + middle + ascent);
+        graphics.drawLine(90 + 80, 10 + rowHeightOther, 90 + 80 + (columnWidth + 3 * padding) * clazzList.size() * 2, 10 + rowHeightOther);
+        graphics.drawLine(90, 10, 90, imageHeight + 10);
+        int x = 90 + 80, middle = (rowHeight + padding * 3) / 2;
+        // 日期星期单元格 宽度固定80
+        graphics.drawString("日期", 10 + (80 - this.getStringWidthHeight("日期")[0]) / 2, 10 + middle + ascent);
+
+        graphics.drawString("星期",  90 + (80 - this.getStringWidthHeight("星期")[0]) / 2, 10 + middle + ascent);
+
         for (int i = 0; i < clazzList.size() * 2; i++) {
             int p = x;
             if (i == 0 || i == clazzList.size()) {
@@ -201,16 +207,22 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 graphics.drawString("年级", x + (columnWidth + 3 * padding - this.getStringWidthHeight("年级")[0]) / 2, 10 + ascent + middle);
                 x += columnWidth + padding * 3;
                 graphics.drawLine(x, 10, x, 10 + imageHeight);
-                graphics.drawString("总值班", x + 3 * padding / 2, 10 + ascent + middle);
+                graphics.drawString("总值班", x + (columnWidth + 3 * padding - this.getStringWidthHeight("总值班")[0]) / 2, 10 + ascent + middle);
             }
         }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE", Locale.CHINA);
 
         int y = rowHeightDay + 10;
         for (TeacherServerFormDto teacherServerFormDto : gradeList) {
             teacherServerFormDto.getClazzVoList().sort(Comparator.comparing(o -> Integer.parseInt(o.getName().replace("班", "")), Comparator.naturalOrder()));
+            // 日期
             String time = DateUtils.format(teacherServerFormDto.getTime(), "MM-dd");
             graphics.drawString(time, 10 + (80 + 3 * padding - this.getStringWidthHeight(time)[0]) / 2, y + ascent + padding);
-            int xx = 90;
+            // 星期
+            graphics.drawString(sdf.format(teacherServerFormDto.getTime()), 10 + 80 + (80 + 3 * padding - this.getStringWidthHeight("星期一")[0]) / 2, y + ascent + padding);
+
+            int xx = 90 + 80;
             for (ClazzVo clazzVo : teacherServerFormDto.getClazzVoList()) {
                 String s = clazzVo.getStageOneTeacher() == null ? "" : clazzVo.getStageOneTeacher();
                 graphics.drawString(s, xx + (columnWidth + 3 * padding - this.getStringWidthHeight(s)[0]) / 2, y + ascent + padding);
@@ -303,19 +315,25 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
     }
 
     @Override
-    public Page<Map<String,Object>> getTeacherDutyForm(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName,Long gradeId, Long schoolyardId) {
+    public Page<Map<String,Object>> getTeacherDutyForm(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName,Long gradeId, Long schoolyardId, YesNoEnum fromApp) {
         Page<Map<String,Object>> page = new Page();
         page.setCurrent(pageNum);
         page.setSize(pageSize);
-        List<TeacherServerFormDto> timeList = this.baseMapper.getTeacherDutyForm(page,timeFrom,timeTo,teacherDutyName,null, schoolyardId);
-//        List<Date> dateList = timeList.stream().map(teacherServerFormDto -> teacherServerFormDto.getTime()).collect(Collectors.toList());
-        Map<Date,List<TeacherServerFormDto>> timeMap = timeList.stream().collect(Collectors.groupingBy(item->item.getTime()));
-        List<Date> dateList = timeMap.keySet()
-                .stream()
-                .collect(Collectors.toList());
-        List<Map<String,Object>> formList = new ArrayList<>();
+
+        // 如果是APP端按年级查看当月值班表，则dateList默认当月所有日期
+        List<Date> dateList = null;
+        if (YesNoEnum.NO.equals(fromApp)) {
+            List<TeacherServerFormDto> timeList = this.baseMapper.getTeacherDutyForm(page,timeFrom,timeTo,teacherDutyName,null, schoolyardId);
+            dateList = timeList.stream().map(TeacherServerFormDto::getTime).collect(Collectors.toList());
+        } else {
+            dateList = DateUtils.getMonthDays(timeFrom, timeTo);
+            page.setTotal(dateList.size());
+        }
+
         if(CollectionUtils.isEmpty(dateList)) return page;
+
         List<ClazzVo> clazzVoList = this.baseMapper.getFormList(dateList,gradeId, schoolyardId);
+        List<Map<String,Object>> formList = new ArrayList<>();
 
         if(CollectionUtils.isNotEmpty(clazzVoList)){
             Map<String,List<ClazzVo>> gradeMap = clazzVoList.stream().collect(Collectors.groupingBy(ClazzVo::getGradeName));
@@ -328,19 +346,19 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 resultMap.putAll(timeTeacherMap);
                 Boolean flag = false;
                 for (Date date : resultMap.keySet()) {
-                    List<ClazzVo> clazzVos = timeTeacherMap.get(date);
-
                     TeacherServerFormDto teacherServerFormDto = new TeacherServerFormDto();
                     teacherServerFormDto.setDutyMode(TeacherDutyModeEnum.NORMAL);
-                    if(timeMap.containsKey(date)){
-                        //todo 这里需要修改
+                    teacherServerFormDto.setTime(date);
+                    SimpleDateFormat sdf = new SimpleDateFormat("EEEE", Locale.CHINA);
+                    teacherServerFormDto.setWeek(sdf.format(date));
+
+                    List<ClazzVo> clazzVos = timeTeacherMap.get(date);
+
+                    if(dateList.contains(date)){
                         TeacherDutyGradeTotalDto teacherDuty2 = this.baseMapper.selectTeacherDutyGradeTotalDto(date, 1L, clazzVos.get(0).getGradeId());
                         if (teacherDuty2 != null)
                             teacherServerFormDto.setDutyMode(teacherDuty2.getDutyMode());
                     }
-                    teacherServerFormDto.setTime(date);
-                    SimpleDateFormat sdf = new SimpleDateFormat("EEEE", Locale.CHINA);
-                    teacherServerFormDto.setWeek(sdf.format(date));
                     for (ClazzVo item : clazzVos) {
                         if(!flag){
                             Map<String,Object> headerMap = new HashMap<>();
@@ -1131,7 +1149,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         InputStream is = getClass().getResourceAsStream("/static/templates/晚自习值班统计.xlsx");
         XSSFWorkbook book = new XSSFWorkbook(is);
 
-        Page<Map<String,Object>> page = this.getTeacherDutyForm(1, 9999, timeFrom, timeTo, null, gradeId, schoolyardId);
+        Page<Map<String,Object>> page = this.getTeacherDutyForm(1, 9999, timeFrom, timeTo, null, gradeId, schoolyardId, YesNoEnum.NO);
         List<Map<String,Object>> records = page.getRecords();
 
         XSSFCellStyle style = book.createCellStyle();
