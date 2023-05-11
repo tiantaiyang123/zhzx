@@ -90,6 +90,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private String benchSecret;
     @Value("${wx.chengguo_secret}")
     private String chengguoSecret;
+    @Value("${wx.total_duty_secret}")
+    private String totalDutySecret;
 
     @Override
     public int updateAllFieldsById(User entity) {
@@ -420,6 +422,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             case "1000063": secret = njzzbSecret; break;
             case "1000052": secret = chengguoSecret; break;
             case "1000053": secret = benchSecret; break;
+            case "1000079": secret = totalDutySecret; break;
             default: throw new ApiCode.ApiException(-5,"未查询到agentid对应的secret");
         }
         String token = wxSendMessageService.getWxToken(secret,appId);

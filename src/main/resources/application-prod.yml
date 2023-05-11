@@ -46,6 +46,7 @@ wx:
   mail_list_secret: NrWm7eO8Oi1Ux7Tnw1A-qBAipYhhkHzWEJVeZZ45vhY  #家校通讯录
   message_secret: Ir15A6_SrSYpw565YjJoEKFISSvZvQjR3W257aXEZkk   #家校应用
   bench_secret: pPQDoVyVoLK9QfOmGN497bFHnDQA0TB2mZbwaXh8Yrs
+  total_duty_secret: Vypgiw6feMdR06Nz_vhXRzEw0iNq4C9y3Tzved0BPNk
   agentId: 1000049
   resp:
     token: j4byZpKL3VMZXC4IcsQClIfcuvf
