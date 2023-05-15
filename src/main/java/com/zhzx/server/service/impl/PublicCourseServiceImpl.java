@@ -77,7 +77,7 @@ public class PublicCourseServiceImpl extends ServiceImpl<PublicCourseMapper, Pub
             throw new ApiCode.ApiException(-1, "没有上传文件！");
         }
         String[] items = fileUrl.split("/");
-        File file = new File(uploadPath + "\\" + items[items.length - 2] + "\\" + items[items.length - 1]);
+        File file = new File(uploadPath + File.separator + items[items.length - 2] + File.separator + items[items.length - 1]);
         if (!file.exists()) {
             throw new ApiCode.ApiException(-1, "文件不存在！");
         }
