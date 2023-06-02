@@ -438,41 +438,43 @@ public class TeachingResultController {
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
-        Subject userSubject = SecurityUtils.getSubject();
-        User user = (User) userSubject.getPrincipal();
-        List<StaffResearchLeader> staffResearchLeaders = null;
-        List<StaffGradeLeader> staffGradeLeaders = null;
-        Set<Long> teacherIds = new HashSet<>();
-        if (user.getStaffId() > 0) {
-            staffResearchLeaders = user.getStaff().getStaffResearchLeaderList();
-            staffGradeLeaders = user.getStaff().getStaffGradeLeaderList();
+        QueryWrapper<TeachingResult> wrapper = param.toQueryWrapper();
+        if (CollectionUtils.isEmpty(param.getTeacherIdList())) {
+            Set<Long> teacherIds = new HashSet<>();
+            Subject userSubject = SecurityUtils.getSubject();
+            User user = (User) userSubject.getPrincipal();
+            List<StaffResearchLeader> staffResearchLeaders = null;
+            List<StaffGradeLeader> staffGradeLeaders = null;
+            if (user.getStaffId() > 0) {
+                staffResearchLeaders = user.getStaff().getStaffResearchLeaderList();
+                staffGradeLeaders = user.getStaff().getStaffGradeLeaderList();
 //            teacherIds.add(user.getStaffId());
-        }
-        // 教研组长
-        if (CollectionUtils.isNotEmpty(staffResearchLeaders)) {
-            List<Long> subjectIds = staffResearchLeaders.stream().map(StaffResearchLeader::getSubjectId).collect(Collectors.toList());
-            List<StaffSubject> staffSubjects = this.staffSubjectService.list(Wrappers.<StaffSubject>lambdaQuery()
-                    .in(StaffSubject::getSubjectId, subjectIds));
-            if (CollectionUtils.isNotEmpty(staffSubjects)) {
-                teacherIds.addAll(staffSubjects.stream().map(StaffSubject::getStaffId).collect(Collectors.toList()));
             }
-        }
-        // 年级组长
-        if (CollectionUtils.isNotEmpty(staffGradeLeaders)) {
-            List<Long> gradeIds = staffGradeLeaders.stream().map(StaffGradeLeader::getGradeId).collect(Collectors.toList());
-            List<Clazz> clazzList = clazzService.list(Wrappers.<Clazz>lambdaQuery()
-                    .select(Clazz::getId)
-                    .in(Clazz::getGradeId, gradeIds));
-            if (CollectionUtils.isNotEmpty(clazzList)) {
-                List<StaffLessonTeacher> staffLessonTeachers = this.staffLessonTeacherService.list(Wrappers.<StaffLessonTeacher>lambdaQuery()
-                        .in(StaffLessonTeacher::getClazzId, clazzList.stream().map(Clazz::getId).collect(Collectors.toList())));
-                if (CollectionUtils.isNotEmpty(staffLessonTeachers)) {
-                    teacherIds.addAll(staffLessonTeachers.stream().map(StaffLessonTeacher::getStaffId).collect(Collectors.toList()));
+            // 教研组长
+            if (CollectionUtils.isNotEmpty(staffResearchLeaders)) {
+                List<Long> subjectIds = staffResearchLeaders.stream().map(StaffResearchLeader::getSubjectId).collect(Collectors.toList());
+                List<StaffSubject> staffSubjects = this.staffSubjectService.list(Wrappers.<StaffSubject>lambdaQuery()
+                        .in(StaffSubject::getSubjectId, subjectIds));
+                if (CollectionUtils.isNotEmpty(staffSubjects)) {
+                    teacherIds.addAll(staffSubjects.stream().map(StaffSubject::getStaffId).collect(Collectors.toList()));
                 }
             }
+            // 年级组长
+            if (CollectionUtils.isNotEmpty(staffGradeLeaders)) {
+                List<Long> gradeIds = staffGradeLeaders.stream().map(StaffGradeLeader::getGradeId).collect(Collectors.toList());
+                List<Clazz> clazzList = clazzService.list(Wrappers.<Clazz>lambdaQuery()
+                        .select(Clazz::getId)
+                        .in(Clazz::getGradeId, gradeIds));
+                if (CollectionUtils.isNotEmpty(clazzList)) {
+                    List<StaffLessonTeacher> staffLessonTeachers = this.staffLessonTeacherService.list(Wrappers.<StaffLessonTeacher>lambdaQuery()
+                            .in(StaffLessonTeacher::getClazzId, clazzList.stream().map(Clazz::getId).collect(Collectors.toList())));
+                    if (CollectionUtils.isNotEmpty(staffLessonTeachers)) {
+                        teacherIds.addAll(staffLessonTeachers.stream().map(StaffLessonTeacher::getStaffId).collect(Collectors.toList()));
+                    }
+                }
+            }
+            wrapper.in(!teacherIds.isEmpty(), "teacher_id", new ArrayList<>(teacherIds));
         }
-        QueryWrapper<TeachingResult> wrapper = param.toQueryWrapper();
-        wrapper.in(!teacherIds.isEmpty(), "teacher_id", new ArrayList<>(teacherIds));
         String[] temp = orderByClause.split("[,;]");
         Arrays.stream(temp).forEach(ob -> {
             String[] obTemp = ob.split("\\s");

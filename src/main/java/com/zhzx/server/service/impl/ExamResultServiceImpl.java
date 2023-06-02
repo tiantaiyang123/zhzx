@@ -1709,15 +1709,16 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
         Map<String, Subject> subjectMap = examGoalNaturalTemplates.stream().collect(Collectors.toMap(item -> item.getSubject().getSubjectAlias(), ExamGoalNaturalTemplate::getSubject));
         try {
             for (ExamResult examResult : examResultList) {
+                ExamResultMinor examResultMinor = examResult.getExamResultMinor();
                 for (Map.Entry<String, Subject> entry : subjectMap.entrySet()) {
                     String key = entry.getKey();
                     Subject subject = entry.getValue();
                     String methodName = "get" + key.substring(0, 1).toUpperCase() + key.substring(1) + "Score";
                     BigDecimal score = BigDecimal.ZERO;
-                    if (YesNoEnum.NO.equals(subject.getHasWeight()) && YesNoEnum.NO.equals(subject.getIsMain())) {
-                        if (null != examResult.getExamResultMinor()) {
+                    if (YesNoEnum.NO.equals(subject.getIsMain()) && YesNoEnum.YES.equals(subject.getIsRecordScore())) {
+                        if (null != examResultMinor) {
                             Method method = ExamResultMinor.class.getMethod(methodName);
-                            score = (BigDecimal) method.invoke(examResult.getExamResultMinor());
+                            score = (BigDecimal) method.invoke(examResultMinor);
                         }
                     } else {
                         Method method = ExamResult.class.getMethod(methodName);
@@ -1734,141 +1735,157 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
         }
         subjectScoreMap.values().forEach(item -> item.sort(Comparator.reverseOrder()));
 
-        Date now = new Date();
         BigDecimal hundred = BigDecimal.valueOf(100);
         // 科目参与人数, 科目排名(百分比), 科目分数, 区间最高分, 区间最低分, 赋分
         BigDecimal joinCnt, rank, score, originMax, originMin, weightScore;
         try {
             for (ExamResult examResult : examResultList) {
-                    for (Map.Entry<String, Subject> entry : subjectMap.entrySet()) {
-                        String key = entry.getKey();
-                        Subject subject = entry.getValue();
-                        String methodName = key.substring(0, 1).toUpperCase() + key.substring(1);
-                        boolean isMinor = true;
-                        if (YesNoEnum.NO.equals(subject.getHasWeight()) && YesNoEnum.NO.equals(subject.getIsMain())) {
-                            if (null != examResult.getExamResultMinor()) {
-                                Method method = ExamResultMinor.class.getMethod(methodName + "Score");
-                                score = (BigDecimal) method.invoke(examResult.getExamResultMinor());
-                            } else {
-                                score = BigDecimal.ZERO;
-                            }
+                ExamResultMinor examResultMinor = examResult.getExamResultMinor();
+                boolean calculateMinor = false;
+                for (Map.Entry<String, Subject> entry : subjectMap.entrySet()) {
+                    String key = entry.getKey();
+                    Subject subject = entry.getValue();
+                    String methodName = key.substring(0, 1).toUpperCase() + key.substring(1);
+                    boolean notMainSubject = YesNoEnum.NO.equals(subject.getIsMain()) && YesNoEnum.YES.equals(subject.getIsRecordScore());
+                    if (notMainSubject) {
+                        if (null != examResultMinor) {
+                            Method method = ExamResultMinor.class.getMethod("get" + methodName + "Score");
+                            score = (BigDecimal) method.invoke(examResultMinor);
                         } else {
-                            isMinor = false;
-                            Method method = ExamResult.class.getMethod(methodName + "Score");
-                            score = (BigDecimal) method.invoke(examResult);
+                            score = BigDecimal.ZERO;
                         }
+                    } else {
+                        Method method = ExamResult.class.getMethod("get" + methodName + "Score");
+                        score = (BigDecimal) method.invoke(examResult);
+                    }
 
-                        if (score.compareTo(BigDecimal.ZERO) == 0) {
-                            continue;
-                        }
+                    if (null == score || score.compareTo(BigDecimal.ZERO) == 0) {
+                        // 这里应该把无分数的赋分和对应等级都清空
+                        continue;
+                    }
 
-                        List<BigDecimal> currScoreList = subjectScoreMap.get(key);
-                        joinCnt = BigDecimal.valueOf(currScoreList.size());
-                        rank = BigDecimal.valueOf(TwxUtils.binarySearchEnhance1(currScoreList, score)).multiply(hundred).divide(joinCnt, 2, RoundingMode.HALF_UP);
-                        ExamGoalNaturalTemplate examGoalNaturalTemplate = stringExamGoalNaturalTemplateMap.get(key);
+                    List<BigDecimal> currScoreList = subjectScoreMap.get(key);
+                    ExamGoalNaturalTemplate examGoalNaturalTemplate = stringExamGoalNaturalTemplateMap.get(key);
+                    int mapLeft = 99, mapRight = 30;
+                    BigDecimal ratioA = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioA());
+                    BigDecimal ratioB = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioB());
+                    BigDecimal ratioC = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioC());
+                    BigDecimal ratioD = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioD());
+                    String level;
+                    // 比例模式
+                    if (ExamNaturalSettingEnum.COUNT.equals(examGoalNaturalTemplate.getSettingType())) {
+                        ratioB = ratioB.add(ratioA);
+                        ratioC = ratioC.add(ratioB);
+                        ratioD = ratioD.add(ratioC);
 
                         int begin = 1, end = currScoreList.size();
-                        int mapLeft = 99, mapRight = 30;
-                        BigDecimal ratioA = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioA());
-                        BigDecimal ratioB = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioB());
-                        BigDecimal ratioC = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioC());
-                        BigDecimal ratioD = BigDecimal.valueOf(examGoalNaturalTemplate.getAcademyRatioD());
-                        String level;
-                        if (ExamNaturalSettingEnum.COUNT.equals(examGoalNaturalTemplate.getSettingType())) {
-                            ratioB = ratioB.add(ratioA);
-                            ratioC = ratioC.add(ratioB);
-                            ratioD = ratioD.add(ratioC);
-                            // 获取对应等级区间
-                            if (rank.compareTo(ratioA) <= 0) {
-                                level = "A";
-                                mapRight = 86;
-                                end = joinCnt.multiply(ratioA).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
-                            } else if (rank.compareTo(ratioB) <= 0) {
-                                level = "B";
-                                mapLeft = 85;
-                                mapRight = 71;
-                                begin = joinCnt.multiply(ratioA).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
-                                end = joinCnt.multiply(ratioB).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
-                            } else if (rank.compareTo(ratioC) <= 0) {
-                                level = "C";
-                                mapLeft = 70;
-                                mapRight = 56;
-                                begin = joinCnt.multiply(ratioB).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
-                                end = joinCnt.multiply(ratioC).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
-                            } else if (rank.compareTo(ratioD) <= 0) {
-                                level = "D";
-                                mapLeft = 55;
-                                mapRight = 41;
-                                begin = joinCnt.multiply(ratioC).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
-                                end = joinCnt.multiply(ratioD).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
-                            } else {
-                                level = "E";
-                                mapLeft = 40;
-                                begin = joinCnt.multiply(ratioD).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
-                            }
-                            originMax = currScoreList.get(begin - 1);
-                            originMin = currScoreList.get(end - 1);
-                            // 这里做一步修正 防止舍入出现负数的情况
-                            if (score.compareTo(originMax) > 0) {
-                                // 理论上不会越界
-                                originMax = currScoreList.get(begin - 2);
-                            }
-                            if (score.compareTo(originMin) < 0) {
-                                // 理论上不会越界
-                                originMin = currScoreList.get(end);
-                            }
-                        } else {
-                            BigDecimal[] bigDecimals;
-                            // 获取对应等级区间 以及区间实际最高最低分
-                            if (score.compareTo(ratioA) <= 0) {
-                                level = "A";
-                                mapRight = 86;
-                                bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, currScoreList.get(0), ratioA);
-                            } else if (score.compareTo(ratioB) <= 0) {
-                                level = "B";
-                                mapLeft = 85;
-                                mapRight = 71;
-                                bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioA.add(BigDecimal.ONE), ratioB);
-                            } else if (score.compareTo(ratioC) <= 0) {
-                                level = "C";
-                                mapLeft = 70;
-                                mapRight = 56;
-                                bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioB.add(BigDecimal.ONE), ratioC);
-                            } else if (score.compareTo(ratioD) <= 0) {
-                                level = "D";
-                                mapLeft = 55;
-                                mapRight = 41;
-                                bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioC.add(BigDecimal.ONE), ratioD);
-                            } else {
-                                level = "E";
-                                mapLeft = 40;
-                                bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioD.add(BigDecimal.ONE), currScoreList.get(currScoreList.size() - 1));
-                            }
-                            originMax = bigDecimals[0];
-                            originMin = bigDecimals[1];
-                        }
+                        joinCnt = BigDecimal.valueOf(currScoreList.size());
 
-                        if (score.compareTo(originMax) == 0) {
-                            weightScore = BigDecimal.valueOf(mapLeft);
-                        } else if (score.compareTo(originMin) == 0) {
-                            weightScore = BigDecimal.valueOf(mapRight);
+                        int firstIdx = TwxUtils.binarySearchEnhance1(currScoreList, score);
+                        if (firstIdx == 1) firstIdx = 0;
+                        rank = BigDecimal.valueOf(firstIdx).multiply(hundred).divide(joinCnt, 2, RoundingMode.HALF_UP);
+
+                        // 获取对应等级区间
+                        if (rank.compareTo(ratioA) <= 0) {
+                            level = "A";
+                            mapRight = 86;
+                            end = joinCnt.multiply(ratioA).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
+                        } else if (rank.compareTo(ratioB) <= 0) {
+                            level = "B";
+                            mapLeft = 85;
+                            mapRight = 71;
+                            begin = joinCnt.multiply(ratioA).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
+                            end = joinCnt.multiply(ratioB).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
+                        } else if (rank.compareTo(ratioC) <= 0) {
+                            level = "C";
+                            mapLeft = 70;
+                            mapRight = 56;
+                            begin = joinCnt.multiply(ratioB).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
+                            end = joinCnt.multiply(ratioC).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
+                        } else if (rank.compareTo(ratioD) <= 0) {
+                            level = "D";
+                            mapLeft = 55;
+                            mapRight = 41;
+                            begin = joinCnt.multiply(ratioC).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
+                            end = joinCnt.multiply(ratioD).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                         } else {
-                            BigDecimal scale = originMax.subtract(score).divide(score.subtract(originMin), 3, RoundingMode.HALF_UP);
-                            weightScore = BigDecimal.valueOf(mapLeft).add(scale.multiply(BigDecimal.valueOf(mapRight)))
-                                    .divide(BigDecimal.ONE.add(scale), 0, RoundingMode.HALF_UP);
+                            level = "E";
+                            mapLeft = 40;
+                            begin = joinCnt.multiply(ratioD).divide(hundred, 0, RoundingMode.HALF_UP).intValue();
                         }
-                        if (!"01".equals(includeWeighted) && YesNoEnum.YES.equals(subject.getHasWeight())) {
-                            Method method1 = ExamResult.class.getMethod("set" + methodName + "WeightedScore", BigDecimal.class);
-                            method1.invoke(examResult, weightScore);
+                        originMax = currScoreList.get(Math.max(begin - 1, 0));
+                        originMin = currScoreList.get(Math.max(end - 1, 0));
+                        // 这里做一步修正 防止舍入出现负数的情况
+                        if (score.compareTo(originMax) > 0) {
+                            // 理论上不会越界
+                            originMax = currScoreList.get(Math.max(begin - 2, 0));
                         }
-                        // 设置学业等级
+                        if (score.compareTo(originMin) < 0) {
+                            // 理论上不会越界
+                            originMin = currScoreList.get(end);
+                        }
+                    } else {
+                        BigDecimal[] bigDecimals;
+                        // 获取对应等级区间 以及区间实际最高最低分
+                        if (score.compareTo(ratioA) >= 0) {
+                            level = "A";
+                            mapRight = 86;
+                            bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, currScoreList.get(0), ratioA);
+                        } else if (score.compareTo(ratioB) >= 0) {
+                            level = "B";
+                            mapLeft = 85;
+                            mapRight = 71;
+                            bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioA.subtract(BigDecimal.ONE), ratioB);
+                        } else if (score.compareTo(ratioC) >= 0) {
+                            level = "C";
+                            mapLeft = 70;
+                            mapRight = 56;
+                            bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioB.subtract(BigDecimal.ONE), ratioC);
+                        } else if (score.compareTo(ratioD) >= 0) {
+                            level = "D";
+                            mapLeft = 55;
+                            mapRight = 41;
+                            bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioC.subtract(BigDecimal.ONE), ratioD);
+                        } else {
+                            level = "E";
+                            mapLeft = 40;
+                            bigDecimals = TwxUtils.binarySearchEnhance2(currScoreList, ratioD.subtract(BigDecimal.ONE), currScoreList.get(currScoreList.size() - 1));
+                        }
+                        originMax = bigDecimals[0];
+                        originMin = bigDecimals[1];
+                    }
+
+                    if (score.compareTo(originMax) == 0) {
+                        weightScore = BigDecimal.valueOf(mapLeft);
+                    } else if (score.compareTo(originMin) == 0) {
+                        weightScore = BigDecimal.valueOf(mapRight);
+                    } else {
+                        BigDecimal scale = originMax.subtract(score).divide(score.subtract(originMin), 3, RoundingMode.HALF_UP);
+                        weightScore = BigDecimal.valueOf(mapLeft).add(scale.multiply(BigDecimal.valueOf(mapRight)))
+                                .divide(BigDecimal.ONE.add(scale), 0, RoundingMode.HALF_UP);
+                    }
+                    if (!"01".equals(includeWeighted) && YesNoEnum.YES.equals(subject.getHasWeight())) {
+                        Method method1 = ExamResult.class.getMethod("set" + methodName + "WeightedScore", BigDecimal.class);
+                        method1.invoke(examResult, weightScore);
+                    }
+                    // 设置学业等级
+                    if (notMainSubject) {
+                        Method method1 = ExamResultMinor.class.getMethod("set" + methodName + "Level", String.class);
+                        method1.invoke(examResultMinor, level);
+                        calculateMinor = true;
+                    } else {
                         Method method1 = ExamResult.class.getMethod("set" + methodName + "Level", String.class);
                         method1.invoke(examResult, level);
                     }
+                }
                 examResult.setTotalWeightedScore(examResult.getChineseScore().add(examResult.getMathScore())
-                            .add(examResult.getEnglishScore()).add(examResult.getPhysicsScore()).add(examResult.getHistoryScore()
-                                    .add(examResult.getBiologyWeightedScore()).add(examResult.getChemistryWeightedScore())
-                                    .add(examResult.getGeographyWeightedScore()).add(examResult.getPoliticsWeightedScore())));
+                        .add(examResult.getEnglishScore()).add(examResult.getPhysicsScore()).add(examResult.getHistoryScore()
+                                .add(examResult.getBiologyWeightedScore()).add(examResult.getChemistryWeightedScore())
+                                .add(examResult.getGeographyWeightedScore()).add(examResult.getPoliticsWeightedScore())));
+
+                if (calculateMinor) {
+                    this.examResultMinorMapper.updateById(examResultMinor);
+                }
             }
         } catch (Exception e1) {
             throw new ApiCode.ApiException(-5, e1.getClass().toString());
