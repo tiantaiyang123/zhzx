@@ -1,3 +1,51 @@
+drop table if exists `sys_application_app`;
+create table `sys_application_app`
+(
+    id int(11) auto_increment not null comment 'Id',
+    parent_id int(11) not null default 0 comment '父级Id',
+    type varchar(50) not null default 'MENU' comment '权限类型 [MENU.菜单 BUTTON.按钮]',
+    name varchar(255) not null comment '名称',
+    code varchar(255) not null comment '编码',
+    path varchar(255) null comment '跳转路径',
+    hidden boolean not null default false comment '是否隐藏',
+    hide_children boolean not null default false comment '是否隐藏子菜单',
+    icon varchar(255) null comment '图标',
+    sort_order int(11) not null default 0 comment '序号',
+    editor_id int(11) not null default 1 comment '操作人Id',
+    editor_name varchar(255) not null default 'admin' comment '操作人',
+    create_time datetime not null default CURRENT_TIMESTAMP comment '创建时间',
+    update_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
+    primary key (`id`)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app应用配置表';
+
+drop table if exists `sys_application_role_app`;
+create table `sys_application_role_app`
+(
+    id int(11) auto_increment not null comment 'Id',
+    role_id int(11) not null default 0 comment '角色Id',
+    application_app_id int(11) not null default 0 comment '手机应用Id',
+    primary key (`id`)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app角色应用范围表';
+
+drop table if exists `sys_user_application_prefer_app`;
+create table `sys_user_application_prefer_app`
+(
+    id int(11) auto_increment not null comment 'Id',
+    user_id int(11) not null default 0 comment '用户Id',
+    application_app_id int(11) not null default 0 comment '手机应用Id',
+    sort_order int(11) not null default 0 comment '序号',
+    primary key (`id`)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app用户首页应用表';
+
+create unique index ix_code on `sys_application_app` (code);
+create index ix_parent_id on `sys_application_app` (parent_id);
+
+create index ix_application_app_id on `sys_application_role_app` (application_app_id);
+create index ix_role_id on `sys_application_role_app` (role_id);
+
+create index ix_application_app_id on `sys_user_application_prefer_app` (application_app_id);
+create index ix_user_id on `sys_user_application_prefer_app` (user_id);
+
 drop table if exists `sys_schoolyard`;
 create table `sys_schoolyard`
 (
