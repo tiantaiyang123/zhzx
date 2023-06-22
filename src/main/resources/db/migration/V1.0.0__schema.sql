@@ -17,6 +17,7 @@ create table `sys_application_app`
     update_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
     primary key (`id`)
 ) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app应用配置表';
+alter table `sys_application_app` add column `xcx_code` varchar(100) default null comment '小程序编码' after `path`;
 
 drop table if exists `sys_application_role_app`;
 create table `sys_application_role_app`
@@ -36,6 +37,20 @@ create table `sys_user_application_prefer_app`
     sort_order int(11) not null default 0 comment '序号',
     primary key (`id`)
 ) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app用户首页应用表';
+
+drop table if exists `sys_user_application_link_app`;
+create table `sys_user_application_link_app`
+(
+    id int(11) auto_increment not null comment 'Id',
+    user_id int(11) not null comment '用户Id',
+    xcx_code varchar(100) not null comment '小程序编码',
+    link_path varchar(200) not null comment '跳转路径',
+    create_time datetime not null default CURRENT_TIMESTAMP comment '创建时间',
+    update_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
+    primary key (`id`)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app用户应用跳转表';
+
+create unique index ix_user_id_xcx_code on `sys_user_application_link_app` (user_id,xcx_code);
 
 create unique index ix_code on `sys_application_app` (code);
 create index ix_parent_id on `sys_application_app` (parent_id);

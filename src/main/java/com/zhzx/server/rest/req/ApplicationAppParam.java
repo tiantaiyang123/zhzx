@@ -4,21 +4,24 @@
  * 模型名称：手机app应用配置表
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.rest.req;
 
-import java.io.Serializable;
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import lombok.*;
+import com.zhzx.server.domain.ApplicationApp;
+import com.zhzx.server.enums.AuthorityTypeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import com.zhzx.server.enums.AuthorityTypeEnum;
-import com.zhzx.server.domain.ApplicationApp;
+
+import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Builder(builderMethodName = "newBuilder")
@@ -66,6 +69,11 @@ public class ApplicationAppParam implements Serializable {
      */
     @ApiModelProperty(value = "跳转路径")
     private String path;
+    /**
+     * 小程序编码
+     */
+    @ApiModelProperty(value = "小程序编码")
+    private String xcxCode;
     /**
      * 是否隐藏
      */
@@ -174,6 +182,17 @@ public class ApplicationAppParam implements Serializable {
                 wrapper.likeRight("path", this.getPath().substring(0, this.getPath().length() - 1));
             } else {
                 wrapper.eq("path", this.getPath());
+            }
+        }
+        if (this.getXcxCode() != null) {
+            if (this.getXcxCode().startsWith("%") && this.getXcxCode().endsWith("%")) {
+                wrapper.like("xcx_code", this.getXcxCode().substring(1, this.getXcxCode().length() - 1));
+            } else if (this.getXcxCode().startsWith("%") && !this.getXcxCode().endsWith("%")) {
+                wrapper.likeLeft("xcx_code", this.getXcxCode().substring(1));
+            } else if (this.getXcxCode().endsWith("%")) {
+                wrapper.likeRight("xcx_code", this.getXcxCode().substring(0, this.getXcxCode().length() - 1));
+            } else {
+                wrapper.eq("xcx_code", this.getXcxCode());
             }
         }
         wrapper.eq(this.getHidden() != null, "hidden", this.getHidden());

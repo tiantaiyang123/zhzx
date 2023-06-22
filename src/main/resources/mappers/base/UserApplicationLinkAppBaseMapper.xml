@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.UserApplicationLinkAppBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.UserApplicationLinkApp">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="user_id" jdbcType="BIGINT" property="userId" />
+        <result column="xcx_code" jdbcType="VARCHAR" property="xcxCode" />
+        <result column="link_path" jdbcType="VARCHAR" property="linkPath" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.UserApplicationLinkApp" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, user_id, xcx_code, link_path, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.user_id, t.xcx_code, t.link_path, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into sys_user_application_link_app (
+            user_id, xcx_code, link_path
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.userId, jdbcType=BIGINT}, #{record.xcxCode, jdbcType=VARCHAR}, #{record.linkPath, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.UserApplicationLinkApp">
+        update sys_user_application_link_app set
+        <trim suffixOverrides=",">
+            user_id = #{et.userId, jdbcType=BIGINT},
+            xcx_code = #{et.xcxCode, jdbcType=VARCHAR},
+            link_path = #{et.linkPath, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

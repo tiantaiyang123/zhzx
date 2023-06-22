@@ -54,3 +54,7 @@ wx:
 academic:
   year_one_start: 9-1
   year_two_start: 2-1
+xcx:
+  expire_time: 86400
+  auth_prefix: f1e13ece5c436eba6c98
+  request_url: https://dc.njzhzx.net/api/api/app/getUrlScheme/{code}/{module}

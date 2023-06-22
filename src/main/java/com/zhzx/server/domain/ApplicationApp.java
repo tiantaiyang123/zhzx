@@ -4,26 +4,20 @@
  * 模型名称：手机app应用配置表
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.domain;
-
-import java.io.Serializable;
-
-import com.zhzx.server.rest.res.ApiCode;
-import lombok.*;
-import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
+import com.zhzx.server.enums.AuthorityTypeEnum;
+import com.zhzx.server.rest.res.ApiCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.zhzx.server.enums.AuthorityTypeEnum;
 
 @Data
 @Builder(builderMethodName = "newBuilder")
@@ -69,6 +63,12 @@ public class ApplicationApp extends BaseDomain {
     @TableField(value = "path")
     @ApiModelProperty(value = "跳转路径")
     private String path;
+    /**
+     * 小程序编码
+     */
+    @TableField(value = "xcx_code")
+    @ApiModelProperty(value = "小程序编码")
+    private String xcxCode;
     /**
      * 是否隐藏
      */
