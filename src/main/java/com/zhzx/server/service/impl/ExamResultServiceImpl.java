@@ -36,7 +36,6 @@ import com.zhzx.server.service.ExamResultService;
 import com.zhzx.server.service.ExamService;
 import com.zhzx.server.service.SubjectService;
 import com.zhzx.server.util.CellUtils;
-import com.zhzx.server.util.JsonUtils;
 import com.zhzx.server.util.StringUtils;
 import com.zhzx.server.util.TwxUtils;
 import org.apache.commons.beanutils.BeanUtils;
@@ -1526,7 +1525,7 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
                         chatInfo.get(6).get(0).getData().add(map9);
                         chatInfo.get(6).get(1).getData().add(map10);
                     }
-                } else {
+                } else if (s.endsWith("1100")){
                     map9.put(obj.getName(), obj.getChemistryScore());
                     map10.put(obj.getName(), obj.getPoliticsScore());
                     if (chatInfo.get(6).size() == 0) {
