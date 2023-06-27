@@ -2058,7 +2058,11 @@ public class ExamResultServiceImpl extends ServiceImpl<ExamResultMapper, ExamRes
 
                     BigDecimal totalWeightedScore = partScore.add(examResult.getChemistryWeightedScore()).add(examResult.getBiologyWeightedScore())
                             .add(examResult.getPoliticsWeightedScore()).add(examResult.getGeographyWeightedScore());
-                    examResult.setTotalWeightedScore(totalWeightedScore);
+                    if (totalWeightedScore.compareTo(totalScore) < 0) {
+                        examResult.setTotalWeightedScore(BigDecimal.ZERO);
+                    } else {
+                        examResult.setTotalWeightedScore(totalWeightedScore);
+                    }
                     examResult.setOther("");
                     examResult.setDefault();
                     examResults.add(examResult);
