@@ -10,11 +10,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhzx.server.domain.Clazz;
 import com.zhzx.server.domain.Exam;
 import com.zhzx.server.domain.ExamResult;
-import com.zhzx.server.domain.ExamScoreReport;
-import com.zhzx.server.dto.exam.*;
+import com.zhzx.server.dto.exam.ExamGoalDto;
+import com.zhzx.server.dto.exam.ExamGradeAnalyseClazzSituationDto;
+import com.zhzx.server.dto.exam.ExamPagerDto;
+import com.zhzx.server.dto.exam.ExamResultSimpleDto;
 import com.zhzx.server.enums.ClazzNatureEnum;
 import com.zhzx.server.enums.GenderEnum;
 import com.zhzx.server.enums.StudentTypeEnum;
@@ -42,7 +43,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -523,7 +523,7 @@ public class ExamResultController {
             @RequestParam(value = "clazzIds", required = false) List<Long> clazzIds,
             @RequestParam(value = "examId", required = false) Long examId,
             @RequestParam(value = "studentName", required = false) String studentName,
-            @RequestParam(value = "orderByClause", defaultValue = "totalWeightedScore desc") String orderByClause,
+            @RequestParam(value = "orderByClause", defaultValue = "totalWeightedScore desc, totalScore desc") String orderByClause,
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @RequestParam(value = "limitNum", defaultValue = "100") Integer limitNum
