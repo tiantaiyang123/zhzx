@@ -8,10 +8,8 @@
 
 package com.zhzx.server.service;
 
-import java.util.List;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhzx.server.domain.StaffResearchLeader;
-import com.zhzx.server.rest.req.StaffResearchLeaderParam;
 
 public interface StaffResearchLeaderService extends IService<StaffResearchLeader> {
 
@@ -23,4 +21,7 @@ public interface StaffResearchLeaderService extends IService<StaffResearchLeader
     int updateAllFieldsById(StaffResearchLeader entity);
 
 
+    StaffResearchLeader addWithRole(StaffResearchLeader entity);
+
+    StaffResearchLeader updateWithRole(StaffResearchLeader entity, boolean updateAllFields);
 }

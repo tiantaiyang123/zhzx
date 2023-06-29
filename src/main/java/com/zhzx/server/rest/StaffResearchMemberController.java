@@ -30,6 +30,13 @@ public class StaffResearchMemberController {
     @Resource
     private StaffResearchMemberService staffResearchMemberService;
 
+    @PostMapping("/multi-save")
+    @ApiOperation("批量新增教研组成员")
+    public ApiResponse<List<StaffResearchMember>> multiSave(@RequestParam(value = "subjectId") Long subjectId,
+                                                            @RequestParam(value = "staffIds", required = false) List<Long> staffIds) {
+        return ApiResponse.ok(this.staffResearchMemberService.multiSave(subjectId, staffIds));
+    }
+
     /**
      * 通过主键查询
      *

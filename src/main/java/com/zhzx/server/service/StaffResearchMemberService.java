@@ -11,6 +11,8 @@ package com.zhzx.server.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhzx.server.domain.StaffResearchMember;
 
+import java.util.List;
+
 public interface StaffResearchMemberService extends IService<StaffResearchMember> {
 
     /**
@@ -20,4 +22,5 @@ public interface StaffResearchMemberService extends IService<StaffResearchMember
      */
     int updateAllFieldsById(StaffResearchMember entity);
 
+    List<StaffResearchMember> multiSave(Long subjectId, List<Long> staffIds);
 }

@@ -6,27 +6,21 @@
 
 package com.zhzx.server.rest;
 
-import java.util.List;
-import java.util.Arrays;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
-import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.domain.StaffResearchLeader;
 import com.zhzx.server.rest.req.StaffResearchLeaderParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.StaffResearchLeaderService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -58,8 +52,7 @@ public class StaffResearchLeaderController {
     @ApiOperation("新增")
     public ApiResponse<StaffResearchLeader> add(@RequestBody StaffResearchLeader entity) {
         entity.setDefault().validate(true);
-        this.staffResearchLeaderService.save(entity);
-        return ApiResponse.ok(this.staffResearchLeaderService.getById(entity.getId()));
+        return ApiResponse.ok(this.staffResearchLeaderService.addWithRole(entity));
     }
 
     /**
@@ -71,12 +64,7 @@ public class StaffResearchLeaderController {
     @PutMapping("/")
     @ApiOperation("更新")
     public ApiResponse<StaffResearchLeader> update(@RequestBody StaffResearchLeader entity, @RequestParam(value = "updateAllFields", defaultValue = "false") boolean updateAllFields) {
-        if (updateAllFields) {
-            this.staffResearchLeaderService.updateAllFieldsById(entity);
-        } else {
-            this.staffResearchLeaderService.updateById(entity);
-        }
-        return ApiResponse.ok(this.staffResearchLeaderService.getById(entity.getId()));
+        return ApiResponse.ok(this.staffResearchLeaderService.updateWithRole(entity, updateAllFields));
     }
 
     /**

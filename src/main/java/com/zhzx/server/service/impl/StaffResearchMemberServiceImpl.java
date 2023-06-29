@@ -9,19 +9,69 @@
 package com.zhzx.server.service.impl;
 
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
+import com.zhzx.server.domain.StaffResearchLeader;
 import com.zhzx.server.domain.StaffResearchMember;
+import com.zhzx.server.enums.YesNoEnum;
+import com.zhzx.server.repository.StaffResearchLeaderMapper;
 import com.zhzx.server.repository.StaffResearchMemberMapper;
 import com.zhzx.server.repository.base.StaffResearchMemberBaseMapper;
 import com.zhzx.server.service.StaffResearchMemberService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StaffResearchMemberServiceImpl extends ServiceImpl<StaffResearchMemberMapper, StaffResearchMember> implements StaffResearchMemberService {
+
+    @Resource
+    private StaffResearchLeaderMapper staffResearchLeaderMapper;
+
+    @Override
+    @Transactional( rollbackFor = Exception.class )
+    public List<StaffResearchMember> multiSave(Long subjectId, List<Long> staffIds) {
+        List<StaffResearchMember> staffResearchMembers = new ArrayList<>();
+        if (CollectionUtils.isEmpty(staffIds)) return staffResearchMembers;
+
+        List<StaffResearchLeader> staffResearchLeaderList = Optional.ofNullable(
+                this.staffResearchLeaderMapper.selectList(
+                        Wrappers.<StaffResearchLeader>lambdaQuery()
+                                .select(StaffResearchLeader::getStaffId)
+                                .eq(StaffResearchLeader::getSubjectId, subjectId)
+                                .eq(StaffResearchLeader::getIsCurrent, YesNoEnum.YES)
+                )
+        ).orElse(new ArrayList<>());
+        List<Long> staffIdsLeader = staffResearchLeaderList.stream().map(StaffResearchLeader::getStaffId).collect(Collectors.toList());
+
+        staffIds.forEach(staffId -> {
+            if (!staffIdsLeader.contains(staffId)) {
+                StaffResearchMember staffResearchMember = new StaffResearchMember();
+                staffResearchMember.setSubjectId(subjectId);
+                staffResearchMember.setStaffId(staffId);
+                staffResearchMember.setIsCurrent(YesNoEnum.YES);
+                staffResearchMember.setIsLeader(YesNoEnum.NO);
+                staffResearchMembers.add(staffResearchMember);
+            }
+        });
+
+        this.getBaseMapper().delete(
+                Wrappers.<StaffResearchMember>lambdaQuery()
+                        .eq(StaffResearchMember::getSubjectId, subjectId)
+        );
+        if (CollectionUtils.isNotEmpty(staffResearchMembers)) {
+            this.getBaseMapper().batchInsert(staffResearchMembers);
+        }
+        return staffResearchMembers;
+    }
 
     @Override
     public int updateAllFieldsById(StaffResearchMember entity) {
