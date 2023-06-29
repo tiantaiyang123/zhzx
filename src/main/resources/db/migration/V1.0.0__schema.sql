@@ -50,6 +50,17 @@ create table `sys_user_application_link_app`
     primary key (`id`)
 ) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app用户应用跳转表';
 
+drop table if exists `sys_staff_research_member`;
+create table `sys_staff_research_member`
+(
+    id int(11) auto_increment not null comment 'ID系统自动生成',
+    staff_id int(11) not null comment '教师ID sys_staff.id',
+    subject_id int(11) not null comment '科目ID sys_subject.id',
+    is_current varchar(50) not null comment '是否当值 [YES.是 NO.否]',
+    is_leader varchar(50) not null comment '是否组长 [YES.是 NO.否]',
+    primary key (`id`)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='教研组组员表';
+
 create unique index ix_user_id_xcx_code on `sys_user_application_link_app` (user_id,xcx_code);
 
 create unique index ix_code on `sys_application_app` (code);
@@ -61,6 +72,10 @@ create index ix_role_id on `sys_application_role_app` (role_id);
 create index ix_application_app_id on `sys_user_application_prefer_app` (application_app_id);
 create index ix_user_id on `sys_user_application_prefer_app` (user_id);
 
+create index ix_staff_id on `sys_staff_research_member` (staff_id);
+create index ix_subject_id on `sys_staff_research_member` (subject_id);
+
+----------------------------------------------------------------------
 drop table if exists `sys_schoolyard`;
 create table `sys_schoolyard`
 (
