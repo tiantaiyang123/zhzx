@@ -61,6 +61,29 @@ create table `sys_staff_research_member`
     primary key (`id`)
 ) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='教研组组员表';
 
+drop table if exists `tir_wx_xcx_message`;
+create table `tir_wx_xcx_message`
+(
+    id int(11) auto_increment not null comment 'ID系统自动生成',
+    message_type int(1) not null comment '通知类型0消息1待办',
+    type int(2) not null comment '消息类型0其他1收文2发文3阅文4请示5听课6请假7会议 ',
+    user_login_name varchar(100) not null comment '接收人e办公登录名',
+    user_phone varchar(100) null comment '接收人手机号',
+    source_id varchar(64) not null comment '源系统消息ID',
+    operate_type int(1) not null comment '操作类型0新增1更新2删除',
+    message_title varchar(200) not null comment '消息标题',
+    message_content text not null comment '消息内容',
+    message_create_date datetime not null comment '消息创建时间',
+    message_create_department varchar(50) not null comment '消息创建人部门',
+    message_create_user varchar(50) null comment '消息发送人名称',
+    send_num int(2) not null default 1 comment '发送次数',
+    message_version int(2) not null default 1 comment '消息版本',
+    jump_url text null comment '跳转链接',
+    created_time datetime not null default CURRENT_TIMESTAMP,
+    updated_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    primary key (`id`)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='微信小程序通知表';
+
 create unique index ix_user_id_xcx_code on `sys_user_application_link_app` (user_id,xcx_code);
 
 create unique index ix_code on `sys_application_app` (code);
@@ -74,6 +97,9 @@ create index ix_user_id on `sys_user_application_prefer_app` (user_id);
 
 create index ix_staff_id on `sys_staff_research_member` (staff_id);
 create index ix_subject_id on `sys_staff_research_member` (subject_id);
+
+create index ix_source_id on `tir_wx_xcx_message` (source_id);
+create index ix_message_create_department on `tir_wx_xcx_message` (message_create_department);
 
 ----------------------------------------------------------------------
 drop table if exists `sys_schoolyard`;
