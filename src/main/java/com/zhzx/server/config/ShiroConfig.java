@@ -77,6 +77,8 @@ public class ShiroConfig {
         filterRuleMap.put("/v1/system/user/send/verify-Code", "anon");
         //企业微信回调，不需要权限
         filterRuleMap.put("/v1/system/wx/**", "anon");
+        // 外部控制器 单独走认证
+        filterRuleMap.put("/v1/external/**", "anon");
         // 其他的接口需要认证
         filterRuleMap.put("/v1/**", "jwt");
 

@@ -9,16 +9,22 @@
 package com.zhzx.server.service.impl;
 
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.zhzx.server.domain.WxXcxMessage;
+import com.zhzx.server.dto.xcx.WxXcxMessageDto;
 import com.zhzx.server.repository.WxXcxMessageMapper;
 import com.zhzx.server.repository.base.WxXcxMessageBaseMapper;
 import com.zhzx.server.service.WxXcxMessageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxXcxMessage> implements WxXcxMessageService {
@@ -26,6 +32,37 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
     @Override
     public int updateAllFieldsById(WxXcxMessage entity) {
         return this.getBaseMapper().updateAllFieldsById(entity);
+    }
+
+    @Override
+    @Transactional( rollbackFor = Exception.class )
+    public void syncWxXcxMessage(String code, List<WxXcxMessageDto> wxXcxMessageDtoList) {
+        if (CollectionUtils.isNotEmpty(wxXcxMessageDtoList)) {
+            List<WxXcxMessage> wxXcxMessageList = new ArrayList<>();
+            for (WxXcxMessageDto wxXcxMessageDto : wxXcxMessageDtoList) {
+                WxXcxMessage wxXcxMessage = new WxXcxMessage();
+                wxXcxMessage.setMessageType(wxXcxMessageDto.getMessageType());
+                wxXcxMessage.setType(wxXcxMessageDto.getType());
+                wxXcxMessage.setUserLoginName(wxXcxMessageDto.getUserLoginName());
+                wxXcxMessage.setUserPhone(wxXcxMessageDto.getUserPhone());
+                wxXcxMessage.setSourceId(wxXcxMessageDto.getSourceId());
+                wxXcxMessage.setOperateType(wxXcxMessageDto.getOperateType());
+                wxXcxMessage.setMessageTitle(wxXcxMessageDto.getMessageTitle());
+                wxXcxMessage.setMessageContent(wxXcxMessageDto.getMessageContent());
+                wxXcxMessage.setMessageCreateDate(wxXcxMessageDto.getMessageCreateDate());
+                wxXcxMessage.setMessageCreateDepartment(wxXcxMessageDto.getMessageCreateDepartment());
+                wxXcxMessage.setMessageCreateUser(wxXcxMessageDto.getMessageCreateUser());
+                wxXcxMessage.setJumpUrl(wxXcxMessageDto.getJumpUrl());
+                wxXcxMessage.setDefault().validate(true);
+                wxXcxMessageList.add(wxXcxMessage);
+            }
+            Map<Integer, List<WxXcxMessage>> map = wxXcxMessageList.stream().collect(Collectors.groupingBy(WxXcxMessage::getOperateType));
+
+            List<WxXcxMessage> wxXcxMessageAddList = map.get(0);
+            if (CollectionUtils.isNotEmpty(wxXcxMessageAddList)) {
+                this.baseMapper.batchInsert(wxXcxMessageAddList);
+            }
+        }
     }
 
     /**

@@ -10,6 +10,9 @@ package com.zhzx.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhzx.server.domain.WxXcxMessage;
+import com.zhzx.server.dto.xcx.WxXcxMessageDto;
+
+import java.util.List;
 
 public interface WxXcxMessageService extends IService<WxXcxMessage> {
 
@@ -21,4 +24,5 @@ public interface WxXcxMessageService extends IService<WxXcxMessage> {
     int updateAllFieldsById(WxXcxMessage entity);
 
 
+    void syncWxXcxMessage(String code, List<WxXcxMessageDto> wxXcxMessageDtoList);
 }

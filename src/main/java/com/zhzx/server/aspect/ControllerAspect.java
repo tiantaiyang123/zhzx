@@ -1,17 +1,16 @@
 package com.zhzx.server.aspect;
 
 import com.zhzx.server.dto.annotation.MessageInfo;
+import com.zhzx.server.dto.annotation.TirAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * Project: server <br>
@@ -29,14 +28,29 @@ public class ControllerAspect {
     public void aspect() {
     }
 
-    @AfterReturning(value = "aspect()")
-    public void validationAfterPoint(JoinPoint  pjp) throws Throwable {
+    @Around(value = "aspect()")
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
         Method method = currentMethod(pjp, pjp.getSignature().getName());
+        //是否第三方认证
+        if (method.isAnnotationPresent(TirAuth.class)) {
+            new TirAuthAspect().handle(pjp, method);
+        }
+        Object result = pjp.proceed();
         //是否需要记录日志
         if (method.isAnnotationPresent(MessageInfo.class)) {
             new MessageInfoAspect().handle(pjp, method);
         }
+        return result;
     }
+
+//    @AfterReturning(value = "aspect()")
+//    public void validationAfterPoint(JoinPoint  pjp) throws Throwable {
+//        Method method = currentMethod(pjp, pjp.getSignature().getName());
+//        //是否需要记录日志
+//        if (method.isAnnotationPresent(MessageInfo.class)) {
+//            new MessageInfoAspect().handle(pjp, method);
+//        }
+//    }
     /**
      * 获取目标类的所有方法，找到当前要执行的方法
      */
