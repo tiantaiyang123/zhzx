@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -153,18 +154,56 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userVo;
     }
 
+    private static final String PASSWORD_ENCODE = "Q_wqmm192nQDQOM87XXi0l";
+
+    private void updateLoginError(User user) {
+        Integer loginErrorCnt = user.getLoginErrorCnt();
+        if (loginErrorCnt == 5) {
+            this.baseMapper.update(null, Wrappers.<User>lambdaUpdate()
+                    .set(User::getIsDelete, YesNoEnum.YES)
+                    .eq(User::getId, user.getId()));
+        } else {
+            this.baseMapper.update(null, Wrappers.<User>lambdaUpdate()
+                    .set(User::getLoginErrorCnt, loginErrorCnt + 1)
+                    .eq(User::getId, user.getId()));
+        }
+    }
+
     @Override
-    public UserVo loginV2(String username, String password,String code) {
-        User user = this.selectByUsername(username);
-        if (user == null) {
+    public UserVo loginV2(String username, String password,String code, YesNoEnum decode) {
+        // 先检查密码
+        User user0 = this.baseMapper.selectOne(
+                Wrappers.<User>lambdaQuery()
+                        .select(User::getId, User::getPassword, User::getLoginErrorCnt, User::getIsDelete)
+                        .eq(User::getUsername, username).or().eq(User::getLoginNumber, username)
+        );
+        if (user0 == null) {
             throw new ApiCode.ApiException(-1, "用户名不存在！");
         }
-        if (user.getIsDelete() == YesNoEnum.YES) {
+        if (user0.getIsDelete() == YesNoEnum.YES) {
             throw new ApiCode.ApiException(-2, "用户名已被禁用，请联系管理员！");
         }
-        if (!ShiroEncrypt.encrypt(password).equals(user.getPassword())) {
+
+        if (YesNoEnum.YES.equals(decode)) {
+            try {
+                code = new String(Base64Utils.decodeFromString(code));
+                password = new String(Base64Utils.decodeFromString(password));
+                if (!password.startsWith(PASSWORD_ENCODE) || !code.startsWith(PASSWORD_ENCODE)) {
+                    throw new ApiCode.ApiException(-1, "解密失败");
+                }
+                code = code.replace(PASSWORD_ENCODE, "");
+                password = password.replace(PASSWORD_ENCODE, "");
+            } catch (Exception e) {
+                updateLoginError(user0);
+                throw new ApiCode.ApiException(-1, "解密失败");
+            }
+        }
+        if (!ShiroEncrypt.encrypt(password).equals(user0.getPassword())) {
+            updateLoginError(user0);
             throw new ApiCode.ApiException(-3, "用户名和密码不匹配！");
         }
+
+        User user = this.selectByUsername(username);
 
         //教师登录发送验证码
         if(user.getStaff() != null){
@@ -174,15 +213,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     throw new ApiCode.ApiException(-5,"请先发送验证码！");
                 }
                 if(tokenDto == null){
+                    updateLoginError(user0);
                     throw new ApiCode.ApiException(-5,"请先发送验证码！");
                 }else{
                     Boolean isExpire = wxSendMessageService.isExpire(user.getId().toString());
                     if(isExpire){
+                        updateLoginError(user0);
                         TokenCacheConfig.removeKey(user.getId().toString());
                         throw new ApiCode.ApiException(-5,"验证码已失效！");
                     }else if(!Objects.equals(tokenDto.getToken(),code)){
+                        updateLoginError(user0);
                         throw new ApiCode.ApiException(-5,"验证码不正确！");
                     }
+                    // 验证成功 清除验证码
+                    TokenCacheConfig.removeKey(user.getId().toString());
                 }
             }
         }
@@ -383,10 +427,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null)
             throw new ApiCode.ApiException(-1, "该用户不存在");
 
-        if (user.getIsDelete() == YesNoEnum.NO)
+        if (user.getIsDelete() == YesNoEnum.NO) {
             user.setIsDelete(YesNoEnum.YES);
-        else
+        } else {
             user.setIsDelete(YesNoEnum.NO);
+            user.setLoginErrorCnt(0);
+        }
         this.baseMapper.updateById(user);
     }
 

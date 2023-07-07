@@ -502,6 +502,7 @@ create table `sys_user`
   staff_id int(11) null default 0 comment '教职工ID sys_staff.id',
   student_id int(11) null default 0 comment '学生ID sys_student.id',
   is_delete varchar(50) not null default 'NO' comment '是否删除 [YES.是 NO.否]',
+  login_error_cnt int(1) not null default '0' comment '登录错误次数',
   create_time datetime not null default CURRENT_TIMESTAMP,
   update_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   primary key (`id`)

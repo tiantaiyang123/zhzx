@@ -14,6 +14,7 @@ import com.zhzx.server.domain.Staff;
 import com.zhzx.server.domain.User;
 import com.zhzx.server.dto.PasswordDto;
 import com.zhzx.server.dto.annotation.MessageInfo;
+import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.misc.shiro.ShiroEncrypt;
 import com.zhzx.server.rest.req.UserParam;
 import com.zhzx.server.rest.res.ApiCode;
@@ -32,7 +33,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -209,7 +209,6 @@ public class UserController {
         return ApiResponse.ok(this.userService.count(wrapper));
     }
 
-    private static final String PASSWORD_ENCODE = "Q_wqmm192nQDQOM87XXi0l";
     /**
      * <pre>
      * 用户登陆接口
@@ -219,15 +218,11 @@ public class UserController {
     @MessageInfo(name="普通登陆接口",title = "登录",content = "普通登陆接口")
     @PostMapping("/login")
     public ApiResponse<Map> login(@RequestBody User user) throws Exception {
-        Map<String, Object> result = new HashMap<>();
-//        UserVo loginUser = this.userService.login(user.getUsername(), user.getPassword());
-//        使用登录验证码
-        String password = user.getPassword();
-        String decodeString = new String(Base64Utils.decodeFromString(password));
-        if (!decodeString.startsWith(PASSWORD_ENCODE)) {
-            return ApiResponse.fail(40001, "加密验证失败");
+        if (StringUtils.isNullOrEmpty(user.getCode()) || StringUtils.isNullOrEmpty(user.getPassword()) || StringUtils.isNullOrEmpty(user.getUsername())) {
+            return ApiResponse.fail(-1, "参数缺失");
         }
-        UserVo loginUser = this.userService.loginV2(user.getUsername(), decodeString.replace(PASSWORD_ENCODE, ""), user.getCode());
+        Map<String, Object> result = new HashMap<>();
+        UserVo loginUser = this.userService.loginV2(user.getUsername(), user.getPassword(), user.getCode(), YesNoEnum.YES);
         user.setId(loginUser.getUserInfo().getId());
         user.setRealName(loginUser.getUserInfo().getRealName());
         result.put("userInfo", loginUser);
@@ -262,7 +257,7 @@ public class UserController {
     public ApiResponse<Map> staffLogin(@RequestBody User user) throws UnsupportedEncodingException {
         Map<String, Object> result = new HashMap<>();
 //        UserVo loginUser = this.userService.login(user.getUsername(), user.getPassword());
-        UserVo loginUser = this.userService.loginV2(user.getUsername(), user.getPassword(),user.getCode());
+        UserVo loginUser = this.userService.loginV2(user.getUsername(), user.getPassword(),user.getCode(), YesNoEnum.NO);
         Staff staff = staffService.getById(loginUser.getUserInfo().getStaffId());
         if (staff == null) {
             return ApiResponse.fail(-5, "该用户不是教职工，无法登录！");

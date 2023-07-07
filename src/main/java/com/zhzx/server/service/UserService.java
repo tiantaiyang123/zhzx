@@ -11,6 +11,7 @@ package com.zhzx.server.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhzx.server.domain.Clazz;
 import com.zhzx.server.domain.User;
+import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.vo.UserVo;
 
 import java.util.List;
@@ -51,7 +52,7 @@ public interface UserService extends IService<User> {
      * @param password
      * @return
      */
-    UserVo loginV2(String username, String password,String code);
+    UserVo loginV2(String username, String password,String code, YesNoEnum decode);
 
 
     UserVo loginWithoutPassword(String username);

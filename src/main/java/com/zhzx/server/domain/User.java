@@ -8,25 +8,20 @@
 
 package com.zhzx.server.domain;
 
-import java.io.Serializable;
-
-import com.zhzx.server.rest.res.ApiCode;
-import com.zhzx.server.vo.SchoolWeek;
-import lombok.*;
-import java.util.List;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zhzx.server.enums.YesNoEnum;
-import com.zhzx.server.domain.Staff;
-import com.zhzx.server.domain.Student;
+import com.zhzx.server.rest.res.ApiCode;
+import com.zhzx.server.vo.SchoolWeek;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.List;
 
 @Data
 @Builder(builderMethodName = "newBuilder")
@@ -113,6 +108,12 @@ public class User extends BaseDomain {
     @TableField(exist = false)
     private Student student;
     /**
+     * 登录错误次数
+     */
+    @TableField(value = "login_error_cnt")
+    @ApiModelProperty(value = "登录错误次数")
+    private Integer loginErrorCnt;
+    /**
      * 是否删除
      */
     @TableField(value = "is_delete")
@@ -175,6 +176,9 @@ public class User extends BaseDomain {
         }
         if (this.getIsDelete() == null) {
             this.setIsDelete(YesNoEnum.NO);
+        }
+        if (this.getLoginErrorCnt() == null) {
+            this.setLoginErrorCnt(0);
         }
         if (this.getCreateTime() == null) {
             this.setCreateTime(new java.util.Date());
