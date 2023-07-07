@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.Schedules;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -702,9 +701,9 @@ public class TaskComp {
                             .eq(StaffMessageRefuse::getStatus,YesNoEnum.YES)
                     );
                     String suffix = " 总值班";
-                    if ("雨花校区".equals(leaderDuty.getSchoolyard().getName())) {
-                        suffix = "\r\n友情提示：雨花校区总值班室密码：159369";
-                    }
+//                    if ("雨花校区".equals(leaderDuty.getSchoolyard().getName())) {
+//                        suffix = "\r\n友情提示：雨花校区总值班室密码：159369";
+//                    }
                     if(staffMessageRefuse == null){
                         wxSendMessageService.sendTeacherMessage(prefix + "\r\n"+DateUtils.format(leaderDuty.getStartTime(),"yyyy-MM-dd")+ suffix,staffList);
                     }
