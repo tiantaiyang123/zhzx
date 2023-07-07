@@ -77,7 +77,7 @@ create table `tir_wx_xcx_message`
     message_create_department varchar(50) not null comment '消息创建人部门',
     message_create_user varchar(50) null comment '消息发送人名称',
     send_num int(2) not null default 1 comment '发送次数',
-    is_read int(1) not null default 0 comment '是否已读0未读1已读',
+    is_read varchar(50) not null default NO comment '是否已读 [YES.是 NO.否]',
     message_version int(2) not null default 1 comment '消息版本',
     jump_url text null comment '跳转链接',
     created_time datetime not null default CURRENT_TIMESTAMP,

@@ -11,6 +11,7 @@ package com.zhzx.server.rest.req;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.zhzx.server.domain.WxXcxMessage;
+import com.zhzx.server.enums.YesNoEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -112,6 +113,11 @@ public class WxXcxMessageParam implements Serializable {
     @ApiModelProperty(value = "发送次数")
     private Integer sendNum;
     /**
+     * 是否已读
+     */
+    @ApiModelProperty(value = "是否已读")
+    private YesNoEnum isRead;
+    /**
      * 消息版本
      */
     @ApiModelProperty(value = "消息版本")
@@ -168,37 +174,13 @@ public class WxXcxMessageParam implements Serializable {
         wrapper.eq(this.getMessageType() != null, "message_type", this.getMessageType());
         wrapper.eq(this.getType() != null, "type", this.getType());
         if (this.getUserLoginName() != null) {
-            if (this.getUserLoginName().startsWith("%") && this.getUserLoginName().endsWith("%")) {
-                wrapper.like("user_login_name", this.getUserLoginName().substring(1, this.getUserLoginName().length() - 1));
-            } else if (this.getUserLoginName().startsWith("%") && !this.getUserLoginName().endsWith("%")) {
-                wrapper.likeLeft("user_login_name", this.getUserLoginName().substring(1));
-            } else if (this.getUserLoginName().endsWith("%")) {
-                wrapper.likeRight("user_login_name", this.getUserLoginName().substring(0, this.getUserLoginName().length() - 1));
-            } else {
-                wrapper.eq("user_login_name", this.getUserLoginName());
-            }
+            wrapper.eq("user_login_name", this.getUserLoginName());
         }
         if (this.getUserPhone() != null) {
-            if (this.getUserPhone().startsWith("%") && this.getUserPhone().endsWith("%")) {
-                wrapper.like("user_phone", this.getUserPhone().substring(1, this.getUserPhone().length() - 1));
-            } else if (this.getUserPhone().startsWith("%") && !this.getUserPhone().endsWith("%")) {
-                wrapper.likeLeft("user_phone", this.getUserPhone().substring(1));
-            } else if (this.getUserPhone().endsWith("%")) {
-                wrapper.likeRight("user_phone", this.getUserPhone().substring(0, this.getUserPhone().length() - 1));
-            } else {
-                wrapper.eq("user_phone", this.getUserPhone());
-            }
+            wrapper.eq("user_phone", this.getUserPhone());
         }
         if (this.getSourceId() != null) {
-            if (this.getSourceId().startsWith("%") && this.getSourceId().endsWith("%")) {
-                wrapper.like("source_id", this.getSourceId().substring(1, this.getSourceId().length() - 1));
-            } else if (this.getSourceId().startsWith("%") && !this.getSourceId().endsWith("%")) {
-                wrapper.likeLeft("source_id", this.getSourceId().substring(1));
-            } else if (this.getSourceId().endsWith("%")) {
-                wrapper.likeRight("source_id", this.getSourceId().substring(0, this.getSourceId().length() - 1));
-            } else {
-                wrapper.eq("source_id", this.getSourceId());
-            }
+            wrapper.eq("source_id", this.getSourceId());
         }
         wrapper.eq(this.getOperateType() != null, "operate_type", this.getOperateType());
         if (this.getMessageTitle() != null) {
@@ -250,17 +232,7 @@ public class WxXcxMessageParam implements Serializable {
         }
         wrapper.eq(this.getSendNum() != null, "send_num", this.getSendNum());
         wrapper.eq(this.getMessageVersion() != null, "message_version", this.getMessageVersion());
-        if (this.getJumpUrl() != null) {
-            if (this.getJumpUrl().startsWith("%") && this.getJumpUrl().endsWith("%")) {
-                wrapper.like("jump_url", this.getJumpUrl().substring(1, this.getJumpUrl().length() - 1));
-            } else if (this.getJumpUrl().startsWith("%") && !this.getJumpUrl().endsWith("%")) {
-                wrapper.likeLeft("jump_url", this.getJumpUrl().substring(1));
-            } else if (this.getJumpUrl().endsWith("%")) {
-                wrapper.likeRight("jump_url", this.getJumpUrl().substring(0, this.getJumpUrl().length() - 1));
-            } else {
-                wrapper.eq("jump_url", this.getJumpUrl());
-            }
-        }
+        wrapper.eq(this.getIsRead() != null, "is_read", this.getIsRead());
         wrapper.eq(this.getCreatedTime() != null, "created_time", this.getCreatedTime());
         wrapper.ge(this.getCreatedTimeFrom() != null, "created_time", this.getCreatedTimeFrom());
         wrapper.lt(this.getCreatedTimeTo() != null, "created_time", this.getCreatedTimeTo());

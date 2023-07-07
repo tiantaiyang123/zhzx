@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.rest.res.ApiCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -106,11 +107,11 @@ public class WxXcxMessage extends BaseDomain {
     @ApiModelProperty(value = "发送次数", required = true)
     private Integer sendNum;
     /**
-     * 是否已读0未读1已读
+     * 是否已读
      */
     @TableField(value = "is_read")
-    @ApiModelProperty(value = "是否已读0未读1已读", required = true)
-    private Integer isRead;
+    @ApiModelProperty(value = "是否已读", required = true)
+    private YesNoEnum isRead;
     /**
      * 消息版本
      */
@@ -146,7 +147,7 @@ public class WxXcxMessage extends BaseDomain {
             this.setSendNum(1);
         }
         if (this.getIsRead() == null) {
-            this.setIsRead(0);
+            this.setIsRead(YesNoEnum.NO);
         }
         if (this.getMessageVersion() == null) {
             this.setMessageVersion(1);

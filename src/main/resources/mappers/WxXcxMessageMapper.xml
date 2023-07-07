@@ -9,4 +9,21 @@
     <select id="selectOne" resultMap="com.zhzx.server.repository.base.WxXcxMessageBaseMapper.ResultMap">
         select * from tir_wx_xcx_message ${ew.customSqlSegment} LIMIT 1
     </select>
+    <select id="pageApp" resultType="com.zhzx.server.dto.MessageCombineDto">
+<!--                select-->
+<!--                from tir_wx_xcx_message-->
+<!--                <where>-->
+<!--                    <if test="messageCombineVo.messageTypeEnum != null and messageCombineVo.messageTypeEnum != ''">-->
+<!--                        <choose>-->
+<!--                            <when test="messageCombineVo.messageTypeEnum = 'OFFICE'">-->
+<!--                                AND-->
+<!--                            </when>-->
+<!--                        </choose>-->
+<!--                    </if>-->
+<!--                </where>-->
+<!--                union all-->
+<!--                select-->
+<!--                from mes_message-->
+<!--                where 1=1-->
+    </select>
 </mapper>

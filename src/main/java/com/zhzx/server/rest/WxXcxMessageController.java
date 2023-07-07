@@ -10,9 +10,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhzx.server.domain.WxXcxMessage;
+import com.zhzx.server.dto.MessageCombineDto;
 import com.zhzx.server.rest.req.WxXcxMessageParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.WxXcxMessageService;
+import com.zhzx.server.vo.MessageCombineVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -80,6 +82,17 @@ public class WxXcxMessageController {
         });
         IPage<WxXcxMessage> page = new Page<>(pageNum, pageSize);
         return ApiResponse.ok(this.wxXcxMessageService.page(page, wrapper));
+    }
+
+    @GetMapping("/search-app")
+    @ApiOperation("分页查询")
+    public ApiResponse<IPage<MessageCombineDto>> selectApp(
+            MessageCombineVo messageCombineVo,
+            @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
+            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        return ApiResponse.ok(this.wxXcxMessageService.pageApp(orderByClause, pageNum, pageSize, messageCombineVo));
     }
 
     /**

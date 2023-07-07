@@ -14,7 +14,7 @@
         <result column="message_create_department" jdbcType="VARCHAR" property="messageCreateDepartment" />
         <result column="message_create_user" jdbcType="VARCHAR" property="messageCreateUser" />
         <result column="send_num" jdbcType="INTEGER" property="sendNum" />
-        <result column="is_read" jdbcType="INTEGER" property="isRead" />
+        <result column="is_read" jdbcType="VARCHAR" property="isRead" />
         <result column="message_version" jdbcType="INTEGER" property="messageVersion" />
         <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
         <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
@@ -39,7 +39,7 @@
         values
         <foreach collection="records" item="record" separator=",">
             (
-            #{record.messageType, jdbcType=INTEGER}, #{record.type, jdbcType=INTEGER}, #{record.userLoginName, jdbcType=VARCHAR}, #{record.userPhone, jdbcType=VARCHAR}, #{record.sourceId, jdbcType=VARCHAR}, #{record.operateType, jdbcType=INTEGER}, #{record.messageTitle, jdbcType=VARCHAR}, #{record.messageContent, jdbcType=VARCHAR}, #{record.messageCreateDate, jdbcType=TIMESTAMP}, #{record.messageCreateDepartment, jdbcType=VARCHAR}, #{record.messageCreateUser, jdbcType=VARCHAR}, #{record.sendNum, jdbcType=INTEGER}, #{record.isRead, jdbcType=INTEGER}, #{record.messageVersion, jdbcType=INTEGER}, #{record.jumpUrl, jdbcType=VARCHAR}
+            #{record.messageType, jdbcType=INTEGER}, #{record.type, jdbcType=INTEGER}, #{record.userLoginName, jdbcType=VARCHAR}, #{record.userPhone, jdbcType=VARCHAR}, #{record.sourceId, jdbcType=VARCHAR}, #{record.operateType, jdbcType=INTEGER}, #{record.messageTitle, jdbcType=VARCHAR}, #{record.messageContent, jdbcType=VARCHAR}, #{record.messageCreateDate, jdbcType=TIMESTAMP}, #{record.messageCreateDepartment, jdbcType=VARCHAR}, #{record.messageCreateUser, jdbcType=VARCHAR}, #{record.sendNum, jdbcType=INTEGER}, #{record.isRead, jdbcType=VARCHAR}, #{record.messageVersion, jdbcType=INTEGER}, #{record.jumpUrl, jdbcType=VARCHAR}
             )
         </foreach>
     </insert>
@@ -58,7 +58,7 @@
             message_create_department = #{et.messageCreateDepartment, jdbcType=VARCHAR},
             message_create_user = #{et.messageCreateUser, jdbcType=VARCHAR},
             send_num = #{et.sendNum, jdbcType=INTEGER},
-            is_read = #{et.isRead, jdbcType=INTEGER},
+            is_read = #{et.isRead, jdbcType=VARCHAR},
             message_version = #{et.messageVersion, jdbcType=INTEGER},
             jump_url = #{et.jumpUrl, jdbcType=VARCHAR},
         </trim>

@@ -8,9 +8,12 @@
 
 package com.zhzx.server.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhzx.server.domain.WxXcxMessage;
+import com.zhzx.server.dto.MessageCombineDto;
 import com.zhzx.server.dto.xcx.WxXcxMessageDto;
+import com.zhzx.server.vo.MessageCombineVo;
 
 import java.util.List;
 
@@ -25,4 +28,6 @@ public interface WxXcxMessageService extends IService<WxXcxMessage> {
 
 
     void syncWxXcxMessage(String code, List<WxXcxMessageDto> wxXcxMessageDtoList);
+
+    IPage<MessageCombineDto> pageApp(String orderByClause, Integer pageNum, Integer pageSize, MessageCombineVo messageCombineVo);
 }
