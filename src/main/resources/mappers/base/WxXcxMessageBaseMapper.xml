@@ -14,6 +14,7 @@
         <result column="message_create_department" jdbcType="VARCHAR" property="messageCreateDepartment" />
         <result column="message_create_user" jdbcType="VARCHAR" property="messageCreateUser" />
         <result column="send_num" jdbcType="INTEGER" property="sendNum" />
+        <result column="is_read" jdbcType="INTEGER" property="isRead" />
         <result column="message_version" jdbcType="INTEGER" property="messageVersion" />
         <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
         <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
@@ -23,23 +24,23 @@
         <result column="jump_url" jdbcType="VARCHAR" property="jumpUrl" />
     </resultMap>
     <sql id="Base_Column_List">
-        id, message_type, type, user_login_name, user_phone, source_id, operate_type, message_title, message_create_date, message_create_department, message_create_user, send_num, message_version, created_time, updated_time
+        id, message_type, type, user_login_name, user_phone, source_id, operate_type, message_title, message_create_date, message_create_department, message_create_user, send_num, is_read, message_version, created_time, updated_time
     </sql>
     <sql id="Base_Column_List_With_Prefix">
-        t.id, t.message_type, t.type, t.user_login_name, t.user_phone, t.source_id, t.operate_type, t.message_title, t.message_create_date, t.message_create_department, t.message_create_user, t.send_num, t.message_version, t.created_time, t.updated_time
+        t.id, t.message_type, t.type, t.user_login_name, t.user_phone, t.source_id, t.operate_type, t.message_title, t.message_create_date, t.message_create_department, t.message_create_user, t.send_num, t.is_read, t.message_version, t.created_time, t.updated_time
     </sql>
     <sql id="Base_Column_List_Full_With_Prefix">
-        t.id, t.message_type, t.type, t.user_login_name, t.user_phone, t.source_id, t.operate_type, t.message_title, t.message_content, t.message_create_date, t.message_create_department, t.message_create_user, t.send_num, t.message_version, t.jump_url, t.created_time, t.updated_time
+        t.id, t.message_type, t.type, t.user_login_name, t.user_phone, t.source_id, t.operate_type, t.message_title, t.message_content, t.message_create_date, t.message_create_department, t.message_create_user, t.send_num, t.is_read, t.message_version, t.jump_url, t.created_time, t.updated_time
     </sql>
     <insert id="batchInsert">
         insert into tir_wx_xcx_message (
-            message_type, type, user_login_name, user_phone, source_id, operate_type, message_title, message_content, message_create_date, message_create_department, message_create_user, send_num, message_version, jump_url
+        message_type, type, user_login_name, user_phone, source_id, operate_type, message_title, message_content, message_create_date, message_create_department, message_create_user, send_num, is_read, message_version, jump_url
         )
         values
         <foreach collection="records" item="record" separator=",">
-        (
-            #{record.messageType, jdbcType=INTEGER}, #{record.type, jdbcType=INTEGER}, #{record.userLoginName, jdbcType=VARCHAR}, #{record.userPhone, jdbcType=VARCHAR}, #{record.sourceId, jdbcType=VARCHAR}, #{record.operateType, jdbcType=INTEGER}, #{record.messageTitle, jdbcType=VARCHAR}, #{record.messageContent, jdbcType=VARCHAR}, #{record.messageCreateDate, jdbcType=TIMESTAMP}, #{record.messageCreateDepartment, jdbcType=VARCHAR}, #{record.messageCreateUser, jdbcType=VARCHAR}, #{record.sendNum, jdbcType=INTEGER}, #{record.messageVersion, jdbcType=INTEGER}, #{record.jumpUrl, jdbcType=VARCHAR}
-        )
+            (
+            #{record.messageType, jdbcType=INTEGER}, #{record.type, jdbcType=INTEGER}, #{record.userLoginName, jdbcType=VARCHAR}, #{record.userPhone, jdbcType=VARCHAR}, #{record.sourceId, jdbcType=VARCHAR}, #{record.operateType, jdbcType=INTEGER}, #{record.messageTitle, jdbcType=VARCHAR}, #{record.messageContent, jdbcType=VARCHAR}, #{record.messageCreateDate, jdbcType=TIMESTAMP}, #{record.messageCreateDepartment, jdbcType=VARCHAR}, #{record.messageCreateUser, jdbcType=VARCHAR}, #{record.sendNum, jdbcType=INTEGER}, #{record.isRead, jdbcType=INTEGER}, #{record.messageVersion, jdbcType=INTEGER}, #{record.jumpUrl, jdbcType=VARCHAR}
+            )
         </foreach>
     </insert>
     <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.WxXcxMessage">
@@ -57,6 +58,7 @@
             message_create_department = #{et.messageCreateDepartment, jdbcType=VARCHAR},
             message_create_user = #{et.messageCreateUser, jdbcType=VARCHAR},
             send_num = #{et.sendNum, jdbcType=INTEGER},
+            is_read = #{et.isRead, jdbcType=INTEGER},
             message_version = #{et.messageVersion, jdbcType=INTEGER},
             jump_url = #{et.jumpUrl, jdbcType=VARCHAR},
         </trim>

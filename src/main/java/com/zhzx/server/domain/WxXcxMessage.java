@@ -106,6 +106,12 @@ public class WxXcxMessage extends BaseDomain {
     @ApiModelProperty(value = "发送次数", required = true)
     private Integer sendNum;
     /**
+     * 是否已读0未读1已读
+     */
+    @TableField(value = "is_read")
+    @ApiModelProperty(value = "是否已读0未读1已读", required = true)
+    private Integer isRead;
+    /**
      * 消息版本
      */
     @TableField(value = "message_version")
@@ -138,6 +144,9 @@ public class WxXcxMessage extends BaseDomain {
     public WxXcxMessage setDefault() {
         if (this.getSendNum() == null) {
             this.setSendNum(1);
+        }
+        if (this.getIsRead() == null) {
+            this.setIsRead(0);
         }
         if (this.getMessageVersion() == null) {
             this.setMessageVersion(1);
@@ -193,6 +202,10 @@ public class WxXcxMessage extends BaseDomain {
         }
         if (this.getSendNum() == null) {
             if (throwException) throw new ApiCode.ApiException(-1, "发送次数不能为空！");
+            return false;
+        }
+        if (this.getIsRead() == null) {
+            if (throwException) throw new ApiCode.ApiException(-1, "是否已读0未读1已读不能为空！");
             return false;
         }
         if (this.getMessageVersion() == null) {

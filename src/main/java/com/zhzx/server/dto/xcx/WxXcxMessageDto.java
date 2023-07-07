@@ -66,6 +66,11 @@ public class WxXcxMessageDto extends BaseDomain {
     @ApiModelProperty(value = "消息发送人名称")
     private String messageCreateUser;
     /**
+     * 是否已读0未读1已读
+     */
+    @ApiModelProperty(value = "是否已读0未读1已读")
+    private Integer isRead;
+    /**
      * 跳转链接
      */
     @ApiModelProperty(value = "跳转链接")
