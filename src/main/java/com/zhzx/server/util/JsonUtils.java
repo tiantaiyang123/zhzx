@@ -23,6 +23,11 @@ public class JsonUtils {
         JSON.configure(SerializationFeature.INDENT_OUTPUT, Boolean.TRUE);
     }
 
+    public static Object fromJson(String str, Class<?> cls) throws JsonProcessingException {
+        return JSON.readValue(str, cls);
+    }
+
+
     public static String toJson(Object obj) {
         try {
             return JSON.writeValueAsString(obj);
