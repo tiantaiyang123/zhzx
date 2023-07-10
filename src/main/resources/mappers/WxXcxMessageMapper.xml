@@ -57,7 +57,7 @@
         mm.content AS content,
         '' AS jumpUrl,
         'INNER' AS messageSystemEnum,
-        IF(mm.message_task_id = -1, 'DUTY', 'NORMAL') AS messageTypeEnum,
+        IF(mm.message_task_id = -1, 'DUTY', IF(mm.message_task_id = -2,'NORMAL_RESULT','NORMAL_QYWX')) AS messageTypeEnum,
         mm.sender_name AS messageCreator,
         mm.`name` AS messageDepartment,
         mm.is_read AS isRead,
@@ -87,7 +87,7 @@
                     <if test="messageCombineVo.messageTypeEnum ==@com.zhzx.server.enums.MessageTypeEnum@DUTY">
                         AND mm.message_task_id = -1
                     </if>
-                    <if test="messageCombineVo.messageTypeEnum ==@com.zhzx.server.enums.MessageTypeEnum@NORMAL">
+                    <if test="messageCombineVo.messageTypeEnum !=@com.zhzx.server.enums.MessageTypeEnum@DUTY">
                         AND mm.message_task_id != -1
                     </if>
                     <if test="messageCombineVo.staffId !=null">

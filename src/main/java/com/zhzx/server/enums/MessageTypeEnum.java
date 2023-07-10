@@ -13,7 +13,8 @@ public enum MessageTypeEnum {
 
     DUTY("值班"),
     OFFICE("办公"),
-    NORMAL("普通消息");
+    NORMAL_RESULT("普通消息_成果"),
+    NORMAL_QYWX("普通消息_企业微信");
 
     MessageTypeEnum(String name) {
         this.name = name;
