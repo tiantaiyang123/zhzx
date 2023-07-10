@@ -16,7 +16,7 @@ create table `sys_application_app`
     create_time datetime not null default CURRENT_TIMESTAMP comment '创建时间',
     update_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
     primary key (`id`)
-) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app应用配置表';
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app应用配置表' ROW_FORMAT=DYNAMIC;
 alter table `sys_application_app` add column `xcx_code` varchar(100) default null comment '小程序编码' after `path`;
 
 drop table if exists `sys_application_role_app`;
@@ -26,7 +26,7 @@ create table `sys_application_role_app`
     role_id int(11) not null default 0 comment '角色Id',
     application_app_id int(11) not null default 0 comment '手机应用Id',
     primary key (`id`)
-) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app角色应用范围表';
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app角色应用范围表' ROW_FORMAT=DYNAMIC;
 
 drop table if exists `sys_user_application_prefer_app`;
 create table `sys_user_application_prefer_app`
@@ -36,7 +36,7 @@ create table `sys_user_application_prefer_app`
     application_app_id int(11) not null default 0 comment '手机应用Id',
     sort_order int(11) not null default 0 comment '序号',
     primary key (`id`)
-) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app用户首页应用表';
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app用户首页应用表' ROW_FORMAT=DYNAMIC;
 
 drop table if exists `sys_user_application_link_app`;
 create table `sys_user_application_link_app`
@@ -48,7 +48,7 @@ create table `sys_user_application_link_app`
     create_time datetime not null default CURRENT_TIMESTAMP comment '创建时间',
     update_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
     primary key (`id`)
-) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app用户应用跳转表';
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='手机app用户应用跳转表' ROW_FORMAT=DYNAMIC;
 
 drop table if exists `sys_staff_research_member`;
 create table `sys_staff_research_member`
@@ -59,7 +59,7 @@ create table `sys_staff_research_member`
     is_current varchar(50) not null comment '是否当值 [YES.是 NO.否]',
     is_leader varchar(50) not null comment '是否组长 [YES.是 NO.否]',
     primary key (`id`)
-) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='教研组组员表';
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='教研组组员表' ROW_FORMAT=DYNAMIC;
 
 drop table if exists `tir_wx_xcx_message`;
 create table `tir_wx_xcx_message`
@@ -77,13 +77,13 @@ create table `tir_wx_xcx_message`
     message_create_department varchar(50) not null comment '消息创建人部门',
     message_create_user varchar(50) null comment '消息发送人名称',
     send_num int(2) not null default 1 comment '发送次数',
-    is_read varchar(50) not null default NO comment '是否已读 [YES.是 NO.否]',
+    is_read varchar(50) not null default 'NO' comment '是否已读 [YES.是 NO.否]',
     message_version int(2) not null default 1 comment '消息版本',
     jump_url text null comment '跳转链接',
     created_time datetime not null default CURRENT_TIMESTAMP,
     updated_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     primary key (`id`)
-) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='微信小程序通知表';
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='微信小程序通知表' ROW_FORMAT=DYNAMIC;
 
 create unique index ix_user_id_xcx_code on `sys_user_application_link_app` (user_id,xcx_code);
 

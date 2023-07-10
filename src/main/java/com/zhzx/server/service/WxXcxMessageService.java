@@ -30,4 +30,6 @@ public interface WxXcxMessageService extends IService<WxXcxMessage> {
     void syncWxXcxMessage(String code, List<WxXcxMessageDto> wxXcxMessageDtoList);
 
     IPage<MessageCombineDto> pageApp(String orderByClause, Integer pageNum, Integer pageSize, MessageCombineVo messageCombineVo);
+
+    Object updateIsReadApp(MessageCombineDto messageCombineDto);
 }

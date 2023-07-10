@@ -1,7 +1,7 @@
 package com.zhzx.server.dto;
 
-import com.zhzx.server.enums.MessageSystemEnum;
-import com.zhzx.server.enums.MessageTypeEnum;
+import com.zhzx.server.enums.YesNoEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -12,9 +12,12 @@ public class MessageCombineDto {
     private String title;
     private String content;
     private String jumpUrl;
-    private MessageSystemEnum messageSystemEnum;
-    private MessageTypeEnum messageTypeEnum;
+    private String messageSystemEnum;
+    private String messageTypeEnum;
     private String messageCreator;
     private String messageDepartment;
+    private YesNoEnum isRead;
+    @ApiModelProperty(value = "0消息1待办")
+    private String mesOrWork;
     private String id;
 }

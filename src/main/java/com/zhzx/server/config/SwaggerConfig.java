@@ -25,7 +25,7 @@ public class SwaggerConfig {
             .apiInfo(apiInfo())
             .select()
             .apis(RequestHandlerSelectors.basePackage("com.zhzx.server.rest"))
-//            .paths(Predicates.and(PathSelectors.regex("/v1/external/.*")))
+//            .paths(Predicates.and(PathSelectors.regex("/v1/tir/wx-xcx-message/.*")))
                 .paths(PathSelectors.any())
             .build()
             .securitySchemes(Lists.newArrayList(apiKey()));

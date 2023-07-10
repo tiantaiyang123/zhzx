@@ -88,11 +88,17 @@ public class WxXcxMessageController {
     @ApiOperation("分页查询")
     public ApiResponse<IPage<MessageCombineDto>> selectApp(
             MessageCombineVo messageCombineVo,
-            @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
+            @RequestParam(value = "orderByClause", defaultValue = "time desc") String orderByClause,
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         return ApiResponse.ok(this.wxXcxMessageService.pageApp(orderByClause, pageNum, pageSize, messageCombineVo));
+    }
+
+    @PutMapping("/update-is-read-app")
+    @ApiOperation("状态更新")
+    public ApiResponse<Object> updateIsReadApp(@RequestBody MessageCombineDto messageCombineDto) {
+        return ApiResponse.ok(this.wxXcxMessageService.updateIsReadApp(messageCombineDto));
     }
 
     /**

@@ -10,20 +10,93 @@
         select * from tir_wx_xcx_message ${ew.customSqlSegment} LIMIT 1
     </select>
     <select id="pageApp" resultType="com.zhzx.server.dto.MessageCombineDto">
-<!--                select-->
-<!--                from tir_wx_xcx_message-->
-<!--                <where>-->
-<!--                    <if test="messageCombineVo.messageTypeEnum != null and messageCombineVo.messageTypeEnum != ''">-->
-<!--                        <choose>-->
-<!--                            <when test="messageCombineVo.messageTypeEnum = 'OFFICE'">-->
-<!--                                AND-->
-<!--                            </when>-->
-<!--                        </choose>-->
-<!--                    </if>-->
-<!--                </where>-->
-<!--                union all-->
-<!--                select-->
-<!--                from mes_message-->
-<!--                where 1=1-->
+        SELECT * FROM
+        (
+        SELECT
+        twxm.message_create_date AS `time`,
+        twxm.message_title AS title,
+        twxm.message_content AS content,
+        twxm.jump_url AS jumpUrl,
+        'TIR_WX_WXC' AS messageSystemEnum,
+        'OFFICE' AS messageTypeEnum,
+        twxm.message_create_user AS messageCreator,
+        twxm.message_create_department AS messageDepartment,
+        twxm.is_read AS isRead,
+        twxm.id AS id,
+        twxm.message_type AS mesOrWork
+        FROM tir_wx_xcx_message twxm
+        <where>
+            <choose>
+                <when test="(messageCombineVo.messageTypeEnum != null and messageCombineVo.messageTypeEnum!=@com.zhzx.server.enums.MessageTypeEnum@OFFICE)
+                            or messageCombineVo.messageSystemEnum==@com.zhzx.server.enums.MessageSystemEnum@INNER">
+                    AND 1=2
+                </when>
+                <otherwise>
+                    <if test="messageCombineVo.timeFrom != null">
+                        AND twxm.message_create_date &gt;= ${messageCombineVo.timeFrom}
+                    </if>
+                    <if test="messageCombineVo.timeTo != null">
+                        AND twxm.message_create_date &lt;= ${messageCombineVo.timeTo}
+                    </if>
+                    <if test="messageCombineVo.title != null and messageCombineVo.title !=''">
+                        AND twxm.message_title LIKE CONCAT('%', #{messageCombineVo.title}, '%')
+                    </if>
+                    <if test="messageCombineVo.messageDepartment != null and messageCombineVo.messageDepartment !=''">
+                        AND twxm.message_create_department LIKE CONCAT('%', #{messageCombineVo.messageDepartment}, '%')
+                    </if>
+                    <if test="messageCombineVo.staffEName != null and messageCombineVo.staffEName !=''">
+                        AND twxm.user_login_name = #{messageCombineVo.staffEName}
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+        UNION ALL
+        SELECT
+        mm.send_time AS `time`,
+        mm.title AS title,
+        mm.content AS content,
+        '' AS jumpUrl,
+        'INNER' AS messageSystemEnum,
+        IF(mm.message_task_id = -1, 'DUTY', 'NORMAL') AS messageTypeEnum,
+        mm.sender_name AS messageCreator,
+        mm.`name` AS messageDepartment,
+        mm.is_read AS isRead,
+        mm.id AS id,
+        IF(mm.message_task_id = -2, '1', '0') AS mesOrWork
+        FROM mes_message mm
+        <where>
+            <choose>
+                <when test="(messageCombineVo.messageSystemEnum!=null and messageCombineVo.messageSystemEnum!=@com.zhzx.server.enums.MessageSystemEnum@INNER)
+                            or messageCombineVo.messageTypeEnum==@com.zhzx.server.enums.MessageTypeEnum@OFFICE">
+                    AND 1=2
+                </when>
+                <otherwise>
+                    AND mm.is_send = 'YES'
+                    <if test="messageCombineVo.timeFrom != null">
+                        AND mm.send_time &gt;= ${messageCombineVo.timeFrom}
+                    </if>
+                    <if test="messageCombineVo.timeTo != null">
+                        AND mm.send_time &lt;= ${messageCombineVo.timeTo}
+                    </if>
+                    <if test="messageCombineVo.title != null and messageCombineVo.title !=''">
+                        AND mm.title LIKE CONCAT('%', #{messageCombineVo.title}, '%')
+                    </if>
+                    <if test="messageCombineVo.messageCreator != null and messageCombineVo.messageCreator !=''">
+                        AND mm.sender_name = #{messageCombineVo.messageCreator}
+                    </if>
+                    <if test="messageCombineVo.messageTypeEnum ==@com.zhzx.server.enums.MessageTypeEnum@DUTY">
+                        AND mm.message_task_id = -1
+                    </if>
+                    <if test="messageCombineVo.messageTypeEnum ==@com.zhzx.server.enums.MessageTypeEnum@NORMAL">
+                        AND mm.message_task_id != -1
+                    </if>
+                    <if test="messageCombineVo.staffId !=null">
+                        AND mm.receiver_id = ${messageCombineVo.staffId}
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+        ) UNION_TMP
+        order by ${orderByClause}
     </select>
 </mapper>
