@@ -4,6 +4,7 @@ import com.zhzx.server.enums.MessageSystemEnum;
 import com.zhzx.server.enums.MessageTypeEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -11,8 +12,10 @@ import java.util.Date;
 @Data
 public class MessageCombineVo implements Serializable {
     @ApiModelProperty(value = "起始时间")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date timeFrom;
     @ApiModelProperty(value = "终止时间")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date timeTo;
     @ApiModelProperty(value = "标题")
     private String title;

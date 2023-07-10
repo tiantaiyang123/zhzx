@@ -33,10 +33,10 @@
                 </when>
                 <otherwise>
                     <if test="messageCombineVo.timeFrom != null">
-                        AND twxm.message_create_date &gt;= ${messageCombineVo.timeFrom}
+                        AND twxm.message_create_date &gt;= #{messageCombineVo.timeFrom}
                     </if>
                     <if test="messageCombineVo.timeTo != null">
-                        AND twxm.message_create_date &lt;= ${messageCombineVo.timeTo}
+                        AND twxm.message_create_date &lt;= #{messageCombineVo.timeTo}
                     </if>
                     <if test="messageCombineVo.title != null and messageCombineVo.title !=''">
                         AND twxm.message_title LIKE CONCAT('%', #{messageCombineVo.title}, '%')
@@ -73,10 +73,10 @@
                 <otherwise>
                     AND mm.is_send = 'YES'
                     <if test="messageCombineVo.timeFrom != null">
-                        AND mm.send_time &gt;= ${messageCombineVo.timeFrom}
+                        AND mm.send_time &gt;= #{messageCombineVo.timeFrom}
                     </if>
                     <if test="messageCombineVo.timeTo != null">
-                        AND mm.send_time &lt;= ${messageCombineVo.timeTo}
+                        AND mm.send_time &lt;= #{messageCombineVo.timeTo}
                     </if>
                     <if test="messageCombineVo.title != null and messageCombineVo.title !=''">
                         AND mm.title LIKE CONCAT('%', #{messageCombineVo.title}, '%')
