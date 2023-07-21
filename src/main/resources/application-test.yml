@@ -59,3 +59,4 @@ xcx:
   auth_prefix: f1e13ece5c436eba6c98
   request_url: https://dc.njzhzx.net/api/api/app/getUrlScheme/{code}/{module}
   chat_bool_url: http://dc.njzhzx.net/api/api/xcxBase/getContacts
+  schoolyard_url: http://dc.njzhzx.net/api/api/xcxBase/getSchoolList

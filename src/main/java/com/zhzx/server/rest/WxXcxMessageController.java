@@ -31,9 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -48,7 +46,7 @@ public class WxXcxMessageController {
     @GetMapping("/chat-book")
     @ApiOperation("查询通讯录")
     @SneakyThrows
-    public ApiResponse<JSONObject> queryChatBook(@RequestParam(value = "schoolId") Long schoolId,
+    public ApiResponse<Object> queryChatBook(@RequestParam(value = "schoolId") Long schoolId,
                                                  @RequestParam(value = "keyword", required = false) String keyword) {
         Settings chatBookSettings = settingsService.getOne(Wrappers.<Settings>lambdaQuery()
                 .eq(Settings::getCode,"CHAT_BOOK_CACHE")
@@ -67,6 +65,26 @@ public class WxXcxMessageController {
 
         }
         return ApiResponse.ok(wxXcxChatBookDtoList);
+    }
+
+    @GetMapping("/chat-book-situation")
+    @ApiOperation("查询通讯录")
+    @SneakyThrows
+    public ApiResponse<Object> queryChatBookAll() {
+        Settings chatBookSettings = settingsService.getOne(Wrappers.<Settings>lambdaQuery()
+                .eq(Settings::getCode,"CHAT_BOOK_CACHE")
+        );
+        Settings schoolyardSettings = settingsService.getOne(Wrappers.<Settings>lambdaQuery()
+                .eq(Settings::getCode,"SCHOOLYARD_CACHE")
+        );
+        Map<String, Object> res = new HashMap<String, Object>() {
+            {
+                this.put("all", JSONObject.parseObject(chatBookSettings.getParams()).getInteger("all"));
+                this.put("schoolList", JSONObject.parseObject(schoolyardSettings.getParams()));
+            }
+        };
+
+        return ApiResponse.ok(res);
     }
 
     /**

@@ -87,55 +87,73 @@ public class TaskComp {
 
     @Value("${xcx.chat_bool_url}")
     private String chatBookUrl;
+    @Value("${xcx.schoolyard_url}")
+    private String schoolyardUrl;
 
     /**
-     * 每5分钟同步通讯录信息
+     * 每5分钟同步通讯录信息与校区
      */
     @Scheduled(cron = "0 0/5 * ? * ?")
     private void syncChatBook() {
         Map<String, Object> res = new HashMap<>();
 
-        JSONObject response1 = restTemplate.postForObject(
-                chatBookUrl + "?schoolId={schoolId}",
+        // 同步校区
+        JSONObject responseSchool = restTemplate.postForObject(
+                schoolyardUrl + "?employeeNo={employeeNo}",
                 null,
                 JSONObject.class,
-                1L
+                "cbb"
         );
+        List<Long> schoolIdList = new ArrayList<>();
+        if (null != responseSchool) {
+            JSONArray dataJsonSchool = responseSchool.getJSONArray("schoolList");
+            if (null != dataJsonSchool && dataJsonSchool.size() > 0) {
+                for (Object object : dataJsonSchool) {
+                    LinkedHashMap<String, Object> jo = (LinkedHashMap) object;
+                    schoolIdList.add(Long.valueOf(jo.get("schoolId").toString()));
+                }
 
-        JSONObject response2 = restTemplate.postForObject(
-                chatBookUrl + "?schoolId={schoolId}",
-                null,
-                JSONObject.class,
-                2L
-        );
-
-        JSONArray dataJson1 = new JSONArray(), dataJson2 = new JSONArray();
-        if (null != response1 && response1.get("code").toString().equals("0")) {
-            dataJson1 = response1.getJSONArray("contacts");
+                Settings chatBookSettings = settingsService.getOne(Wrappers.<Settings>lambdaQuery()
+                        .eq(Settings::getCode,"SCHOOLYARD_CACHE")
+                );
+                if (null == chatBookSettings) chatBookSettings = new Settings();
+                chatBookSettings.setRemark("SCHOOLYARD_CACHE");
+                chatBookSettings.setCode("SCHOOLYARD_CACHE");
+                chatBookSettings.setParams(dataJsonSchool.toJSONString());
+                this.settingsService.saveOrUpdate(chatBookSettings);
+            }
         }
-        if (null != response2 && response2.get("code").toString().equals("0")) {
-            dataJson2 = response2.getJSONArray("contacts");
-        }
 
+        // 同步通讯录
         Settings chatBookSettings = settingsService.getOne(Wrappers.<Settings>lambdaQuery()
                 .eq(Settings::getCode,"CHAT_BOOK_CACHE")
         );
         if (null == chatBookSettings) {
             chatBookSettings = new Settings();
-            chatBookSettings.setCode("CHAT_BOOK_CACHE");
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("1", dataJson1);
-            jsonObject.put("2", dataJson2);
-            chatBookSettings.setParams(jsonObject.toJSONString());
+            chatBookSettings.setParams("{}");
             chatBookSettings.setRemark("CHAT_BOOK_CACHE");
-            this.settingsService.save(chatBookSettings);
-        } else {
-            JSONObject jsonObject = JSONObject.parseObject(chatBookSettings.getParams());
-            if (!dataJson1.isEmpty()) jsonObject.put("1", dataJson1);
-            if (!dataJson2.isEmpty()) jsonObject.put("2", dataJson2);
-            chatBookSettings.setParams(jsonObject.toJSONString());
-            this.settingsService.updateById(chatBookSettings);
+            chatBookSettings.setCode("CHAT_BOOK_CACHE");
         }
+        JSONObject jsonObject = JSONObject.parseObject(chatBookSettings.getParams());
+        int all = 0;
+        for (Long schoolId : schoolIdList) {
+            JSONObject responseContacts = restTemplate.postForObject(
+                    chatBookUrl + "?schoolId={schoolId}",
+                    null,
+                    JSONObject.class,
+                    schoolId
+            );
+            if (null != responseContacts && responseContacts.get("code").toString().equals("0")) {
+                JSONArray contactsJSONArray = responseContacts.getJSONArray("contacts");
+                if (contactsJSONArray.size() > 0) {
+                    jsonObject.put(schoolId.toString(), contactsJSONArray);
+                    all += contactsJSONArray.size();
+                }
+            }
+        }
+        jsonObject.put("all", all);
+        chatBookSettings.setParams(jsonObject.toJSONString());
+        this.settingsService.saveOrUpdate(chatBookSettings);
     }
 
     /**
