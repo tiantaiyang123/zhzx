@@ -147,7 +147,10 @@ public class TaskComp {
                 JSONArray contactsJSONArray = responseContacts.getJSONArray("contacts");
                 if (contactsJSONArray.size() > 0) {
                     jsonObject.put(schoolId.toString(), contactsJSONArray);
-                    all += contactsJSONArray.size();
+                    for (Object o : contactsJSONArray) {
+                        LinkedHashMap<String, Object> jo = (LinkedHashMap) o;
+                        all += ((List<Object>)jo.get("list")).size();
+                    }
                 }
             }
         }

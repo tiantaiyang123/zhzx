@@ -80,7 +80,7 @@ public class WxXcxMessageController {
         Map<String, Object> res = new HashMap<String, Object>() {
             {
                 this.put("all", JSONObject.parseObject(chatBookSettings.getParams()).getInteger("all"));
-                this.put("schoolList", JSONObject.parseObject(schoolyardSettings.getParams()));
+                this.put("schoolList", JSONObject.parseArray(schoolyardSettings.getParams()));
             }
         };
 
