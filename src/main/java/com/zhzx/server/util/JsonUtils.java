@@ -12,7 +12,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 public class JsonUtils {
 
@@ -25,6 +26,10 @@ public class JsonUtils {
 
     public static Object fromJson(String str, Class<?> cls) throws JsonProcessingException {
         return JSON.readValue(str, cls);
+    }
+
+    public static <T> List<T> fromJsonList(String str) throws JsonProcessingException {
+        return JSON.readValue(str, new TypeReference<List<T>>() {});
     }
 
 

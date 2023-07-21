@@ -6,22 +6,34 @@
 
 package com.zhzx.server.rest;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhzx.server.domain.Settings;
 import com.zhzx.server.domain.WxXcxMessage;
 import com.zhzx.server.dto.MessageCombineDto;
+import com.zhzx.server.dto.xcx.WxXcxChatBookDto;
+import com.zhzx.server.dto.xcx.WxXcxContactsDto;
 import com.zhzx.server.rest.req.WxXcxMessageParam;
 import com.zhzx.server.rest.res.ApiResponse;
+import com.zhzx.server.service.SettingsService;
 import com.zhzx.server.service.WxXcxMessageService;
+import com.zhzx.server.util.StringUtils;
 import com.zhzx.server.vo.MessageCombineVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -30,6 +42,32 @@ import java.util.Arrays;
 public class WxXcxMessageController {
     @Resource
     private WxXcxMessageService wxXcxMessageService;
+    @Resource
+    private SettingsService settingsService;
+
+    @GetMapping("/chat-book")
+    @ApiOperation("查询通讯录")
+    @SneakyThrows
+    public ApiResponse<JSONObject> queryChatBook(@RequestParam(value = "schoolId") Long schoolId,
+                                                 @RequestParam(value = "keyword", required = false) String keyword) {
+        Settings chatBookSettings = settingsService.getOne(Wrappers.<Settings>lambdaQuery()
+                .eq(Settings::getCode,"CHAT_BOOK_CACHE")
+        );
+        List<WxXcxChatBookDto> wxXcxChatBookDtoList = new ArrayList<>();
+        if (null != chatBookSettings) {
+            JSONObject jsonObject = JSONObject.parseObject(chatBookSettings.getParams());
+            wxXcxChatBookDtoList = JSONObject.parseObject(jsonObject.getString(schoolId.toString()), new TypeReference<List<WxXcxChatBookDto>>() {});
+            if (!StringUtils.isNullOrEmpty(keyword)) {
+                wxXcxChatBookDtoList.removeIf(t -> {
+                    List<WxXcxContactsDto> wxXcxContactsDtoList = t.getList();
+                    wxXcxContactsDtoList.removeIf(p -> (!StringUtils.isNullOrEmpty(p.getName()) && !p.getName().contains(keyword)) || (!StringUtils.isNullOrEmpty(p.getPhone()) && p.getPhone().contains(keyword)));
+                    return CollectionUtils.isEmpty(wxXcxContactsDtoList);
+                });
+            }
+
+        }
+        return ApiResponse.ok(wxXcxChatBookDtoList);
+    }
 
     /**
      * 通过主键查询

@@ -1,6 +1,7 @@
 package com.zhzx.server.task;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.Schedules;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -80,6 +82,61 @@ public class TaskComp {
     private NightStudyMapper nightStudyMapper;
     @Resource
     private PublicCourseService publicCourseService;
+    @Resource
+    private RestTemplate restTemplate;
+
+    @Value("${xcx.chat_bool_url}")
+    private String chatBookUrl;
+
+    /**
+     * 每5分钟同步通讯录信息
+     */
+    @Scheduled(cron = "0 0/5 * ? * ?")
+    private void syncChatBook() {
+        Map<String, Object> res = new HashMap<>();
+
+        JSONObject response1 = restTemplate.postForObject(
+                chatBookUrl + "?schoolId={schoolId}",
+                null,
+                JSONObject.class,
+                1L
+        );
+
+        JSONObject response2 = restTemplate.postForObject(
+                chatBookUrl + "?schoolId={schoolId}",
+                null,
+                JSONObject.class,
+                2L
+        );
+
+        JSONArray dataJson1 = new JSONArray(), dataJson2 = new JSONArray();
+        if (null != response1 && response1.get("code").toString().equals("0")) {
+            dataJson1 = response1.getJSONArray("contacts");
+        }
+        if (null != response2 && response2.get("code").toString().equals("0")) {
+            dataJson2 = response2.getJSONArray("contacts");
+        }
+
+        Settings chatBookSettings = settingsService.getOne(Wrappers.<Settings>lambdaQuery()
+                .eq(Settings::getCode,"CHAT_BOOK_CACHE")
+        );
+        if (null == chatBookSettings) {
+            chatBookSettings = new Settings();
+            chatBookSettings.setCode("CHAT_BOOK_CACHE");
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("1", dataJson1);
+            jsonObject.put("2", dataJson2);
+            chatBookSettings.setParams(jsonObject.toJSONString());
+            chatBookSettings.setRemark("CHAT_BOOK_CACHE");
+            this.settingsService.save(chatBookSettings);
+        } else {
+            JSONObject jsonObject = JSONObject.parseObject(chatBookSettings.getParams());
+            if (!dataJson1.isEmpty()) jsonObject.put("1", dataJson1);
+            if (!dataJson2.isEmpty()) jsonObject.put("2", dataJson2);
+            chatBookSettings.setParams(jsonObject.toJSONString());
+            this.settingsService.updateById(chatBookSettings);
+        }
+    }
 
     /**
      * 每1分钟更新班级考勤概况
@@ -269,7 +326,7 @@ public class TaskComp {
                             String token = JWTUtils.sign(message.getReceiverId().toString(),"password_zhzx");
                             List<StudentParent> studentParents = studentParentService.list(Wrappers.<StudentParent>lambdaQuery()
                                     .eq(StudentParent::getStudentId,message.getReceiverId())
-                                    .ne(StudentParent::getType,MessageParentEnum.NOT_SEND_MESSAGE)
+                                    .ne(StudentParent::getType, MessageParentEnum.NOT_SEND_MESSAGE)
                             );
                             List<String> stringList = studentParents.stream().filter(item-> !StringUtils.isNullOrEmpty(item.getWxParentId())).map(item->item.getWxParentId()).collect(Collectors.toList());
                             String content = "来自："+message.getName()+"\n标题："+message.getTitle()+"\n<a href='"+settings.getParams()+"?token="+token+"&messageId="+message.getId()+"'>详情请查看</a>\n";
