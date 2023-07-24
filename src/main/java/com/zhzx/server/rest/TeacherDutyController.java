@@ -196,7 +196,7 @@ public class TeacherDutyController {
                                                                     @RequestParam(value = "gradeId",required = false) Long gradeId,
                                                                     @RequestParam(value = "fromApp",required = false, defaultValue = "NO") YesNoEnum fromApp) {
 
-        return ApiResponse.ok(this.teacherDutyService.getTeacherDutyForm(pageNum,pageSize,timeFrom,timeTo,teacherDutyName,gradeId, schoolyardId, fromApp));
+        return ApiResponse.ok(this.teacherDutyService.getTeacherDutyFormV2(pageNum,pageSize,timeFrom,timeTo,teacherDutyName,gradeId, schoolyardId, fromApp));
     }
 
     @GetMapping("/export-excel")

@@ -41,6 +41,8 @@ public interface TeacherDutyService extends IService<TeacherDuty> {
 
     Page<Map<String,Object>> getTeacherDutyForm(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName,Long gradeId, Long schoolyardId, YesNoEnum fromApp);
 
+    Page<Map<String,Object>> getTeacherDutyFormV2(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName,Long gradeId, Long schoolyardId, YesNoEnum fromApp);
+
     TeacherDutyDto getGradeTeacherDuty(Date time);
 
     String importTeacherDuty(Long schoolyardId, Long academicYearSemesterId, Long gradeId, String fileUrl);

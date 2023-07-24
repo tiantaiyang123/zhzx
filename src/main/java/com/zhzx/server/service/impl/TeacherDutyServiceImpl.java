@@ -45,7 +45,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -56,6 +55,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,6 +84,8 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
     private LeaderDutyMapper leaderDutyMapper;
     @Resource
     private TeacherDutyMapper teacherDutyMapper;
+    @Resource
+    private AcademicYearSemesterMapper academicYearSemesterMapper;
 
     @Override
     public int updateAllFieldsById(TeacherDuty entity) {
@@ -154,7 +156,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         if (gradeId == null) {
             return new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
         }
-        Page<Map<String,Object>> page = this.getTeacherDutyForm(1, 9999, timeFrom, timeTo, null, gradeId, null, YesNoEnum.YES);
+        Page<Map<String,Object>> page = this.getTeacherDutyFormV2(1, 9999, timeFrom, timeTo, null, gradeId, null, YesNoEnum.YES);
         List<Map<String,Object>> list = page.getRecords();
         if (CollectionUtils.isEmpty(page.getRecords())) {
             return new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
@@ -332,9 +334,10 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
         if(CollectionUtils.isEmpty(dateList)) return page;
 
+        // 按月查询每次查询量近万，数据加载很慢
         List<ClazzVo> clazzVoList = this.baseMapper.getFormList(dateList,gradeId, schoolyardId);
-        List<Map<String,Object>> formList = new ArrayList<>();
 
+        List<Map<String,Object>> formList = new ArrayList<>();
         if(CollectionUtils.isNotEmpty(clazzVoList)){
             Map<String,List<ClazzVo>> gradeMap = clazzVoList.stream().collect(Collectors.groupingBy(ClazzVo::getGradeName));
             for (String key : gradeMap.keySet()) {
@@ -394,6 +397,170 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 formList.add(formMap);
             }
         }
+        page.setRecords(formList);
+        return page;
+    }
+
+    private Date parse(String date, String format) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        try {
+            return sdf.parse(date);
+        } catch (ParseException ignored){
+        }
+        throw new ApiCode.ApiException(-5, "时间格式化失败");
+    }
+
+    private TeacherDutyDto findInMap(Map<String, TeacherDutyDto> stageMap, String key) {
+        String keyEnhance = "C" + key + "C";
+        for (Map.Entry<String, TeacherDutyDto> mest : stageMap.entrySet()) {
+            if (mest.getKey().contains(keyEnhance)) {
+                return mest.getValue();
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public Page<Map<String, Object>> getTeacherDutyFormV2(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName, Long gradeId, Long schoolyardId, YesNoEnum fromApp) {
+        Page<Map<String,Object>> page = new Page<>();
+        page.setCurrent(pageNum);
+        page.setSize(pageSize);
+
+        // 如果是APP端按年级查看当月值班表，则dateList默认当月所有日期
+        List<Date> dateList = null;
+        if (YesNoEnum.NO.equals(fromApp)) {
+            List<TeacherServerFormDto> timeList = this.baseMapper.getTeacherDutyForm(page,timeFrom,timeTo,teacherDutyName,null, schoolyardId);
+            dateList = timeList.stream().map(TeacherServerFormDto::getTime).collect(Collectors.toList());
+        } else {
+            dateList = DateUtils.getMonthDays(timeFrom, timeTo);
+            page.setTotal(dateList.size());
+        }
+
+        if(CollectionUtils.isEmpty(dateList)) return page;
+
+        AcademicYearSemester academicYearSemester = this.academicYearSemesterMapper.selectOne(Wrappers.<AcademicYearSemester>lambdaQuery().eq(AcademicYearSemester::getIsDefault, YesNoEnum.YES));
+        List<Clazz> clazzList = this.clazzMapper.selectList(
+                Wrappers.<Clazz>lambdaQuery()
+                        .eq(null != gradeId, Clazz::getGradeId, gradeId)
+                        .eq(null != schoolyardId, Clazz::getSchoolyardId, schoolyardId)
+                        .eq(Clazz::getAcademicYearSemesterId, academicYearSemester.getId())
+        );
+
+        List<TeacherDutyDto> teacherDutyList = this.baseMapper.selectListWithClazz(schoolyardId, gradeId, dateList.get(0), dateList.get(dateList.size() - 1));
+        teacherDutyList = teacherDutyList
+                .stream()
+                .filter(t -> TeacherDutyTypeEnum.TOTAL_DUTY.equals(t.getDutyType()) || CollectionUtils.isNotEmpty(t.getTeacherDutyClazzList()))
+                .collect(Collectors.toList());
+
+
+        List<Map<String,Object>> formList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(teacherDutyList)) {
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE", Locale.CHINA);
+
+            List<String> dateListStr = dateList.stream().sorted(Comparator.naturalOrder()).map(t -> DateUtils.format(t, "yyyy-MM-dd")).collect(Collectors.toList());
+
+            Map<String, List<Clazz>> clazzMap = clazzList.stream().collect(Collectors.groupingBy(t -> t.getGrade().getName()));
+
+            Map<String, Map<TeacherDutyTypeEnum, List<TeacherDutyDto>>> dateTypeDutyMap = teacherDutyList
+                    .stream()
+                    .collect(Collectors.groupingBy(t -> DateUtils.format(t.getStartTime(), "yyyy-MM-dd"), Collectors.groupingBy(TeacherDuty::getDutyType)));
+
+            clazzMap.forEach((k, v) -> {
+                Map<String ,Object> formMap = new HashMap<>();
+
+                formMap.put("gradeName", k);
+
+                List<Map<String,Object>> headerList = v.stream().map(t -> {
+                    Map<String, Object> map = new HashMap<>(4);
+                    map.put("name", t.getName());
+                    return map;
+                }).collect(Collectors.toList());
+                formMap.put("clazzList", headerList);
+
+                List<TeacherServerFormDto> gradeList = new ArrayList<>();
+
+                dateListStr.forEach(dateStr -> {
+                    TeacherServerFormDto teacherServerFormDto = new TeacherServerFormDto();
+                    teacherServerFormDto.setTime(parse(dateStr + " 00:00:00", "yyyy-MM-dd HH:mm:ss"));
+                    teacherServerFormDto.setWeek(sdf.format(teacherServerFormDto.getTime()));
+                    teacherServerFormDto.setDutyMode(TeacherDutyModeEnum.NORMAL);
+
+                    Map<TeacherDutyTypeEnum, List<TeacherDutyDto>> typeDutyMap = dateTypeDutyMap.get(dateStr);
+                    if (CollectionUtils.isNotEmpty(typeDutyMap)) {
+                        TeacherDutyModeEnum dutyModeGradeTeacher = null, dutyModeTotalTeacher = null;
+
+                        if (typeDutyMap.containsKey(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY)) {
+                            TeacherDutyDto dutyGradeTeacher = typeDutyMap.get(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY).get(0);
+                            teacherServerFormDto.setGradeDutyTeacher(dutyGradeTeacher.getTeacher().getName());
+                            teacherServerFormDto.setGradeDutyTeacherYard(teacherServerFormDto.getGradeDutyTeacher().concat("(兴隆)"));
+                            dutyModeGradeTeacher = dutyGradeTeacher.getDutyMode();
+                        }
+
+                        // 总值班分校区
+                        List<TeacherDutyDto> totalDutyList = typeDutyMap.getOrDefault(TeacherDutyTypeEnum.TOTAL_DUTY, new ArrayList<>());
+                        teacherServerFormDto.setTotalDutyTeacher(
+                                totalDutyList
+                                        .stream()
+                                        .map(t -> t.getTeacher().getName().concat("(").concat(t.getSchoolyardId().equals(1L) ? "兴隆" : "雨花").concat(")"))
+                                        .collect(Collectors.joining(","))
+                        );
+                        teacherServerFormDto.setTotalDutyTeacherYard(teacherServerFormDto.getTotalDutyTeacher());
+                        if (CollectionUtils.isNotEmpty(totalDutyList)) {
+                            dutyModeTotalTeacher = totalDutyList.get(0).getDutyMode();
+                        }
+
+                        Map<Long, String> totalDutyMap = totalDutyList.stream().collect(Collectors.toMap(TeacherDuty::getSchoolyardId, t -> t.getTeacher().getName()));
+                        Map<String, TeacherDutyDto> stageOneDutyMap = typeDutyMap.getOrDefault(TeacherDutyTypeEnum.STAGE_ONE, new ArrayList<>()).stream().collect(
+                                Collectors.toMap(t -> t.getTeacherDutyClazzList().stream().map(p -> "C" + p.getClazzId().toString() + "C").collect(Collectors.joining(",")), Function.identity())
+                        );
+                        Map<String, TeacherDutyDto> stageTwoDutyMap = typeDutyMap.getOrDefault(TeacherDutyTypeEnum.STAGE_TWO, new ArrayList<>()).stream().collect(
+                                Collectors.toMap(t -> t.getTeacherDutyClazzList().stream().map(p -> "C" + p.getClazzId().toString() + "C").collect(Collectors.joining(",")), Function.identity())
+                        );
+
+                        List<ClazzVo> clazzVoList = new ArrayList<>();
+                        v.forEach(clazz -> {
+                            Long clazzId = clazz.getId();
+                            ClazzVo clazzVo = new ClazzVo();
+                            clazzVo.setId(clazzId);
+                            clazzVo.setName(clazz.getName());
+                            clazzVo.setGradeId(clazz.getGradeId());
+                            clazzVo.setGradeName(k);
+                            clazzVo.setSchoolyardName(clazz.getSchoolyard().getName());
+                            clazzVo.setTime(teacherServerFormDto.getTime());
+                            if (clazz.getSchoolyardId().equals(1L)) {
+                                clazzVo.setGradeDutyTeacher(teacherServerFormDto.getGradeDutyTeacher());
+                            }
+                            clazzVo.setTotalDutyTeacher(totalDutyMap.get(clazz.getSchoolyardId()));
+                            TeacherDutyDto stageOne = findInMap(stageOneDutyMap, clazzId.toString());
+                            if (null != stageOne) {
+                                clazzVo.setStageOneTeacher(stageOne.getTeacher().getName());
+                                teacherServerFormDto.setDutyMode(stageOne.getDutyMode());
+                            }
+                            TeacherDutyDto stageTwo = findInMap(stageTwoDutyMap, clazzId.toString());
+                            if (null != stageTwo) {
+                                clazzVo.setStageTwoTeacher(stageTwo.getTeacher().getName());
+                                teacherServerFormDto.setDutyMode(stageTwo.getDutyMode());
+                            }
+                            clazzVoList.add(clazzVo);
+                        });
+                        teacherServerFormDto.setClazzVoList(clazzVoList);
+
+                        if (null != dutyModeGradeTeacher) {
+                            teacherServerFormDto.setDutyMode(dutyModeGradeTeacher);
+                        } else if (null != dutyModeTotalTeacher) {
+                            teacherServerFormDto.setDutyMode(dutyModeTotalTeacher);
+                        }
+                    }
+                    gradeList.add(teacherServerFormDto);
+                });
+                formMap.put("gradeList", gradeList);
+                formList.add(formMap);
+            });
+        } else {
+            page.setTotal(0L);
+        }
+
         page.setRecords(formList);
         return page;
     }
@@ -1149,7 +1316,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         InputStream is = getClass().getResourceAsStream("/static/templates/晚自习值班统计.xlsx");
         XSSFWorkbook book = new XSSFWorkbook(is);
 
-        Page<Map<String,Object>> page = this.getTeacherDutyForm(1, 9999, timeFrom, timeTo, null, gradeId, schoolyardId, YesNoEnum.NO);
+        Page<Map<String,Object>> page = this.getTeacherDutyFormV2(1, 9999, timeFrom, timeTo, null, gradeId, schoolyardId, YesNoEnum.NO);
         List<Map<String,Object>> records = page.getRecords();
 
         XSSFCellStyle style = book.createCellStyle();
