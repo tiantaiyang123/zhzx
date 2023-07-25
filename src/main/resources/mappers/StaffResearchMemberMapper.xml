@@ -9,4 +9,7 @@
     <select id="selectOne" resultMap="com.zhzx.server.repository.base.StaffResearchMemberBaseMapper.ResultMap">
         select * from sys_staff_research_member ${ew.customSqlSegment} LIMIT 1
     </select>
+    <select id="selectPage" resultMap="com.zhzx.server.repository.base.StaffResearchMemberBaseMapper.ResultMap">
+        select * from sys_staff_research_member ${ew.customSqlSegment}
+    </select>
 </mapper>
