@@ -5,15 +5,10 @@ import com.zhzx.server.domain.TeachingResult;
 import com.zhzx.server.rest.req.TeachingResultParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -32,6 +27,9 @@ public class TeachingResultParamVo extends TeachingResultParam {
 
     @ApiModelProperty(value = "部门 IN值List")
     private List<String> departmentList;
+
+    @ApiModelProperty(value = "科目Id")
+    private Long subjectId;
     /**
      * 成果时间下限值(大于等于)
      */

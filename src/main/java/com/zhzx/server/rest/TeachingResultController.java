@@ -58,6 +58,12 @@ public class TeachingResultController {
     private StaffLessonTeacherService staffLessonTeacherService;
 
     @Resource
+    private StaffResearchMemberService staffResearchMemberService;
+
+    @Resource
+    private StaffResearchLeaderService staffResearchLeaderService;
+
+    @Resource
     private ClazzService clazzService;
 
     /**
@@ -440,7 +446,6 @@ public class TeachingResultController {
     ) {
         QueryWrapper<TeachingResult> wrapper = param.toQueryWrapper();
         if (CollectionUtils.isEmpty(param.getTeacherIdList())) {
-            Set<Long> teacherIds = new HashSet<>();
             Subject userSubject = SecurityUtils.getSubject();
             User user = (User) userSubject.getPrincipal();
             List<StaffResearchLeader> staffResearchLeaders = null;
@@ -448,8 +453,10 @@ public class TeachingResultController {
             if (user.getStaffId() > 0) {
                 staffResearchLeaders = user.getStaff().getStaffResearchLeaderList();
                 staffGradeLeaders = user.getStaff().getStaffGradeLeaderList();
-//            teacherIds.add(user.getStaffId());
             }
+
+            Set<Long> teacherIds = new HashSet<>();
+
             // 教研组长
             if (CollectionUtils.isNotEmpty(staffResearchLeaders)) {
                 List<Long> subjectIds = staffResearchLeaders.stream().map(StaffResearchLeader::getSubjectId).collect(Collectors.toList());
@@ -473,7 +480,23 @@ public class TeachingResultController {
                     }
                 }
             }
+
             wrapper.in(!teacherIds.isEmpty(), "teacher_id", new ArrayList<>(teacherIds));
+        }
+
+        if (null != param.getSubjectId()) {
+            Set<Long> teacherIdsRange = new HashSet<>();
+            List<StaffResearchMember> staffResearchMembers = this.staffResearchMemberService.list(Wrappers.<StaffResearchMember>lambdaQuery()
+                    .eq(StaffResearchMember::getSubjectId, param.getSubjectId()));
+            List<StaffResearchLeader> staffResearchLeaders1 = this.staffResearchLeaderService.list(Wrappers.<StaffResearchLeader>lambdaQuery()
+                    .eq(StaffResearchLeader::getSubjectId, param.getSubjectId()));
+            if (CollectionUtils.isNotEmpty(staffResearchMembers)) {
+                staffResearchMembers.forEach(t -> teacherIdsRange.add(t.getStaffId()));
+            }
+            if (CollectionUtils.isNotEmpty(staffResearchLeaders1)) {
+                staffResearchLeaders1.forEach(t -> teacherIdsRange.add(t.getStaffId()));
+            }
+            wrapper.in(!teacherIdsRange.isEmpty(), "teacher_id", teacherIdsRange);
         }
         String[] temp = orderByClause.split("[,;]");
         Arrays.stream(temp).forEach(ob -> {
