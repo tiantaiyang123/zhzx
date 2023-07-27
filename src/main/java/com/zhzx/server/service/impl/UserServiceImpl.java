@@ -488,6 +488,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new ApiCode.ApiException(-5,userInfoJson.get("errmsg").toString());
         }
         String username = userInfoJson.get("alias").toString();
+        if (StringUtils.isNullOrEmpty(username)) {
+            log.info("获取企业微信用户信息：{}", userInfoJson);
+            username = userInfoJson.get("userid").toString();
+        }
         User user = this.selectByUsername(username);
         if (user == null) {
             throw new ApiCode.ApiException(-1, "用户名不存在！");
