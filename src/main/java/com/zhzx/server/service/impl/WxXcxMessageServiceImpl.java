@@ -16,12 +16,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.zhzx.server.domain.Message;
+import com.zhzx.server.domain.Settings;
 import com.zhzx.server.domain.WxXcxMessage;
 import com.zhzx.server.dto.MessageCombineDto;
 import com.zhzx.server.dto.xcx.WxXcxMessageDto;
 import com.zhzx.server.enums.MessageSystemEnum;
 import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.repository.MessageMapper;
+import com.zhzx.server.repository.SettingsMapper;
 import com.zhzx.server.repository.WxXcxMessageMapper;
 import com.zhzx.server.repository.base.WxXcxMessageBaseMapper;
 import com.zhzx.server.rest.res.ApiCode;
@@ -32,10 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +42,9 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
 
     @Resource
     private MessageMapper messageMapper;
+
+    @Resource
+    private SettingsMapper settingsMapper;
 
     @Override
     public int updateAllFieldsById(WxXcxMessage entity) {
@@ -82,6 +84,15 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
 
     @Override
     public IPage<MessageCombineDto> pageApp(String orderByClause, Integer pageNum, Integer pageSize, MessageCombineVo messageCombineVo) {
+        String messageClassify = messageCombineVo.getMessageClassify();
+        if (!StringUtils.isNullOrEmpty(messageClassify) && CollectionUtils.isEmpty(messageCombineVo.getMessageDepartment())) {
+            Settings settings = this.settingsMapper.selectOne(Wrappers.<Settings>lambdaQuery().eq(Settings::getCode, "APP_MESSAGE_CLASSIFY_" + messageClassify));
+            if (null == settings) {
+                throw new ApiCode.ApiException(-5, "无效分类或分类配置缺失");
+            }
+            messageCombineVo.setMessageDepartment(Arrays.asList(settings.getParams().split("[,]")));
+        }
+
         IPage<MessageCombineDto>  iPage = new Page<>(pageNum, pageSize);
         List<MessageCombineDto> messageCombineDtos = this.baseMapper.pageApp(iPage, orderByClause, messageCombineVo);
         iPage.setRecords(messageCombineDtos);

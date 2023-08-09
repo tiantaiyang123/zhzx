@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class MessageCombineVo implements Serializable {
@@ -27,12 +28,14 @@ public class MessageCombineVo implements Serializable {
     private MessageTypeEnum messageTypeEnum;
     @ApiModelProperty(value = "消息创建人姓名")
     private String messageCreator;
-    @ApiModelProperty(value = "消息创建部门")
-    private String messageDepartment;
+    @ApiModelProperty(value = "消息创建部门列表")
+    private List<String> messageDepartment;
     @ApiModelProperty(value = "是否已读")
     private String isRead;
     @ApiModelProperty(value = "接收人登录用户名")
     private String staffEName;
     @ApiModelProperty(value = "教职工Id")
     private String staffId;
+    @ApiModelProperty(value = "消息分类")
+    private String messageClassify;
 }

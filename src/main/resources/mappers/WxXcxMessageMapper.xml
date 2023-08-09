@@ -41,8 +41,9 @@
                     <if test="messageCombineVo.title != null and messageCombineVo.title !=''">
                         AND twxm.message_title LIKE CONCAT('%', #{messageCombineVo.title}, '%')
                     </if>
-                    <if test="messageCombineVo.messageDepartment != null and messageCombineVo.messageDepartment !=''">
-                        AND twxm.message_create_department LIKE CONCAT('%', #{messageCombineVo.messageDepartment}, '%')
+                    <if test="messageCombineVo.messageDepartment != null and messageCombineVo.messageDepartment.size() > 0">
+                        AND twxm.message_create_department IN
+                        <foreach collection="messageCombineVo.messageDepartment" open="(" close=")" separator="," item="item">#{item}</foreach>
                     </if>
                     <if test="messageCombineVo.staffEName != null and messageCombineVo.staffEName !=''">
                         AND twxm.user_login_name = #{messageCombineVo.staffEName}
@@ -90,7 +91,7 @@
                     <if test="messageCombineVo.messageTypeEnum !=@com.zhzx.server.enums.MessageTypeEnum@DUTY">
                         AND mm.message_task_id != -1
                     </if>
-                    <if test="messageCombineVo.staffId !=null">
+                    <if test="messageCombineVo.staffId !=null and messageCombineVo.staffId != ''">
                         AND mm.receiver_id = ${messageCombineVo.staffId}
                     </if>
                 </otherwise>
