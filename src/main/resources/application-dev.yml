@@ -79,5 +79,7 @@ xcx:
   expire_time: 86400
   auth_prefix: f1e13ece5c436eba6c98
   request_url: https://dc.njzhzx.net/api/api/app/getUrlScheme/{code}/{module}
-  chat_bool_url: http://dc.njzhzx.net/api/api/xcxBase/getContacts
+  chat_book_url: http://dc.njzhzx.net/api/api/xcxBase/getContacts
   schoolyard_url: http://dc.njzhzx.net/api/api/xcxBase/getSchoolList
+  pc_login_code_url: http://dc.njzhzx.net/api/api/app/checkMobile/{name}/{mobile}
+  pc_login_cookie_url: http://dc.njzhzx.net/login2Zh

@@ -1,8 +1,10 @@
 package com.zhzx.server.rest;
 
+import com.zhzx.server.dto.CookieDto;
 import com.zhzx.server.dto.annotation.TirAuth;
 import com.zhzx.server.dto.xcx.WxXcxMessageDto;
 import com.zhzx.server.rest.res.ApiResponse;
+import com.zhzx.server.service.ExternalService;
 import com.zhzx.server.service.WxXcxMessageService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,6 +21,8 @@ import java.util.List;
 public class ExternalController {
 
     @Resource
+    private ExternalService externalService;
+    @Resource
     private WxXcxMessageService wxXcxMessageService;
 
     @PostMapping("/sync/wx/xcx/message")
@@ -28,6 +32,12 @@ public class ExternalController {
                                                 @RequestBody List<WxXcxMessageDto> wxXcxMessageDtoList) {
         wxXcxMessageService.syncWxXcxMessage(code, wxXcxMessageDtoList);
         return ApiResponse.ok(null);
+    }
+
+    @GetMapping("/acquire-tir-cookie")
+    @ApiOperation("获取免密登录cookie")
+    public ApiResponse<CookieDto> acquireTirCookie() {
+        return ApiResponse.ok(this.externalService.acquireTirCookie());
     }
 
 }

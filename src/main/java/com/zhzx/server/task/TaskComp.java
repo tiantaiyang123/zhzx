@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.zhzx.server.config.bean.TirConfiguration;
 import com.zhzx.server.domain.*;
 import com.zhzx.server.dto.CommentNightDutyDto;
 import com.zhzx.server.dto.NightDutyClassDto;
@@ -84,11 +85,8 @@ public class TaskComp {
     private PublicCourseService publicCourseService;
     @Resource
     private RestTemplate restTemplate;
-
-    @Value("${xcx.chat_bool_url}")
-    private String chatBookUrl;
-    @Value("${xcx.schoolyard_url}")
-    private String schoolyardUrl;
+    @Resource
+    private TirConfiguration tirConfiguration;
 
     /**
      * 每5分钟同步通讯录信息与校区
@@ -99,7 +97,7 @@ public class TaskComp {
 
         // 同步校区
         JSONObject responseSchool = restTemplate.postForObject(
-                schoolyardUrl + "?employeeNo={employeeNo}",
+                tirConfiguration.getSchoolYardUrl() + "?employeeNo={employeeNo}",
                 null,
                 JSONObject.class,
                 "cbb"
@@ -138,7 +136,7 @@ public class TaskComp {
         int all = 0;
         for (Long schoolId : schoolIdList) {
             JSONObject responseContacts = restTemplate.postForObject(
-                    chatBookUrl + "?schoolId={schoolId}",
+                    tirConfiguration.getChatBookUrl()+ "?schoolId={schoolId}",
                     null,
                     JSONObject.class,
                     schoolId

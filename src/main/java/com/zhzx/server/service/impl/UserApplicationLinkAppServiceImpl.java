@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
+import com.zhzx.server.config.bean.TirConfiguration;
 import com.zhzx.server.domain.User;
 import com.zhzx.server.domain.UserApplicationLinkApp;
 import com.zhzx.server.repository.UserApplicationLinkAppMapper;
@@ -23,7 +24,6 @@ import com.zhzx.server.util.DateUtils;
 import com.zhzx.server.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
@@ -39,17 +39,14 @@ import java.util.HashMap;
 @Slf4j
 public class UserApplicationLinkAppServiceImpl extends ServiceImpl<UserApplicationLinkAppMapper, UserApplicationLinkApp> implements UserApplicationLinkAppService {
 
+    @Resource
+    private TirConfiguration tirConfiguration;
+
     @Override
     public int updateAllFieldsById(UserApplicationLinkApp entity) {
         return this.getBaseMapper().updateAllFieldsById(entity);
     }
 
-    @Value("${xcx.expire_time}")
-    private Long xcxExpireTime;
-    @Value("${xcx.auth_prefix}")
-    private String xcxAuthPrefix;
-    @Value("${xcx.request_url}")
-    private String xcxRequestUrl;
     @Resource
     private RestTemplate restTemplate;
 
@@ -58,11 +55,11 @@ public class UserApplicationLinkAppServiceImpl extends ServiceImpl<UserApplicati
         String dateString = DateUtils.format(now, "yyyy-MM-dd");
 
         JSONObject jsonObject = restTemplate.getForObject(
-                xcxRequestUrl,
+                tirConfiguration.getRequestUrl(),
                 JSONObject.class,
                 new HashMap<String, Object>(){
                     {
-                        this.put("code", Base64Utils.encodeToString((xcxAuthPrefix + dateString).getBytes(StandardCharsets.UTF_8)));
+                        this.put("code", Base64Utils.encodeToString((tirConfiguration.getAuthPrefix() + dateString).getBytes(StandardCharsets.UTF_8)));
                         this.put("module", xcxCode);
                     }
                 }
@@ -99,7 +96,7 @@ public class UserApplicationLinkAppServiceImpl extends ServiceImpl<UserApplicati
         }
 
         if (null != userApplicationLinkApp
-                && (userApplicationLinkApp.getCreateTime().getTime() + xcxExpireTime * 1000) > new Date().getTime()) {
+                && (userApplicationLinkApp.getCreateTime().getTime() + tirConfiguration.getExpireTime() * 1000) > new Date().getTime()) {
             return userApplicationLinkApp.getLinkPath();
         }
 
