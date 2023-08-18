@@ -139,9 +139,9 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
             String jwSetting = null, xxSetting = null;
             for (int i = 0; i < Math.min(2, settingsList.size()); ++i) {
                 Settings settings = settingsList.get(i);
-                if (settings.getCode().endsWith("xx")) {
+                if (settings.getCode().endsWith("XX")) {
                     xxSetting = settings.getParams();
-                } else if (settings.getCode().endsWith("jw")) {
+                } else if (settings.getCode().endsWith("JW")) {
                     jwSetting = settings.getParams();
                 }
             }
