@@ -8,12 +8,6 @@
 
 package com.zhzx.server.service.impl;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
-
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -29,17 +23,18 @@ import com.zhzx.server.enums.CommentStateEnum;
 import com.zhzx.server.enums.ReceiverEnum;
 import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.repository.*;
+import com.zhzx.server.repository.base.CommentBaseMapper;
 import com.zhzx.server.rest.res.ApiCode;
-import com.zhzx.server.service.MessageService;
-import com.zhzx.server.service.UserService;
+import com.zhzx.server.service.CommentService;
 import com.zhzx.server.util.JsonUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.zhzx.server.service.CommentService;
-import com.zhzx.server.repository.base.CommentBaseMapper;
-import com.zhzx.server.rest.req.CommentParam;
+
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> implements CommentService {
@@ -306,8 +301,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             message.setContent(JsonUtils.toJson(map));
             message.setSenderId(-1L);
             message.setSenderName("系统");
-            message.setReceiverName("王圣华");
-            message.setReceiverId(4L);
+            message.setReceiverName("钱华");
+            message.setReceiverId(6L);
             message.setReceiverType(ReceiverEnum.TEACHER);
             message.setSendTime(new Date());
             message.setIsSend(YesNoEnum.YES);
