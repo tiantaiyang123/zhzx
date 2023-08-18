@@ -32,4 +32,6 @@ public interface WxXcxMessageService extends IService<WxXcxMessage> {
     IPage<MessageCombineDto> pageApp(String orderByClause, Integer pageNum, Integer pageSize, MessageCombineVo messageCombineVo);
 
     Object updateIsReadApp(MessageCombineDto messageCombineDto);
+
+    Object countApp(MessageCombineVo messageCombineVo);
 }

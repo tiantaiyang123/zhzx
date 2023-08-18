@@ -119,6 +119,60 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
         return null;
     }
 
+    @Override
+    public Object countApp(MessageCombineVo messageCombineVo) {
+        Map<String, Object> map = new HashMap<>(4, 0.8f);
+
+        Integer messageInnerCount = this.messageMapper.selectCount(
+                Wrappers.<Message>lambdaQuery()
+                        .eq(Message::getReceiverId, messageCombineVo.getStaffId())
+                        .eq(Message::getIsRead, YesNoEnum.NO)
+        );
+        map.put("qt", messageInnerCount);
+
+        Integer jw = 0, xx = 0;
+        List<Settings> settingsList = this.settingsMapper.selectList(
+                Wrappers.<Settings>lambdaQuery()
+                        .likeRight(Settings::getCode, "APP\\_MESSAGE\\_CLASSIFY\\_")
+        );
+        if (CollectionUtils.isNotEmpty(settingsList)) {
+            String jwSetting = null, xxSetting = null;
+            for (int i = 0; i < Math.min(2, settingsList.size()); ++i) {
+                Settings settings = settingsList.get(i);
+                if (settings.getCode().endsWith("xx")) {
+                    xxSetting = settings.getParams();
+                } else if (settings.getCode().endsWith("jw")) {
+                    jwSetting = settings.getParams();
+                }
+            }
+
+            List<WxXcxMessage> wxXcxMessageList = this.baseMapper.selectList(
+                    Wrappers.<WxXcxMessage>lambdaQuery()
+                            .select(WxXcxMessage::getMessageCreateDepartment)
+                            .eq(WxXcxMessage::getUserLoginName, messageCombineVo.getStaffEName())
+                            .eq(WxXcxMessage::getIsRead, YesNoEnum.NO)
+            );
+            if (!StringUtils.isNullOrEmpty(jwSetting) || !StringUtils.isNullOrEmpty(xxSetting)) {
+                for (WxXcxMessage wxXcxMessage : wxXcxMessageList) {
+                    String messageCreateDepartment = wxXcxMessage.getMessageCreateDepartment();
+                    if (!StringUtils.isNullOrEmpty(messageCreateDepartment)) {
+                        if (null != jwSetting && jwSetting.contains(messageCreateDepartment)) {
+                            jw ++;
+                        }
+                        if (null != xxSetting && xxSetting.contains(messageCreateDepartment)) {
+                            xx ++;
+                        }
+                    }
+                }
+            }
+        }
+
+        map.put("xx", xx);
+        map.put("jw", jw);
+
+        return map;
+    }
+
     /**
      * 批量插入
      *

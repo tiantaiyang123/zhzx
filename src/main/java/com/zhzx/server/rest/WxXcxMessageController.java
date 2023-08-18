@@ -151,6 +151,14 @@ public class WxXcxMessageController {
         return ApiResponse.ok(this.wxXcxMessageService.pageApp(orderByClause, pageNum, pageSize, messageCombineVo));
     }
 
+    @GetMapping("/count-app")
+    @ApiOperation("获取数量")
+    public ApiResponse<Object> countApp(
+            MessageCombineVo messageCombineVo
+    ) {
+        return ApiResponse.ok(this.wxXcxMessageService.countApp(messageCombineVo));
+    }
+
     @PutMapping("/update-is-read-app")
     @ApiOperation("状态更新")
     public ApiResponse<Object> updateIsReadApp(@RequestBody MessageCombineDto messageCombineDto) {
