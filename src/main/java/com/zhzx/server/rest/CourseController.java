@@ -7,10 +7,8 @@
 package com.zhzx.server.rest;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhzx.server.domain.Course;
@@ -20,11 +18,9 @@ import com.zhzx.server.rest.req.CourseParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.CourseService;
 import com.zhzx.server.service.SettingsService;
-import com.zhzx.server.util.JsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import net.hasor.dataway.dal.HeaderData;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.*;
@@ -229,13 +225,11 @@ public class CourseController {
             }
 //            response.reset();
             String headers = response.getHeaderNames().stream().map(item -> item.concat(": ").concat(response.getHeader(item))).collect(Collectors.joining(","));
-            log.info(">>>>>>>>>>>>>>>当前响应头 {}", headers);
             response.setCharacterEncoding(encoding);
             response.setContentType("application/octet-stream;charset=UTF-8");
             response.addHeader("Access-Control-Expose-Headers", "Content-disposition");
             response.setHeader("Content-disposition", "attachment;filename=" + fileName);
             headers = response.getHeaderNames().stream().map(item -> item.concat(": ").concat(response.getHeader(item))).collect(Collectors.joining(","));
-            log.info(">>>>>>>>>>>>>>>修改后响应头 {}", headers);
             OutputStream out = response.getOutputStream();
             ImageIO.write(image, "jpg", out);
             out.flush();
