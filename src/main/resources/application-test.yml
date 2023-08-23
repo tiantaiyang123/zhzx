@@ -53,7 +53,7 @@ wx:
     token: j4byZpKL3VMZXC4IcsQClIfcuvf
     encodingAESKey: TRoUnUhPaR8M6qXbkMw6MG95AbsX5uruI2iRjKQYnwA
 academic:
-  year_one_start: 9-1
+  year_one_start: 9-4
   year_two_start: 2-1
 xcx:
   expire_time: 86400

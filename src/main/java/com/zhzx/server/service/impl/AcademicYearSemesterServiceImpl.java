@@ -8,27 +8,28 @@
 
 package com.zhzx.server.service.impl;
 
-import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.*;
-
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
+import com.zhzx.server.domain.AcademicYearSemester;
 import com.zhzx.server.enums.SemesterEnum;
+import com.zhzx.server.enums.YesNoEnum;
+import com.zhzx.server.repository.AcademicYearSemesterMapper;
+import com.zhzx.server.repository.base.AcademicYearSemesterBaseMapper;
+import com.zhzx.server.service.AcademicYearSemesterService;
 import com.zhzx.server.util.DateUtils;
 import com.zhzx.server.vo.SchoolWeek;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.zhzx.server.service.AcademicYearSemesterService;
-import com.zhzx.server.repository.AcademicYearSemesterMapper;
-import com.zhzx.server.repository.base.AcademicYearSemesterBaseMapper;
-import com.zhzx.server.domain.AcademicYearSemester;
+
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Service
 public class AcademicYearSemesterServiceImpl extends ServiceImpl<AcademicYearSemesterMapper, AcademicYearSemester> implements AcademicYearSemesterService {
@@ -73,9 +74,25 @@ public class AcademicYearSemesterServiceImpl extends ServiceImpl<AcademicYearSem
 
     @Override
     public AcademicYearSemester getCurrentYearSemester(Long academicYearSemesterId) {
-        AcademicYearSemester currentAcademicYearSemester = null;
+        if (null != academicYearSemesterId) {
+            return this.getById(academicYearSemesterId);
+        }
+
+        AcademicYearSemester currentAcademicYearSemester;
+
+        // 最高优先级
+        currentAcademicYearSemester = this.getOne(
+                Wrappers.<AcademicYearSemester>lambdaQuery()
+                        .eq(AcademicYearSemester::getIsDefault, YesNoEnum.YES)
+        );
+        if (null != currentAcademicYearSemester) {
+            return currentAcademicYearSemester;
+        }
+
+        // 迭代时间进行范围匹配
         List<AcademicYearSemester> academicYearSemesterList = this.list(Wrappers.<AcademicYearSemester>query().orderByAsc("start_time"));
         String currentDateStr = DateUtils.format(new Date(), "yyyy-MM-dd");
+
         for (int i = 0; i < academicYearSemesterList.size(); i++) {
             currentAcademicYearSemester = academicYearSemesterList.get(i);
             if (i == academicYearSemesterList.size() - 1) {
@@ -88,15 +105,8 @@ public class AcademicYearSemesterServiceImpl extends ServiceImpl<AcademicYearSem
                 calendar.add(Calendar.DAY_OF_MONTH, -1);
                 currentAcademicYearSemester.setEndTime(calendar.getTime());
             }
-            if (academicYearSemesterId != null) {
-                if (currentAcademicYearSemester.getId() == academicYearSemesterId) {
-                    return currentAcademicYearSemester;
-                }
-            }
         }
-        if (academicYearSemesterId != null) {
-            return null;
-        }
+
         for (int i = 0; i < academicYearSemesterList.size(); i++) {
             currentAcademicYearSemester = academicYearSemesterList.get(i);
             String startTime = DateUtils.format(academicYearSemesterList.get(i).getStartTime(), "yyyy-MM-dd");
