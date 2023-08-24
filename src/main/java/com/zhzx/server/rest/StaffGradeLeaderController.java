@@ -87,7 +87,7 @@ public class StaffGradeLeaderController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.staffGradeLeaderService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class StaffGradeLeaderController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(StaffGradeLeaderParam param) {
+    public ApiResponse<Integer> count(StaffGradeLeaderParam param) {
         QueryWrapper<StaffGradeLeader> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.staffGradeLeaderService.count(wrapper));
     }

@@ -6,28 +6,23 @@
 
 package com.zhzx.server.rest;
 
-import java.util.List;
-import java.util.Arrays;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhzx.server.dto.CommentDto;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
-import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.domain.Comment;
+import com.zhzx.server.dto.CommentDto;
 import com.zhzx.server.rest.req.CommentParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.CommentService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -128,7 +123,7 @@ public class CommentController {
      */
     @PostMapping("/batch-delete")
     @ApiOperation("批量删除")
-    public ApiResponse<Boolean> batchDelete(@RequestBody List<Long> idList) {
+    public ApiResponse<Integer> batchDelete(@RequestBody List<Long> idList) {
         return ApiResponse.ok(this.commentService.removeByIds(idList));
     }
 
@@ -167,7 +162,7 @@ public class CommentController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(CommentParam param) {
+    public ApiResponse<Integer> count(CommentParam param) {
         QueryWrapper<Comment> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.commentService.count(wrapper));
     }
@@ -180,7 +175,7 @@ public class CommentController {
      */
     @PostMapping("/create/comment")
     @ApiOperation("创建或修改")
-    public ApiResponse<Long> createComment(@RequestBody CommentDto entity) {
+    public ApiResponse<CommentDto> createComment(@RequestBody CommentDto entity) {
         return ApiResponse.ok(this.commentService.create(entity));
     }
 
@@ -231,7 +226,7 @@ public class CommentController {
      */
     @GetMapping("/search/comment/by/nightStudyId")
     @ApiOperation("查询")
-    public ApiResponse<CommentDto> searchByNightStudyId(@RequestParam Long nightStudyId) {
+    public ApiResponse<Map<String, Object>> searchByNightStudyId(@RequestParam Long nightStudyId) {
         return ApiResponse.ok(this.commentService.searchByNightStudyId(nightStudyId));
     }
 }

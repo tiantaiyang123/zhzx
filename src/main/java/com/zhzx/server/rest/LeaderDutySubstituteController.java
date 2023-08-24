@@ -87,7 +87,7 @@ public class LeaderDutySubstituteController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.leaderDutySubstituteService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class LeaderDutySubstituteController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(LeaderDutySubstituteParam param) {
+    public ApiResponse<Integer> count(LeaderDutySubstituteParam param) {
         QueryWrapper<LeaderDutySubstitute> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.leaderDutySubstituteService.count(wrapper));
     }

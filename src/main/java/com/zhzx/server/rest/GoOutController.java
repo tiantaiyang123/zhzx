@@ -90,7 +90,7 @@ public class GoOutController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.goOutService.removeById(id));
     }
 
@@ -169,7 +169,7 @@ public class GoOutController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(GoOutParam param) {
+    public ApiResponse<Integer> count(GoOutParam param) {
         QueryWrapper<GoOut> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.goOutService.count(wrapper));
     }

@@ -129,7 +129,7 @@ public class ScreenController {
      */
     @GetMapping("/staff/positional")
     @ApiOperation("职员职称信息")
-    public ApiResponse<Map<String,Object>> getStaffPositional() {
+    public ApiResponse<LinkedHashMap<String, List<Staff>>> getStaffPositional() {
         List<Staff> staffList = staffService.list(Wrappers.<Staff>lambdaQuery()
                 .eq(Staff::getIsDelete,YesNoEnum.NO)
                 .eq(Staff::getPersonnelSituation,PersonnelSituationEnum.TEACHER)
@@ -173,7 +173,7 @@ public class ScreenController {
      */
     @GetMapping("/staff/honor")
     @ApiOperation("职员荣誉信息")
-    public ApiResponse<Map<String,Object>> getStaffHonor() {
+    public ApiResponse<LinkedHashMap<String, List<Staff>>> getStaffHonor() {
         List<Staff> staffList = staffService.list(Wrappers.<Staff>lambdaQuery()
                 .eq(Staff::getIsDelete,YesNoEnum.NO)
                 .eq(Staff::getPersonnelSituation,PersonnelSituationEnum.TEACHER)
@@ -226,7 +226,7 @@ public class ScreenController {
      */
     @GetMapping("/student/attendance/workbench")
     @ApiOperation("学生请假")
-    public ApiResponse<Map<String,Object>> getStudentAttendance(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam("startTime") Date startTime,
+    public ApiResponse<Map<String,List<DailyAttendance>>> getStudentAttendance(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam("startTime") Date startTime,
                                                                 @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam("endTime") Date endTime,
                                                                 @RequestParam(required = false) StudentTypeEnum studentTypeEnum) {
 

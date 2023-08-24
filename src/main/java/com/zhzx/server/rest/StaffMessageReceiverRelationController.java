@@ -6,25 +6,22 @@
 
 package com.zhzx.server.rest;
 
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
 import com.zhzx.server.domain.StaffMessageReceiverRelation;
+import com.zhzx.server.dto.StaffCategoryDto;
 import com.zhzx.server.rest.req.StaffMessageReceiverRelationParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.StaffMessageReceiverRelationService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -85,7 +82,7 @@ public class StaffMessageReceiverRelationController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> update(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.staffMessageReceiverRelationService.removeById(id));
     }
 
@@ -124,7 +121,7 @@ public class StaffMessageReceiverRelationController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(StaffMessageReceiverRelationParam param) {
+    public ApiResponse<Integer> count(StaffMessageReceiverRelationParam param) {
         QueryWrapper<StaffMessageReceiverRelation> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.staffMessageReceiverRelationService.count(wrapper));
     }
@@ -135,7 +132,7 @@ public class StaffMessageReceiverRelationController {
      */
     @GetMapping("/receiver/tree")
     @ApiOperation("根据用户查询允许发送人员教师树")
-    public ApiResponse<Long> getReceiverTree(@RequestParam(required = false) Long staffId) {
+    public ApiResponse<List<StaffCategoryDto>> getReceiverTree(@RequestParam(required = false) Long staffId) {
         return ApiResponse.ok(this.staffMessageReceiverRelationService.getReceiverTree(staffId));
     }
 
@@ -148,7 +145,7 @@ public class StaffMessageReceiverRelationController {
      */
     @PostMapping("/batch/insert/or/update")
     @ApiOperation("批量新增")
-    public ApiResponse<StaffMessageReceiverRelation> batchInsert(@RequestBody List<StaffMessageReceiverRelation> entity) {
+    public ApiResponse<Integer> batchInsert(@RequestBody List<StaffMessageReceiverRelation> entity) {
         return ApiResponse.ok(this.staffMessageReceiverRelationService.batchInsertOrUpdate(entity));
     }
 }

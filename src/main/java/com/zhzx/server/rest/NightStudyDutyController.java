@@ -90,7 +90,7 @@ public class NightStudyDutyController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.nightStudyDutyService.removeById(id));
     }
 
@@ -169,7 +169,7 @@ public class NightStudyDutyController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(NightStudyDutyParam param) {
+    public ApiResponse<Integer> count(NightStudyDutyParam param) {
         QueryWrapper<NightStudyDuty> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.nightStudyDutyService.count(wrapper));
     }

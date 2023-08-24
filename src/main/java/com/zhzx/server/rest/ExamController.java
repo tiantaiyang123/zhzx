@@ -9,7 +9,6 @@ package com.zhzx.server.rest;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhzx.server.domain.Clazz;
 import com.zhzx.server.domain.Exam;
 import com.zhzx.server.rest.req.ExamParam;
 import com.zhzx.server.rest.res.ApiResponse;
@@ -89,7 +88,7 @@ public class ExamController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.examService.removeById(id));
     }
 
@@ -188,7 +187,7 @@ public class ExamController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamParam param) {
+    public ApiResponse<Integer> count(ExamParam param) {
         QueryWrapper<Exam> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examService.count(wrapper));
     }
@@ -198,7 +197,7 @@ public class ExamController {
      */
     @GetMapping("/list-all")
     @ApiOperation("获得考试列表")
-    public ApiResponse<List<Clazz>> getListBySchoolyardYear(
+    public ApiResponse<List<Exam>> getListBySchoolyardYear(
             @RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
             @RequestParam(value = "academicYear", required = false) String academicYear,
             @RequestParam(value = "gradeId", required = false) Long gradeId) {

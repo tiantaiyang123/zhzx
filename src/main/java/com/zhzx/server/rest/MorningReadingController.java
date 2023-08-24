@@ -90,7 +90,7 @@ public class MorningReadingController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.morningReadingService.removeById(id));
     }
 
@@ -169,7 +169,7 @@ public class MorningReadingController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(MorningReadingParam param) {
+    public ApiResponse<Integer> count(MorningReadingParam param) {
         QueryWrapper<MorningReading> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.morningReadingService.count(wrapper));
     }

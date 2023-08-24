@@ -88,7 +88,7 @@ public class SouthGateController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.southGateService.removeById(id));
     }
 
@@ -167,7 +167,7 @@ public class SouthGateController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(SouthGateParam param) {
+    public ApiResponse<Integer> count(SouthGateParam param) {
         QueryWrapper<SouthGate> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.southGateService.count(wrapper));
     }

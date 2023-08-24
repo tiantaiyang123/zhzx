@@ -6,27 +6,22 @@
 
 package com.zhzx.server.rest;
 
-import java.util.List;
-import java.util.Arrays;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
-import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.domain.StaffMessageRefuse;
 import com.zhzx.server.rest.req.StaffMessageRefuseParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.StaffMessageRefuseService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -94,7 +89,7 @@ public class StaffMessageRefuseController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.staffMessageRefuseService.removeById(id));
     }
 
@@ -173,14 +168,14 @@ public class StaffMessageRefuseController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(StaffMessageRefuseParam param) {
+    public ApiResponse<Integer> count(StaffMessageRefuseParam param) {
         QueryWrapper<StaffMessageRefuse> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.staffMessageRefuseService.count(wrapper));
     }
 
     @PostMapping("/receive/message")
     @ApiOperation("接收此类消息")
-    public ApiResponse<StaffMessageRefuse> delete(@RequestBody StaffMessageRefuse entity) {
+    public ApiResponse<Boolean> delete(@RequestBody StaffMessageRefuse entity) {
 
         Boolean success = this.staffMessageRefuseService.remove(Wrappers.<StaffMessageRefuse>lambdaQuery()
                 .eq(StaffMessageRefuse::getStaffId,entity.getStaffId())

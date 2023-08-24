@@ -87,7 +87,7 @@ public class ExamPublishRelationController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.examPublishRelationService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class ExamPublishRelationController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamPublishRelationParam param) {
+    public ApiResponse<Integer> count(ExamPublishRelationParam param) {
         QueryWrapper<ExamPublishRelation> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examPublishRelationService.count(wrapper));
     }

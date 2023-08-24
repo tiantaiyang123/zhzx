@@ -91,7 +91,7 @@ public class ClazzTeachingLogSubjectsController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.clazzTeachingLogSubjectsService.removeById(id));
     }
 
@@ -183,7 +183,7 @@ public class ClazzTeachingLogSubjectsController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ClazzTeachingLogSubjectsParam param) {
+    public ApiResponse<Integer> count(ClazzTeachingLogSubjectsParam param) {
         QueryWrapper<ClazzTeachingLogSubjects> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.clazzTeachingLogSubjectsService.count(wrapper));
     }

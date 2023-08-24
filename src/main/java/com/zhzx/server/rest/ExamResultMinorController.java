@@ -87,7 +87,7 @@ public class ExamResultMinorController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.examResultMinorService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class ExamResultMinorController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamResultMinorParam param) {
+    public ApiResponse<Integer> count(ExamResultMinorParam param) {
         QueryWrapper<ExamResultMinor> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examResultMinorService.count(wrapper));
     }

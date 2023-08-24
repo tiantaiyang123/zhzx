@@ -10,6 +10,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhzx.server.domain.LeaderDuty;
+import com.zhzx.server.domain.Staff;
+import com.zhzx.server.dto.LeaderDutyDto;
 import com.zhzx.server.rest.req.LeaderDutyParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.LeaderDutyService;
@@ -85,7 +87,7 @@ public class LeaderDutyController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.leaderDutyService.removeById(id));
     }
 
@@ -164,7 +166,7 @@ public class LeaderDutyController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(LeaderDutyParam param) {
+    public ApiResponse<Integer> count(LeaderDutyParam param) {
         QueryWrapper<LeaderDuty> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.leaderDutyService.count(wrapper));
     }
@@ -176,13 +178,13 @@ public class LeaderDutyController {
      */
     @GetMapping("/get/leaderDuty/form")
     @ApiOperation("查询领导值班表")
-    public ApiResponse<Long> getLeaderDutyForm(@RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
-                                               @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                                               @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeFrom", required = false) Date timeFrom,
-                                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeTo", required = false) Date timeTo,
-                                               @RequestParam(value = "leaderDutyName", required = false) String leaderDutyName,
-                                               @RequestParam(value = "phone", required = false) String phone) {
+    public ApiResponse<Page<LeaderDutyDto>> getLeaderDutyForm(@RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
+                                                              @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                                              @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+                                                              @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeFrom", required = false) Date timeFrom,
+                                                              @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeTo", required = false) Date timeTo,
+                                                              @RequestParam(value = "leaderDutyName", required = false) String leaderDutyName,
+                                                              @RequestParam(value = "phone", required = false) String phone) {
 
         return ApiResponse.ok(this.leaderDutyService.getLeaderDutyForm(pageNum, pageSize, timeFrom, timeTo, leaderDutyName, phone, schoolyardId));
     }
@@ -229,7 +231,7 @@ public class LeaderDutyController {
      */
     @GetMapping("/cancel/leader/choose/people")
     @ApiOperation("获取当前领导值班带班人员")
-    public ApiResponse<Integer> cancelLeaderChoosePeople(@RequestParam(value = "leaderDutyId") Long leaderDutyId){
+    public ApiResponse<List<Staff>> cancelLeaderChoosePeople(@RequestParam(value = "leaderDutyId") Long leaderDutyId){
         return ApiResponse.ok(this.leaderDutyService.cancelLeaderChoosePeople(leaderDutyId));
     }
 

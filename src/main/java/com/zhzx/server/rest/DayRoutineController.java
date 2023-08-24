@@ -137,7 +137,7 @@ public class DayRoutineController {
      */
     @PostMapping("/dayRoutine/click/finish")
     @ApiOperation("白班一键确定")
-    public ApiResponse<Map<String,Object>> dayRoutineClickFinish(@RequestParam("type") String type,
+    public ApiResponse<Integer> dayRoutineClickFinish(@RequestParam("type") String type,
                                                                  @RequestParam("leaderDutyId") Long leaderDutyId) {
         return ApiResponse.ok(leaderDutyService.dayRoutineClickFinish(type,leaderDutyId));
     }

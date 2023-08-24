@@ -6,30 +6,23 @@
 
 package com.zhzx.server.rest;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhzx.server.enums.ReceiverEnum;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import net.hasor.web.annotation.Post;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.web.bind.annotation.*;
 import com.zhzx.server.domain.StaffMessage;
+import com.zhzx.server.enums.ReceiverEnum;
 import com.zhzx.server.rest.req.StaffMessageParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.StaffMessageService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -95,7 +88,7 @@ public class StaffMessageController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> update(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.staffMessageService.removeById(id));
     }
 
@@ -134,7 +127,7 @@ public class StaffMessageController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(StaffMessageParam param) {
+    public ApiResponse<Integer> count(StaffMessageParam param) {
         QueryWrapper<StaffMessage> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.staffMessageService.count(wrapper));
     }
@@ -144,8 +137,7 @@ public class StaffMessageController {
      */
     @PostMapping("/create")
     @ApiOperation("create")
-    public ApiResponse<Long> create(@RequestBody StaffMessage staffMessage) {
-
+    public ApiResponse<StaffMessage> create(@RequestBody StaffMessage staffMessage) {
         return ApiResponse.ok(this.staffMessageService.create(staffMessage));
     }
 
@@ -154,8 +146,7 @@ public class StaffMessageController {
      */
     @PostMapping("/update")
     @ApiOperation("update")
-    public ApiResponse<Long> update(@RequestBody StaffMessage staffMessage) {
-
+    public ApiResponse<StaffMessage> update(@RequestBody StaffMessage staffMessage) {
         return ApiResponse.ok(this.staffMessageService.updateWithSonList(staffMessage));
     }
 

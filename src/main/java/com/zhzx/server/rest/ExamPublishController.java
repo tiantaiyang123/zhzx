@@ -181,7 +181,7 @@ public class ExamPublishController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamPublishParam param) {
+    public ApiResponse<Integer> count(ExamPublishParam param) {
         QueryWrapper<ExamPublish> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examPublishService.count(wrapper));
     }

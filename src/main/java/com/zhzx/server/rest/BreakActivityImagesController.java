@@ -87,7 +87,7 @@ public class BreakActivityImagesController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.breakActivityImagesService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class BreakActivityImagesController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(BreakActivityImagesParam param) {
+    public ApiResponse<Integer> count(BreakActivityImagesParam param) {
         QueryWrapper<BreakActivityImages> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.breakActivityImagesService.count(wrapper));
     }

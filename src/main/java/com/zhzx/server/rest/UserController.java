@@ -204,7 +204,7 @@ public class UserController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(UserParam param) {
+    public ApiResponse<Integer> count(UserParam param) {
         QueryWrapper<User> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.userService.count(wrapper));
     }
@@ -287,7 +287,7 @@ public class UserController {
      */
     @ApiOperation("查询当前登录的用户信息")
     @GetMapping("/info")
-    public ApiResponse<User> currentUserInfo() {
+    public ApiResponse<Object> currentUserInfo() {
         Subject subject = SecurityUtils.getSubject();
         return ApiResponse.ok(subject.getPrincipal());
     }
@@ -317,7 +317,7 @@ public class UserController {
     @PostMapping("/wx/login")
     @MessageInfo(name="企业微信登录",title = "登录",content = "企业微信登录")
     @ApiOperation("企业微信获取用户名登录")
-    public ApiResponse<User> wxLogin(@RequestParam String code,@RequestParam String agentid) throws UnsupportedEncodingException{
+    public ApiResponse<Map<String, Object>> wxLogin(@RequestParam String code,@RequestParam String agentid) throws UnsupportedEncodingException{
         Map<String, Object> result = new HashMap<>();
         UserVo userVo = userService.wxLogin(code,agentid);
         result.put("userInfo", userVo);
@@ -327,7 +327,7 @@ public class UserController {
 
     @PostMapping("/export-excel")
     @ApiOperation("企业微信用户名同步")
-    public ApiResponse<User> test(@RequestParam("file") MultipartFile file) throws UnsupportedEncodingException{
+    public ApiResponse<Boolean> test(@RequestParam("file") MultipartFile file) throws UnsupportedEncodingException{
         try {
             // 读取 Excel
             XSSFWorkbook book = new XSSFWorkbook(file.getInputStream());

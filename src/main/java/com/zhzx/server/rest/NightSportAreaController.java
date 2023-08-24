@@ -88,7 +88,7 @@ public class NightSportAreaController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.nightSportAreaService.removeById(id));
     }
 
@@ -167,7 +167,7 @@ public class NightSportAreaController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(NightSportAreaParam param) {
+    public ApiResponse<Integer> count(NightSportAreaParam param) {
         QueryWrapper<NightSportArea> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.nightSportAreaService.count(wrapper));
     }

@@ -88,7 +88,7 @@ public class UserApplicationLinkAppController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.userApplicationLinkAppService.removeById(id));
     }
 
@@ -167,7 +167,7 @@ public class UserApplicationLinkAppController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(UserApplicationLinkAppParam param) {
+    public ApiResponse<Integer> count(UserApplicationLinkAppParam param) {
         QueryWrapper<UserApplicationLinkApp> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.userApplicationLinkAppService.count(wrapper));
     }

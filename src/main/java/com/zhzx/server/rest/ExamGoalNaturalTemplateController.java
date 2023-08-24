@@ -95,7 +95,7 @@ public class ExamGoalNaturalTemplateController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> update(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.examGoalNaturalTemplateService.removeById(id));
     }
 
@@ -134,7 +134,7 @@ public class ExamGoalNaturalTemplateController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamGoalNaturalTemplateParam param) {
+    public ApiResponse<Integer> count(ExamGoalNaturalTemplateParam param) {
         QueryWrapper<ExamGoalNaturalTemplate> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examGoalNaturalTemplateService.count(wrapper));
     }

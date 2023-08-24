@@ -96,7 +96,7 @@ public class NightStudyDutyClazzController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.nightStudyDutyClazzService.removeById(id));
     }
 
@@ -181,7 +181,7 @@ public class NightStudyDutyClazzController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(NightStudyDutyClazzParam param) {
+    public ApiResponse<Integer> count(NightStudyDutyClazzParam param) {
         QueryWrapper<NightStudyDutyClazz> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.nightStudyDutyClazzService.count(wrapper));
     }
@@ -193,14 +193,14 @@ public class NightStudyDutyClazzController {
      */
     @PostMapping("/create/or/update")
     @ApiOperation("创建或者修改")
-    public ApiResponse<Long> createOrUpdate(@RequestBody NightDutyClassDto nightDutyClassDto) {
+    public ApiResponse<NightDutyClassDto> createOrUpdate(@RequestBody NightDutyClassDto nightDutyClassDto) {
 
         return ApiResponse.ok(this.nightStudyDutyClazzService.createOrUpdate(nightDutyClassDto));
     }
 
     @GetMapping("/back/search")
     @ApiOperation("晚自习分页查询")
-    public ApiResponse<IPage> selectByPage(@RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
+    public ApiResponse<Map<String, Object>> selectByPage(@RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
                                            @RequestParam(value = "name",required = false) String name,
                                            @RequestParam(value = "clazzName",required = false) String clazzName,
                                            @RequestParam(value = "gradeId",required = false) Long gradeId,
@@ -262,7 +262,7 @@ public class NightStudyDutyClazzController {
      */
     @PostMapping("/leader/confirm")
     @ApiOperation("领导晚班确认")
-    public ApiResponse<Long> leaderConfirm(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam Date time,
+    public ApiResponse<Integer> leaderConfirm(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam Date time,
                                            @RequestParam Long clazzId,
                                            @RequestParam TeacherDutyTypeEnum dutyType) {
 

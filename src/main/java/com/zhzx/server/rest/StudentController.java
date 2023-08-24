@@ -95,7 +95,7 @@ public class StudentController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.studentService.removeById(id));
     }
 
@@ -176,7 +176,7 @@ public class StudentController {
      */
     @GetMapping("/queryStudentByPage")
     @ApiOperation("分页查询")
-    public ApiResponse<IPage<Student>> queryStudentByPage(
+    public ApiResponse<IPage<Map<String, Object>>> queryStudentByPage(
             StudentParam param,
             @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
@@ -201,7 +201,7 @@ public class StudentController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(StudentParam param) {
+    public ApiResponse<Integer> count(StudentParam param) {
         QueryWrapper<Student> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.studentService.count(wrapper));
     }

@@ -87,7 +87,7 @@ public class SettingsController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.settingsService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class SettingsController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(SettingsParam param) {
+    public ApiResponse<Integer> count(SettingsParam param) {
         QueryWrapper<Settings> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.settingsService.count(wrapper));
     }

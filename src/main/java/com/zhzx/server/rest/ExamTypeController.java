@@ -6,24 +6,20 @@
 
 package com.zhzx.server.rest;
 
-import java.util.Arrays;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
 import com.zhzx.server.domain.ExamType;
 import com.zhzx.server.rest.req.ExamTypeParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.ExamTypeService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
 
 @Slf4j
 @RestController
@@ -84,7 +80,7 @@ public class ExamTypeController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> update(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.examTypeService.removeById(id));
     }
 
@@ -123,7 +119,7 @@ public class ExamTypeController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamTypeParam param) {
+    public ApiResponse<Integer> count(ExamTypeParam param) {
         QueryWrapper<ExamType> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examTypeService.count(wrapper));
     }

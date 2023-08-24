@@ -79,7 +79,7 @@ public class StudentDormitoryController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> update(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.studentDormitoryService.removeById(id));
     }
 
@@ -118,7 +118,7 @@ public class StudentDormitoryController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(StudentDormitoryParam param) {
+    public ApiResponse<Integer> count(StudentDormitoryParam param) {
         QueryWrapper<StudentDormitory> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.studentDormitoryService.count(wrapper));
     }

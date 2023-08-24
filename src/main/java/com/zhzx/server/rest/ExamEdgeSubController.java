@@ -81,7 +81,7 @@ public class ExamEdgeSubController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.examEdgeSubService.removeById(id));
     }
 
@@ -160,7 +160,7 @@ public class ExamEdgeSubController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamEdgeSubParam param) {
+    public ApiResponse<Integer> count(ExamEdgeSubParam param) {
         QueryWrapper<ExamEdgeSub> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examEdgeSubService.count(wrapper));
     }

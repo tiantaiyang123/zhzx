@@ -81,7 +81,7 @@ public class UserApplicationPreferAppController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.userApplicationPreferAppService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class UserApplicationPreferAppController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(UserApplicationPreferAppParam param) {
+    public ApiResponse<Integer> count(UserApplicationPreferAppParam param) {
         QueryWrapper<UserApplicationPreferApp> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.userApplicationPreferAppService.count(wrapper));
     }

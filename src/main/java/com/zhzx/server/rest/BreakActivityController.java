@@ -90,7 +90,7 @@ public class BreakActivityController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.breakActivityService.removeById(id));
     }
 
@@ -169,7 +169,7 @@ public class BreakActivityController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(BreakActivityParam param) {
+    public ApiResponse<Integer> count(BreakActivityParam param) {
         QueryWrapper<BreakActivity> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.breakActivityService.count(wrapper));
     }

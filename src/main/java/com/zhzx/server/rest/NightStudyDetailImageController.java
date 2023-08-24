@@ -87,7 +87,7 @@ public class NightStudyDetailImageController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.nightStudyDetailImageService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class NightStudyDetailImageController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(NightStudyDetailImageParam param) {
+    public ApiResponse<Integer> count(NightStudyDetailImageParam param) {
         QueryWrapper<NightStudyDetailImage> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.nightStudyDetailImageService.count(wrapper));
     }

@@ -87,7 +87,7 @@ public class GoOutImagesController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.goOutImagesService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class GoOutImagesController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(GoOutImagesParam param) {
+    public ApiResponse<Integer> count(GoOutImagesParam param) {
         QueryWrapper<GoOutImages> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.goOutImagesService.count(wrapper));
     }

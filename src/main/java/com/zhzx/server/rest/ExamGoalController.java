@@ -214,7 +214,7 @@ public class ExamGoalController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamGoalParam param) {
+    public ApiResponse<Integer> count(ExamGoalParam param) {
         QueryWrapper<ExamGoal> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examGoalService.count(wrapper));
     }

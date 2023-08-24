@@ -94,7 +94,7 @@ public class LogController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.logService.removeById(id));
     }
 
@@ -177,7 +177,7 @@ public class LogController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(LogParam param) {
+    public ApiResponse<Integer> count(LogParam param) {
         QueryWrapper<Log> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.logService.count(wrapper));
     }

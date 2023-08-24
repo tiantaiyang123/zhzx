@@ -6,30 +6,24 @@
 
 package com.zhzx.server.rest;
 
-import java.util.List;
-import java.util.Arrays;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
-import com.zhzx.server.rest.res.ApiCode;
+import com.zhzx.server.domain.User;
 import com.zhzx.server.domain.VisitLog;
 import com.zhzx.server.rest.req.VisitLogParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.VisitLogService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import com.zhzx.server.domain.User;
+import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -94,7 +88,7 @@ public class VisitLogController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.visitLogService.removeById(id));
     }
 
@@ -177,7 +171,7 @@ public class VisitLogController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(VisitLogParam param) {
+    public ApiResponse<Integer> count(VisitLogParam param) {
         QueryWrapper<VisitLog> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.visitLogService.count(wrapper));
     }
@@ -190,7 +184,7 @@ public class VisitLogController {
      */
     @PostMapping("/front/create/or/update")
     @ApiOperation("页面埋点，统计数据")
-    public ApiResponse<Boolean> frontCreateOrUpdate(@RequestBody VisitLog entity) {
+    public ApiResponse<Integer> frontCreateOrUpdate(@RequestBody VisitLog entity) {
         return ApiResponse.ok(this.visitLogService.frontCreateOrUpdate(entity));
     }
 

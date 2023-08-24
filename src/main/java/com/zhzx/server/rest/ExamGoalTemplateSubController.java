@@ -149,7 +149,7 @@ public class ExamGoalTemplateSubController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.examGoalTemplateSubService.removeById(id));
     }
 
@@ -228,7 +228,7 @@ public class ExamGoalTemplateSubController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamGoalTemplateSubParam param) {
+    public ApiResponse<Integer> count(ExamGoalTemplateSubParam param) {
         QueryWrapper<ExamGoalTemplateSub> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examGoalTemplateSubService.count(wrapper));
     }

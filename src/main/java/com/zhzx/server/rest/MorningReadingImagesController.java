@@ -87,7 +87,7 @@ public class MorningReadingImagesController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.morningReadingImagesService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class MorningReadingImagesController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(MorningReadingImagesParam param) {
+    public ApiResponse<Integer> count(MorningReadingImagesParam param) {
         QueryWrapper<MorningReadingImages> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.morningReadingImagesService.count(wrapper));
     }

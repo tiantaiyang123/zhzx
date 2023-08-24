@@ -124,7 +124,7 @@ public class ExamResultController {
 
     @GetMapping("/grade-analyse-goal")
     @ApiOperation("年级成绩分析(目标情况)")
-    public ApiResponse<List<Map<String, Object>>> gradeAnalyseGoal(@RequestParam(value = "examId", required = false) Long examId,
+    public ApiResponse<Map<String, Object>> gradeAnalyseGoal(@RequestParam(value = "examId", required = false) Long examId,
                                                                    @RequestParam(value = "goalId", required = false) Long goalId,
                                                                    @RequestParam(value = "clazzId", required = false, defaultValue = "0") Long clazzId) {
         Map<String, Object> res = new HashMap<>();
@@ -219,7 +219,7 @@ public class ExamResultController {
 
     @GetMapping("score-pager")
     @ApiOperation("成绩单")
-    public ApiResponse<List<ExamPagerDto>> examResultPager(
+    public ApiResponse<IPage<ExamPagerDto>> examResultPager(
             @RequestParam(value = "examId", required = false) Long examId,
             @RequestParam(value = "clazzId", required = false) Long clazzId,
             @RequestParam(value = "gender", required = false, defaultValue = "") GenderEnum gender,
@@ -244,7 +244,7 @@ public class ExamResultController {
 
     @GetMapping("/resultEnter")
     @ApiOperation("成绩录入(不用)")
-    public ApiResponse<IPage<ExamResult>> resultEnter(
+    public ApiResponse<IPage<Map<String, Object>>> resultEnter(
             ExamResultParam param,
             @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
@@ -398,7 +398,7 @@ public class ExamResultController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamResultParam param) {
+    public ApiResponse<Integer> count(ExamResultParam param) {
         QueryWrapper<ExamResult> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examResultService.count(wrapper));
     }

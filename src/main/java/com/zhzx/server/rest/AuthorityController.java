@@ -94,7 +94,7 @@ public class AuthorityController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.authorityService.removeById(id));
     }
 
@@ -177,7 +177,7 @@ public class AuthorityController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(AuthorityParam param) {
+    public ApiResponse<Integer> count(AuthorityParam param) {
         QueryWrapper<Authority> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.authorityService.count(wrapper));
     }

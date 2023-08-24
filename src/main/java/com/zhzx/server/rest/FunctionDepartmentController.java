@@ -88,7 +88,7 @@ public class FunctionDepartmentController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.functionDepartmentService.removeById(id));
     }
 
@@ -167,7 +167,7 @@ public class FunctionDepartmentController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(FunctionDepartmentParam param) {
+    public ApiResponse<Integer> count(FunctionDepartmentParam param) {
         QueryWrapper<FunctionDepartment> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.functionDepartmentService.count(wrapper));
     }

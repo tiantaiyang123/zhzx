@@ -87,7 +87,7 @@ public class TeachingResultKtyjController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.teachingResultKtyjService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class TeachingResultKtyjController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(TeachingResultKtyjParam param) {
+    public ApiResponse<Integer> count(TeachingResultKtyjParam param) {
         QueryWrapper<TeachingResultKtyj> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.teachingResultKtyjService.count(wrapper));
     }

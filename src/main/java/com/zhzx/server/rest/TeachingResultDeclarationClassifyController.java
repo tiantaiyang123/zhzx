@@ -94,7 +94,7 @@ public class TeachingResultDeclarationClassifyController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.teachingResultDeclarationClassifyService.removeById(id));
     }
 
@@ -177,7 +177,7 @@ public class TeachingResultDeclarationClassifyController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(TeachingResultDeclarationClassifyParam param) {
+    public ApiResponse<Integer> count(TeachingResultDeclarationClassifyParam param) {
         QueryWrapper<TeachingResultDeclarationClassify> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.teachingResultDeclarationClassifyService.count(wrapper));
     }

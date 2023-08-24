@@ -87,7 +87,7 @@ public class SchoolyardController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.schoolyardService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class SchoolyardController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(SchoolyardParam param) {
+    public ApiResponse<Integer> count(SchoolyardParam param) {
         QueryWrapper<Schoolyard> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.schoolyardService.count(wrapper));
     }

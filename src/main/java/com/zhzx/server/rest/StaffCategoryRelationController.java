@@ -6,27 +6,23 @@
 
 package com.zhzx.server.rest;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
 import com.zhzx.server.domain.StaffCategoryRelation;
 import com.zhzx.server.rest.req.StaffCategoryRelationParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.StaffCategoryRelationService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -87,7 +83,7 @@ public class StaffCategoryRelationController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> update(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.staffCategoryRelationService.removeById(id));
     }
 
@@ -99,7 +95,7 @@ public class StaffCategoryRelationController {
      */
     @PostMapping("/remove/batch")
     @ApiOperation("批量删除")
-    public ApiResponse<Integer> removeBatch(@RequestBody List<StaffCategoryRelation> staffCategoryRelations) {
+    public ApiResponse<Boolean> removeBatch(@RequestBody List<StaffCategoryRelation> staffCategoryRelations) {
         return ApiResponse.ok(this.staffCategoryRelationService.remove(Wrappers.<StaffCategoryRelation>lambdaQuery()
                 .in(StaffCategoryRelation::getId,staffCategoryRelations.stream().map(item->item.getId()).collect(Collectors.toList()))
         ));
@@ -140,7 +136,7 @@ public class StaffCategoryRelationController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(StaffCategoryRelationParam param) {
+    public ApiResponse<Integer> count(StaffCategoryRelationParam param) {
         QueryWrapper<StaffCategoryRelation> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.staffCategoryRelationService.count(wrapper));
     }
@@ -154,7 +150,7 @@ public class StaffCategoryRelationController {
      */
     @PostMapping("/batch/insert")
     @ApiOperation("批量新增/修改")
-    public ApiResponse<StaffCategoryRelation> batchInsert(@RequestBody List<StaffCategoryRelation> entity) {
+    public ApiResponse<Integer> batchInsert(@RequestBody List<StaffCategoryRelation> entity) {
         return ApiResponse.ok(this.staffCategoryRelationService.batchInsertOrUpdate(entity));
     }
 }

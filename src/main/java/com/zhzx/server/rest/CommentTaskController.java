@@ -6,40 +6,32 @@
 
 package com.zhzx.server.rest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhzx.server.domain.Comment;
+import com.zhzx.server.domain.CommentTask;
 import com.zhzx.server.domain.FunctionDepartment;
 import com.zhzx.server.domain.User;
 import com.zhzx.server.dto.CommentTaskDto;
 import com.zhzx.server.enums.CommentProcessSourceEnum;
 import com.zhzx.server.enums.CommentStateEnum;
-import com.zhzx.server.enums.YesNoEnum;
-import com.zhzx.server.service.FunctionDepartmentService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.apache.shiro.SecurityUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.*;
-import com.zhzx.server.rest.res.ApiCode;
-import com.zhzx.server.domain.CommentTask;
 import com.zhzx.server.rest.req.CommentTaskParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.CommentTaskService;
-
+import com.zhzx.server.service.FunctionDepartmentService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.SecurityUtils;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -102,7 +94,7 @@ public class CommentTaskController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.commentTaskService.removeById(id));
     }
 
@@ -181,7 +173,7 @@ public class CommentTaskController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(CommentTaskParam param) {
+    public ApiResponse<Integer> count(CommentTaskParam param) {
         QueryWrapper<CommentTask> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.commentTaskService.count(wrapper));
     }
@@ -207,8 +199,9 @@ public class CommentTaskController {
         List<FunctionDepartment> functionDepartment = functionDepartmentService.list(Wrappers.<FunctionDepartment>lambdaQuery()
                 .eq(FunctionDepartment::getPrincipalId,user.getId())
         );
+        if(CollectionUtils.isEmpty(functionDepartment)) return ApiResponse.ok(new Page<>(pageNum, pageSize));
+
         IPage<CommentTask> page = new Page<>(pageNum, pageSize);
-        if(CollectionUtils.isEmpty(functionDepartment)) return ApiResponse.ok(page);
         QueryWrapper<CommentTask> wrapper = new QueryWrapper<>();
         wrapper.ge(param.getCreateTimeFrom() != null, "t.create_time", param.getCreateTimeFrom());
         wrapper.lt(param.getCreateTimeTo() != null, "t.create_time", param.getCreateTimeTo());

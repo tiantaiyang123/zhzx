@@ -6,27 +6,21 @@
 
 package com.zhzx.server.rest;
 
-import java.util.List;
-import java.util.Arrays;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
-import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.domain.ExamGoalClazz;
 import com.zhzx.server.rest.req.ExamGoalClazzParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.ExamGoalClazzService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -80,7 +74,7 @@ public class ExamGoalClazzController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         this.examGoalClazzService.deleteExamGoalClazz(id);
         return ApiResponse.ok(null);
     }
@@ -93,7 +87,7 @@ public class ExamGoalClazzController {
      */
     @PostMapping("/batch-save")
     @ApiOperation("批量新增")
-    public ApiResponse<Boolean> batchSave(@RequestBody List<ExamGoalClazz> entityList) {
+    public ApiResponse<Integer> batchSave(@RequestBody List<ExamGoalClazz> entityList) {
         entityList.forEach(entity -> {
             entity.setDefault().validate(true);
         });
@@ -160,7 +154,7 @@ public class ExamGoalClazzController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamGoalClazzParam param) {
+    public ApiResponse<Integer> count(ExamGoalClazzParam param) {
         QueryWrapper<ExamGoalClazz> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examGoalClazzService.count(wrapper));
     }

@@ -72,7 +72,7 @@ public class TeacherDutyGradeTotalController {
      */
     @GetMapping("/update/teacher/duty")
     @ApiOperation("年级总值班带班")
-    public ApiResponse<Integer> updateTeacherDuty(@RequestParam(value = "id") Long id) {
+    public ApiResponse<Object> updateTeacherDuty(@RequestParam(value = "id") Long id) {
         return ApiResponse.ok(this.teacherDutyGradeTotalService.updateTeacherDuty(id));
     }
 
@@ -91,7 +91,7 @@ public class TeacherDutyGradeTotalController {
      */
     @PostMapping("/cancel/teacher/duty")
     @ApiOperation("年级总值班取消带班")
-    public ApiResponse<Integer> cancelTeacherDuty(@RequestParam(value = "teacherDutyId") Long teacherDutyId,
+    public ApiResponse<Object> cancelTeacherDuty(@RequestParam(value = "teacherDutyId") Long teacherDutyId,
                                                   @RequestParam(value = "teacherId") Long teacherId) {
         return ApiResponse.ok(this.teacherDutyGradeTotalService.cancelTeacherDuty(teacherDutyId, teacherId));
     }

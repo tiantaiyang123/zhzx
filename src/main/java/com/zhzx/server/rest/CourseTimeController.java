@@ -87,7 +87,7 @@ public class CourseTimeController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.courseTimeService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class CourseTimeController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(CourseTimeParam param) {
+    public ApiResponse<Integer> count(CourseTimeParam param) {
         QueryWrapper<CourseTime> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.courseTimeService.count(wrapper));
     }

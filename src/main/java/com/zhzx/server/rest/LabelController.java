@@ -87,7 +87,7 @@ public class LabelController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.labelService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class LabelController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(LabelParam param) {
+    public ApiResponse<Integer> count(LabelParam param) {
         QueryWrapper<Label> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.labelService.count(wrapper));
     }

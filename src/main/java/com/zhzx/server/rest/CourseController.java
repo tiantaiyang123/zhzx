@@ -7,6 +7,7 @@
 package com.zhzx.server.rest;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -102,7 +103,7 @@ public class CourseController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.courseService.removeById(id));
     }
 
@@ -185,14 +186,14 @@ public class CourseController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(CourseParam param) {
+    public ApiResponse<Integer> count(CourseParam param) {
         QueryWrapper<Course> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.courseService.count(wrapper));
     }
 
     @GetMapping("/list-all")
     @ApiOperation("获得年级课程表")
-    public ApiResponse<List<Map<String, String>>> getList(
+    public ApiResponse<JSONArray> getList(
             @RequestParam(value = "academicYearSemesterId", required = false) Long academicYearSemesterId,
             @RequestParam(value = "gradeId", required = false) Long gradeId,
             @RequestParam(value = "clazzId", required = false) Long clazzId) {
@@ -200,7 +201,7 @@ public class CourseController {
                 .like(Settings::getCode, "COURSE\\_" + academicYearSemesterId + "\\_" + gradeId + "\\_" + clazzId+"\\_")
         );
         if (settings == null)
-            return ApiResponse.ok(new ArrayList<>());
+            return ApiResponse.ok(new JSONArray());
         return ApiResponse.ok(JSON.parseArray(settings.getParams()));
     }
 
@@ -261,7 +262,7 @@ public class CourseController {
 
     @GetMapping("/get/subject/course")
     @ApiOperation("获取备课组课表")
-    public ApiResponse<Map<String,Object>> getSubjectCourse(@RequestParam(value = "academicYearSemesterId",required = false) Long academicYearSemesterId,
+    public ApiResponse<List<Map<String,String>>> getSubjectCourse(@RequestParam(value = "academicYearSemesterId",required = false) Long academicYearSemesterId,
                                                                 @RequestParam(value = "gradeId") Long gradeId,
                                                                 @RequestParam(value = "subjectId") Long subjectId) {
         return ApiResponse.ok(courseService.getListSubject(academicYearSemesterId,gradeId,subjectId));

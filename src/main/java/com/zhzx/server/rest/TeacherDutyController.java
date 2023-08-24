@@ -9,6 +9,7 @@ package com.zhzx.server.rest;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhzx.server.domain.Staff;
 import com.zhzx.server.domain.TeacherDuty;
 import com.zhzx.server.dto.NightDutyClassDto;
 import com.zhzx.server.dto.TeacherServerFormDto;
@@ -96,7 +97,7 @@ public class TeacherDutyController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.teacherDutyService.removeById(id));
     }
 
@@ -175,7 +176,7 @@ public class TeacherDutyController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(TeacherDutyParam param) {
+    public ApiResponse<Integer> count(TeacherDutyParam param) {
         QueryWrapper<TeacherDuty> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.teacherDutyService.count(wrapper));
     }
@@ -235,7 +236,7 @@ public class TeacherDutyController {
      */
     @PostMapping("/update/dutyMode")
     @ApiOperation("修改当天值班模式")
-    public ApiResponse<Page<Map<String,Object>>> updateDutyMode(@RequestBody TeacherServerFormDto teacherServerFormDto) {
+    public ApiResponse<Integer> updateDutyMode(@RequestBody TeacherServerFormDto teacherServerFormDto) {
 
         return ApiResponse.ok(this.teacherDutyService.updateDutyMode(teacherServerFormDto));
     }
@@ -306,7 +307,7 @@ public class TeacherDutyController {
      */
     @GetMapping("/cancel/teacher/list")
     @ApiOperation("值班老师取消值班可选老师列表")
-    public ApiResponse<Integer> cancelTeacherList(@RequestParam Long teacherDutyId) {
+    public ApiResponse<List<Staff>> cancelTeacherList(@RequestParam Long teacherDutyId) {
         return ApiResponse.ok(this.teacherDutyService.cancelTeacherList(teacherDutyId));
     }
 

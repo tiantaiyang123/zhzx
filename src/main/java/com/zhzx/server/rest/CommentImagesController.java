@@ -87,7 +87,7 @@ public class CommentImagesController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.commentImagesService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class CommentImagesController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(CommentImagesParam param) {
+    public ApiResponse<Integer> count(CommentImagesParam param) {
         QueryWrapper<CommentImages> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.commentImagesService.count(wrapper));
     }

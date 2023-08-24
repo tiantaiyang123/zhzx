@@ -173,7 +173,7 @@ public class WxXcxMessageController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(WxXcxMessageParam param) {
+    public ApiResponse<Integer> count(WxXcxMessageParam param) {
         QueryWrapper<WxXcxMessage> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.wxXcxMessageService.count(wrapper));
     }

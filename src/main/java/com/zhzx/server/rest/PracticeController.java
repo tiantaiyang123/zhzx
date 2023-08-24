@@ -6,24 +6,20 @@
 
 package com.zhzx.server.rest;
 
-import java.util.Arrays;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
 import com.zhzx.server.domain.Practice;
 import com.zhzx.server.rest.req.PracticeParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.PracticeService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
 
 @Slf4j
 @RestController
@@ -84,7 +80,7 @@ public class PracticeController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> update(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> update(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.practiceService.removeById(id));
     }
 
@@ -123,7 +119,7 @@ public class PracticeController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(PracticeParam param) {
+    public ApiResponse<Integer> count(PracticeParam param) {
         QueryWrapper<Practice> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.practiceService.count(wrapper));
     }

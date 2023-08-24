@@ -6,36 +6,35 @@
 
 package com.zhzx.server.rest;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhzx.server.domain.Message;
 import com.zhzx.server.domain.StaffMessageRefuse;
 import com.zhzx.server.domain.User;
 import com.zhzx.server.dto.MessageDto;
 import com.zhzx.server.enums.YesNoEnum;
-import com.zhzx.server.repository.StaffMessageRefuseMapper;
+import com.zhzx.server.rest.req.MessageParam;
 import com.zhzx.server.rest.res.ApiCode;
+import com.zhzx.server.rest.res.ApiResponse;
+import com.zhzx.server.service.MessageService;
 import com.zhzx.server.service.StaffMessageRefuseService;
 import com.zhzx.server.util.JWTUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
-import com.zhzx.server.domain.Message;
-import com.zhzx.server.rest.req.MessageParam;
-import com.zhzx.server.rest.res.ApiResponse;
-import com.zhzx.server.service.MessageService;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -97,7 +96,7 @@ public class MessageController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> update(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.messageService.removeById(id));
     }
 
@@ -155,7 +154,7 @@ public class MessageController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(MessageParam param) {
+    public ApiResponse<Integer> count(MessageParam param) {
         QueryWrapper<Message> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.messageService.count(wrapper));
     }
@@ -168,7 +167,7 @@ public class MessageController {
      */
     @PostMapping("/parent/update/message")
     @ApiOperation("家长填写message")
-    public ApiResponse<Long> parentUpdate(@RequestBody MessageDto messageDto) {
+    public ApiResponse<Boolean> parentUpdate(@RequestBody MessageDto messageDto) {
         String username = JWTUtils.getUsername(messageDto.getToken());
         if (!JWTUtils.verify(messageDto.getToken(), username, "password_zhzx")) {
             throw new ApiCode.ApiException(-5,"Invalid auth token!");
@@ -191,7 +190,7 @@ public class MessageController {
      */
     @PostMapping("/parent/get/message")
     @ApiOperation("家长获取message")
-    public ApiResponse<Long> parentRead(@RequestBody MessageDto messageDto) {
+    public ApiResponse<Message> parentRead(@RequestBody MessageDto messageDto) {
         String username = JWTUtils.getUsername(messageDto.getToken());
         if (!JWTUtils.verify(messageDto.getToken(), username, "password_zhzx")) {
             throw new ApiCode.ApiException(-5,"Invalid auth token!");
@@ -205,7 +204,7 @@ public class MessageController {
 
     @PostMapping("/read/message")
     @ApiOperation("站内已读消息")
-    public ApiResponse<Long> readMessage(@RequestBody MessageDto messageDto) {
+    public ApiResponse<Boolean> readMessage(@RequestBody MessageDto messageDto) {
         return ApiResponse.ok(this.messageService.update(Wrappers.<Message>lambdaUpdate()
                 .set(Message::getIsRead, YesNoEnum.YES)
                 .eq(Message::getId, messageDto.getId())

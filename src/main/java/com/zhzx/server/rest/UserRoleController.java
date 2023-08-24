@@ -87,7 +87,7 @@ public class UserRoleController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.userRoleService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class UserRoleController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(UserRoleParam param) {
+    public ApiResponse<Integer> count(UserRoleParam param) {
         QueryWrapper<UserRole> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.userRoleService.count(wrapper));
     }

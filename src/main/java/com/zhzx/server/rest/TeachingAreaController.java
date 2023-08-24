@@ -90,7 +90,7 @@ public class TeachingAreaController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.teachingAreaService.removeById(id));
     }
 
@@ -169,7 +169,7 @@ public class TeachingAreaController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(TeachingAreaParam param) {
+    public ApiResponse<Integer> count(TeachingAreaParam param) {
         QueryWrapper<TeachingArea> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.teachingAreaService.count(wrapper));
     }

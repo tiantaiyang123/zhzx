@@ -84,7 +84,7 @@ public class BreakfastController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.breakfastService.removeById(id));
     }
 
@@ -163,7 +163,7 @@ public class BreakfastController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(BreakfastParam param) {
+    public ApiResponse<Integer> count(BreakfastParam param) {
         QueryWrapper<Breakfast> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.breakfastService.count(wrapper));
     }

@@ -6,29 +6,22 @@
 
 package com.zhzx.server.rest;
 
-import java.util.List;
-import java.util.Arrays;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zhzx.server.dto.NightDutyClassDto;
-import com.zhzx.server.dto.NightStudyDutyClazzDto;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
-import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.domain.TeacherDutyClazz;
+import com.zhzx.server.dto.NightDutyClassDto;
 import com.zhzx.server.rest.req.TeacherDutyClazzParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.TeacherDutyClazzService;
-
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -89,7 +82,7 @@ public class TeacherDutyClazzController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.teacherDutyClazzService.removeById(id));
     }
 
@@ -168,7 +161,7 @@ public class TeacherDutyClazzController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(TeacherDutyClazzParam param) {
+    public ApiResponse<Integer> count(TeacherDutyClazzParam param) {
         QueryWrapper<TeacherDutyClazz> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.teacherDutyClazzService.count(wrapper));
     }
@@ -181,7 +174,7 @@ public class TeacherDutyClazzController {
      */
     @PostMapping("/app/update/student/num")
     @ApiOperation("教师app修改应到实到人数")
-    public ApiResponse<Long> updateStudentNum(@RequestBody NightDutyClassDto nightDutyClassDto) {
+    public ApiResponse<Integer> updateStudentNum(@RequestBody NightDutyClassDto nightDutyClassDto) {
         return ApiResponse.ok(this.teacherDutyClazzService.updateStudentNum(nightDutyClassDto));
     }
 }

@@ -95,7 +95,7 @@ public class StudentParentController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         try {
             StudentParent studentParent = new StudentParent();
             studentParent.setId(id);
@@ -181,7 +181,7 @@ public class StudentParentController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(StudentParentParam param) {
+    public ApiResponse<Integer> count(StudentParentParam param) {
         QueryWrapper<StudentParent> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.studentParentService.count(wrapper));
     }

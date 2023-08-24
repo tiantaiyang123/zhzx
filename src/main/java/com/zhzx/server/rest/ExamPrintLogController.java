@@ -87,7 +87,7 @@ public class ExamPrintLogController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.examPrintLogService.removeById(id));
     }
 
@@ -166,7 +166,7 @@ public class ExamPrintLogController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(ExamPrintLogParam param) {
+    public ApiResponse<Integer> count(ExamPrintLogParam param) {
         QueryWrapper<ExamPrintLog> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.examPrintLogService.count(wrapper));
     }

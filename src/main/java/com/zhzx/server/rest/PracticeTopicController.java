@@ -95,7 +95,7 @@ public class PracticeTopicController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> update(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.practiceTopicService.removeById(id));
     }
 
@@ -241,7 +241,7 @@ public class PracticeTopicController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(PracticeTopicParam param) {
+    public ApiResponse<Integer> count(PracticeTopicParam param) {
         QueryWrapper<PracticeTopic> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.practiceTopicService.count(wrapper));
     }

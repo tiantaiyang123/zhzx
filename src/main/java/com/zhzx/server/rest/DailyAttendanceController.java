@@ -152,7 +152,7 @@ public class DailyAttendanceController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
-    public ApiResponse<Integer> delete(@PathVariable("id") Long id) {
+    public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
         return ApiResponse.ok(this.dailyAttendanceService.removeById(id));
     }
 
@@ -244,7 +244,7 @@ public class DailyAttendanceController {
      */
     @GetMapping("/count")
     @ApiOperation("count查询")
-    public ApiResponse<Long> count(DailyAttendanceParam param) {
+    public ApiResponse<Integer> count(DailyAttendanceParam param) {
         QueryWrapper<DailyAttendance> wrapper = param.toQueryWrapper();
         return ApiResponse.ok(this.dailyAttendanceService.count(wrapper));
     }
