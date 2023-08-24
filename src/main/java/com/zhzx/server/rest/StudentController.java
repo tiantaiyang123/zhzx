@@ -25,11 +25,18 @@ import com.zhzx.server.vo.StudentParamVo;
 import com.zhzx.server.vo.StudentVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -232,6 +239,34 @@ public class StudentController {
             @RequestParam(value = "fileUrl") String fileUrl) {
         this.studentService.importExcel(schoolyardId, academicYearSemesterId, gradeId, fileUrl);
         return ApiResponse.ok(null);
+    }
+
+    @GetMapping("/export-excel")
+    @ApiOperation("导出excel")
+    @SneakyThrows
+    public void exportExcel(
+            StudentParamVo param,
+            HttpServletResponse response, HttpServletRequest request) {
+        XSSFWorkbook book = this.studentService.exportExcel(param);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fileName = "学生表(" + sdf.format(new Date()) + ").xlsx";
+        //获取浏览器使用的编码
+        String encoding = request.getCharacterEncoding();
+        if (encoding != null && encoding.length() > 0) {
+            fileName = URLEncoder.encode(fileName, encoding);
+        } else {
+            //默认编码是utf-8
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+        }
+        response.reset();
+        response.setCharacterEncoding(encoding);
+        response.setContentType("application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+        OutputStream out = response.getOutputStream();
+        book.write(out);
+        out.flush();
+        out.close();
+        book.close();
     }
 
     /**

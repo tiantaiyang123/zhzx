@@ -11,6 +11,8 @@ package com.zhzx.server.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.zhzx.server.domain.*;
@@ -26,9 +28,13 @@ import com.zhzx.server.util.StringUtils;
 import com.zhzx.server.vo.StudentInfoVo;
 import com.zhzx.server.vo.StudentParamVo;
 import com.zhzx.server.vo.StudentVo;
+import lombok.SneakyThrows;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,9 +42,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> implements StudentService {
@@ -186,6 +194,83 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Override
     public List<Student> listByClazzStudent(Long clazzId, Long academicYearSemesterId, String studentName) {
         return this.baseMapper.listByClazzStudent(clazzId, academicYearSemesterId, studentName);
+    }
+
+    @Override
+    @SneakyThrows
+    public XSSFWorkbook exportExcel(StudentParamVo param) {
+        InputStream is = getClass().getResourceAsStream("/static/templates/学生导入模板.xlsx");
+        XSSFWorkbook book = new XSSFWorkbook(is);
+
+        IPage<StudentInfoVo> studentInfoVoIPage = this.selectInfoByPage(new Page<>(1, 9999), param);
+        List<StudentInfoVo> studentInfoVoList = studentInfoVoIPage.getRecords();
+        if (CollectionUtils.isNotEmpty(studentInfoVoList)) {
+            XSSFCellStyle style = book.createCellStyle();
+            style.setBorderLeft(BorderStyle.THIN);
+            style.setBorderTop(BorderStyle.THIN);
+            style.setBorderRight(BorderStyle.THIN);
+            style.setBorderBottom(BorderStyle.THIN);
+            style.setAlignment(HorizontalAlignment.CENTER);
+            style.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            Map<String, List<StudentInfoVo>> map = studentInfoVoList.stream()
+                    .filter(t -> !StringUtils.isNullOrEmpty(t.getClazzName()))
+                    .collect(Collectors.groupingBy(t -> t.getClazzName().substring(0, 2)));
+
+            for (Map.Entry<String, List<StudentInfoVo>> mesl : map.entrySet()) {
+                XSSFSheet sheet = book.getSheet(mesl.getKey() + "年级");
+                XSSFRow row;
+                XSSFCell cell;
+
+                List<StudentInfoVo> studentInfoVos = mesl.getValue();
+                for (int i = 1; i <= studentInfoVos.size(); ++i) {
+                    StudentInfoVo studentInfoVo = studentInfoVos.get(i - 1);
+                    row = sheet.createRow(i);
+
+                    cell = row.createCell(0, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getClazzName().replace(mesl.getKey(), ""));
+
+                    cell = row.createCell(1, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getStudentNumber());
+
+                    cell = row.createCell(2, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getIdNumber());
+
+                    cell = row.createCell(3, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getOrderNumber());
+
+                    cell = row.createCell(4, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getCardNumber());
+
+                    cell = row.createCell(5, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getName());
+
+                    cell = row.createCell(6, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getGender().getName());
+
+                    cell = row.createCell(7, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getNationality());
+
+                    cell = row.createCell(8, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getStudentType().getName());
+
+                    cell = row.createCell(9, CellType.STRING);
+                    cell.setCellStyle(style);
+                    cell.setCellValue(studentInfoVo.getAdmissionWay());
+                }
+            }
+        }
+
+        return book;
     }
 
     @Transactional(rollbackFor = Exception.class)

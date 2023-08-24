@@ -272,6 +272,9 @@
                 <if test="param.clazzId!=null">
                     AND ssc.clazz_id=#{param.clazzId}
                 </if>
+                <if test="param.gradeId!=null">
+                    AND ssc.clazz_id in (select id from sys_clazz where grade_id=#{gradeId} and academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1))
+                </if>
                 <if test="param.clazzName!=null">
                     AND replace(concat(sg.name, sc.name), '年级', '') like CONCAT('%', #{param.clazzName}, '%')
                 </if>

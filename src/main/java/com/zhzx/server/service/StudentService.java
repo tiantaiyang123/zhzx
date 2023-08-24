@@ -16,6 +16,7 @@ import com.zhzx.server.enums.StudentTypeEnum;
 import com.zhzx.server.vo.StudentInfoVo;
 import com.zhzx.server.vo.StudentParamVo;
 import com.zhzx.server.vo.StudentVo;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.List;
 import java.util.Map;
@@ -47,4 +48,6 @@ public interface StudentService extends IService<Student> {
     IPage<StudentInfoVo> selectInfoByPage(IPage<StudentInfoVo> page, StudentParamVo param);
 
     List<Student> listByClazzStudent(Long clazzId, Long academicYearSemesterId, String studentName);
+
+    XSSFWorkbook exportExcel(StudentParamVo param);
 }

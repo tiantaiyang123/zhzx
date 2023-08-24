@@ -1,7 +1,6 @@
 package com.zhzx.server.vo;
 
 import com.zhzx.server.enums.StudentTypeEnum;
-import com.zhzx.server.rest.req.StudentParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -65,4 +64,9 @@ public class StudentParamVo implements Serializable {
      */
     @ApiModelProperty(value = "宿舍")
     private String bedName;
+    /**
+     * 年级ID
+     */
+    @ApiModelProperty(value = "年级ID")
+    private Long gradeId;
 }
