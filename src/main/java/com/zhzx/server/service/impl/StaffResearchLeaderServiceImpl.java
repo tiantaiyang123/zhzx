@@ -49,13 +49,14 @@ public class StaffResearchLeaderServiceImpl extends ServiceImpl<StaffResearchLea
     @Override
     @Transactional(rollbackFor = Exception.class)
     public StaffResearchLeader addWithRole(StaffResearchLeader entity) {
-        this.baseMapper.insert(entity);
-
         Role role = this.roleMapper.selectOne(new QueryWrapper<Role>().eq("name", "ROLE_JIAOYANZUZHANG"));
         if (null == role) {
             throw new ApiCode.ApiException(-1, "缺少教研组长角色");
         }
-        User user = this.userMapper.selectById(
+
+        this.baseMapper.insert(entity);
+
+        User user = this.userMapper.selectOne(
                 Wrappers.<User>lambdaQuery()
                         .select(User::getId)
                         .eq(User::getStaffId, entity.getStaffId())
