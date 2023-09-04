@@ -168,12 +168,14 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
         int padding = 2;
         // 值班老师人名自适应为5个字
+        // 总值班分校区显示，字数稍长
+        int columnWithLarge = this.getStringWidthHeight("综治办半半综治办半半半半半半")[0];
         int columnWidth = this.getStringWidthHeight("综治办半半")[0];
         int rowHeight = this.getStringWidthHeight("综治办半半")[1];
         int rowHeightDay = rowHeight * 2 + padding * 3;
         int rowHeightOther = rowHeight + padding * 3 / 2;
         int ascent = this.getStringWidthHeight("综治办半半")[2];
-        int imageWidth = 80 + 80  + (clazzList.size() + 1) * (columnWidth + padding * 3) * 2;
+        int imageWidth = 80 + 80  + (2 * clazzList.size() + 1) * (columnWidth + padding * 3) + (columnWithLarge + padding * 3);
         int imageHeight = rowHeightDay + rowHeightOther * gradeList.size();
         BufferedImage image = new BufferedImage(imageWidth + 20, imageHeight + 20, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = (Graphics2D) image.getGraphics();
@@ -182,6 +184,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         graphics.setFont(imageFont);
         graphics.fillRect(0, 0, imageWidth + 20, imageHeight + 20);
         graphics.setColor(Color.black);
+
         graphics.drawRect(10, 10, imageWidth, imageHeight);
         graphics.drawLine(10, 10 + rowHeightDay, 10 + imageWidth, 10 + rowHeightDay);
         graphics.drawLine(90 + 80, 10 + rowHeightOther, 90 + 80 + (columnWidth + 3 * padding) * clazzList.size() * 2, 10 + rowHeightOther);
@@ -209,7 +212,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 graphics.drawString("年级", x + (columnWidth + 3 * padding - this.getStringWidthHeight("年级")[0]) / 2, 10 + ascent + middle);
                 x += columnWidth + padding * 3;
                 graphics.drawLine(x, 10, x, 10 + imageHeight);
-                graphics.drawString("总值班", x + (columnWidth + 3 * padding - this.getStringWidthHeight("总值班")[0]) / 2, 10 + ascent + middle);
+                graphics.drawString("总值班", x + (columnWithLarge + 3 * padding - this.getStringWidthHeight("总值班")[0]) / 2, 10 + ascent + middle);
             }
         }
 
@@ -217,6 +220,9 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
         int y = rowHeightDay + 10;
         for (TeacherServerFormDto teacherServerFormDto : gradeList) {
+            if (CollectionUtils.isEmpty(teacherServerFormDto.getClazzVoList())) {
+                teacherServerFormDto.setClazzVoList(new ArrayList<>());
+            }
             teacherServerFormDto.getClazzVoList().sort(Comparator.comparing(o -> Integer.parseInt(o.getName().replace("班", "")), Comparator.naturalOrder()));
             // 日期
             String time = DateUtils.format(teacherServerFormDto.getTime(), "MM-dd");
@@ -239,7 +245,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             graphics.drawString(g, xx + (columnWidth + 3 * padding - this.getStringWidthHeight(g)[0]) / 2, y + ascent + padding);
             xx += columnWidth + padding * 3;
             g = teacherServerFormDto.getTotalDutyTeacher() == null ? "" : teacherServerFormDto.getTotalDutyTeacher();
-            graphics.drawString(g, xx + (columnWidth + 3 * padding - this.getStringWidthHeight(g)[0]) / 2, y + ascent + padding);
+            graphics.drawString(g, xx + (columnWithLarge + 3 * padding - this.getStringWidthHeight(g)[0]) / 2, y + ascent + padding);
             graphics.drawLine(10, y, 10 + imageWidth, y);
             y += rowHeightOther;
         }
