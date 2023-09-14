@@ -43,14 +43,6 @@ public class ControllerAspect {
         return result;
     }
 
-//    @AfterReturning(value = "aspect()")
-//    public void validationAfterPoint(JoinPoint  pjp) throws Throwable {
-//        Method method = currentMethod(pjp, pjp.getSignature().getName());
-//        //是否需要记录日志
-//        if (method.isAnnotationPresent(MessageInfo.class)) {
-//            new MessageInfoAspect().handle(pjp, method);
-//        }
-//    }
     /**
      * 获取目标类的所有方法，找到当前要执行的方法
      */

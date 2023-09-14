@@ -9,6 +9,7 @@ package com.zhzx.server.misc.shiro;
 import com.zhzx.server.domain.Authority;
 import com.zhzx.server.domain.Role;
 import com.zhzx.server.domain.User;
+import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.service.AuthorityService;
 import com.zhzx.server.service.UserService;
 import com.zhzx.server.util.JWTUtils;
@@ -77,8 +78,7 @@ public class ShiroRealm extends AuthorizingRealm {
         if (username == null) {
             throw new AuthenticationException("Invalid auth token!");
         }
-
-        User user = userService.selectByUsername(username);
+        User user = userService.selectByUsername(username, YesNoEnum.YES);
         if (user == null) {
             throw new AuthenticationException("User does not exist!");
         }

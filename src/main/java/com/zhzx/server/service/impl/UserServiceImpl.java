@@ -16,7 +16,10 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
+import com.google.common.eventbus.AsyncEventBus;
+import com.zhzx.server.bus.CacheFlushMessage;
 import com.zhzx.server.config.TokenCacheConfig;
+import com.zhzx.server.constants.RedisConstants;
 import com.zhzx.server.domain.*;
 import com.zhzx.server.dto.wx.TokenDto;
 import com.zhzx.server.enums.FunctionEnum;
@@ -30,6 +33,7 @@ import com.zhzx.server.service.AcademicYearSemesterService;
 import com.zhzx.server.service.UserService;
 import com.zhzx.server.service.WxSendMessageService;
 import com.zhzx.server.util.NameToPinyin;
+import com.zhzx.server.util.RedisUtil;
 import com.zhzx.server.util.StringUtils;
 import com.zhzx.server.util.TreeUtils;
 import com.zhzx.server.vo.AuthorityVo;
@@ -77,6 +81,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private StaffGradeLeaderMapper staffGradeLeaderMapper;
     @Resource
     private StaffLessonLeaderMapper staffLessonLeaderMapper;
+    @Resource
+    private AsyncEventBus asyncEventBus;
+    @Resource
+    private RedisUtil redisUtil;
     @Resource
     private ExamMapper examMapper;
     @Value("${wx.appId}")
@@ -270,7 +278,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private String env;
 
     @Override
-    public User selectByUsername(String username) {
+    public User selectByUsername(String username, YesNoEnum ... fromCache) {
+        // get from redis
+        String redisKey = RedisConstants.USER_CACHE_PREFIX + username;
+        User userRedis;
+        if (null != fromCache && fromCache.length > 0 && ((userRedis = (User) redisUtil.get(redisKey)) != null)) {
+            // 单独设置一下密码
+            userRedis.setPassword(this.baseMapper.selectPasswordByUsername(username));
+            return userRedis;
+        }
+
         User user = this.getBaseMapper().selectOne(Wrappers.<User>query().eq("username", username).or().eq("login_number", username));
         if (user != null) {
             if (user.getStudent() != null) {
@@ -378,7 +395,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 }
             }
             user.setCardId(cardId);
+            // bus to redis
+            CacheFlushMessage cacheFlushMessage = new CacheFlushMessage()
+                    .setOpType("PUT").setObject(user)
+                    .setKey(user.getUsername()).setKeyPrefix(RedisConstants.USER_CACHE_PREFIX)
+                    .setExpires((long) (10 * 60));
+            asyncEventBus.post(cacheFlushMessage);
         }
+
         return user;
     }
 
@@ -458,11 +482,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public UserVo wxLogin(String code,String agentid) {
-//        String tokenUrl = String.format("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s",appId,secret);
-//        JSONObject tokenJson = restTemplate.getForEntity(tokenUrl, JSONObject.class).getBody();
-//        if(!tokenJson.get("errcode").toString().equals("0")){
-//            throw new ApiCode.ApiException(-5,tokenJson.get("errmsg").toString());
-//        }
         String secret = null;
         switch (agentid){
             case "1000047": secret = zhibanSecret; break;

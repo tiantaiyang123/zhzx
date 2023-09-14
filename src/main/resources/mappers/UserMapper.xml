@@ -13,4 +13,8 @@
     <select id="selectPage" resultMap="com.zhzx.server.repository.base.UserBaseMapper.ResultMap">
         select * from sys_user ${ew.customSqlSegment}
     </select>
+
+    <select id="selectPasswordByUsername" resultType="String">
+        select `password` from sys_user where username=#{username} or login_number=#{username}
+    </select>
 </mapper>

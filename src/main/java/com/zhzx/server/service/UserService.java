@@ -70,7 +70,7 @@ public interface UserService extends IService<User> {
      * @param username
      * @return
      */
-    User selectByUsername(String username);
+    User selectByUsername(String username, YesNoEnum ... fromCache);
 
     void updateIsDelete(Long id);
 
