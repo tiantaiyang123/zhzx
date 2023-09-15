@@ -605,7 +605,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         String code = StringUtils.getRandomNum(6);
-        log.info("验证码："+code);
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("【南京市中华中学】登录验证码：");
         stringBuilder.append(code);

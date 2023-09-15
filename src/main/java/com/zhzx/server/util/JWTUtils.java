@@ -75,7 +75,6 @@ public class JWTUtils {
         Calendar cal = Calendar.getInstance(Locale.getDefault());
         cal.add(Calendar.DAY_OF_MONTH, 30);
         Date date = cal.getTime();
-        log.info("sign ExpiresAt = {}", date);
         Algorithm algorithm = Algorithm.HMAC256(password);
         return JWT.create()
                 .withClaim("username", username)
