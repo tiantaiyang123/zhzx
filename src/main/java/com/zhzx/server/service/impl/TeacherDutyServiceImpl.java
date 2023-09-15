@@ -497,10 +497,21 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                         TeacherDutyModeEnum dutyModeGradeTeacher = null, dutyModeTotalTeacher = null;
 
                         if (typeDutyMap.containsKey(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY)) {
-                            TeacherDutyDto dutyGradeTeacher = typeDutyMap.get(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY).get(0);
-                            teacherServerFormDto.setGradeDutyTeacher(dutyGradeTeacher.getTeacher().getName());
-                            teacherServerFormDto.setGradeDutyTeacherYard(teacherServerFormDto.getGradeDutyTeacher().concat("(兴隆)"));
-                            dutyModeGradeTeacher = dutyGradeTeacher.getDutyMode();
+                            // 年纪值班按兴隆校区统计
+                            List<TeacherDutyDto> dutyGradeTeachers = typeDutyMap.get(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY);
+                            dutyGradeTeachers = dutyGradeTeachers.stream()
+                                    .filter(t -> t.getSchoolyardId().equals(1L) && t.getTeacherDutyClazzList().get(0).getGradeName().equals(k))
+                                    .collect(Collectors.toList());
+                            if (CollectionUtils.isNotEmpty(dutyGradeTeachers)) {
+                                TeacherDutyDto dutyGradeTeacher = dutyGradeTeachers.get(0);
+                                teacherServerFormDto.setGradeDutyTeacher(dutyGradeTeacher.getTeacher().getName());
+                                teacherServerFormDto.setGradeDutyTeacherYard(teacherServerFormDto.getGradeDutyTeacher().concat("(兴隆)"));
+                                dutyModeGradeTeacher = dutyGradeTeacher.getDutyMode();
+                            } else {
+                                teacherServerFormDto.setGradeDutyTeacher("");
+                                teacherServerFormDto.setGradeDutyTeacherYard("");
+                                dutyModeGradeTeacher = TeacherDutyModeEnum.NORMAL;
+                            }
                         }
 
                         // 总值班分校区
