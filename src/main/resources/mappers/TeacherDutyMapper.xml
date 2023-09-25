@@ -3,7 +3,7 @@
 <mapper namespace="com.zhzx.server.repository.TeacherDutyMapper">
     <resultMap id="TeacherNightRoutineResultMap" type="com.zhzx.server.dto.TeacherDutyDto" extends="com.zhzx.server.repository.base.TeacherDutyBaseMapper.BaseResultMap">
         <association column="teacher_id" property="teacher" javaType="com.zhzx.server.domain.Staff"
-                     select="com.zhzx.server.repository.StaffMapper.selectById" />
+                     select="com.zhzx.server.repository.StaffMapper.selectByIdSimple" />
         <collection property="teacherDutyClazzList" columnPrefix="sc_"  resultMap="TeacherNightRoutineResultMap_class">
             <constructor>
                 <arg column="teacherDutyClazzList"/>
@@ -12,8 +12,8 @@
     </resultMap>
 
     <resultMap id="TeacherNightRoutineResultMap_class" type="com.zhzx.server.dto.NightDutyClassDto" >
+        <id column="teacherDutyClassId" jdbcType="BIGINT" property="teacherDutyClassId" />
         <result column="nightStudyId" jdbcType="BIGINT" property="nightStudyId" />
-        <result column="teacherDutyClassId" jdbcType="BIGINT" property="teacherDutyClassId" />
         <result column="is_comfirm" jdbcType="BIGINT" property="isConfirm" />
         <result column="gradeName" jdbcType="VARCHAR" property="gradeName" />
         <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName" />
@@ -371,12 +371,12 @@
         left join day_teacher_duty_clazz dtdc on dtd.id = dtdc.teacher_duty_id
         left join sys_clazz sc on dtdc.clazz_id = sc.id
         left join sys_grade sg on sc.grade_id = sg.id
-        where 1=1
+        where 1=1 and dtdc.teacher_duty_id is not null
         <if test="startTime !=null">
-            and to_days(dtd.start_time) <![CDATA[ >= ]]> to_days(#{startTime})
+            and dtd.start_time <![CDATA[ >= ]]> #{startTime}
         </if>
         <if test="endTime != null">
-            and to_days(dtd.start_time) <![CDATA[ <= ]]> to_days(#{endTime})
+            and dtd.start_time <![CDATA[ <= ]]> #{endTime}
         </if>
         <if test="schoolyardId != null">
             and dtd.schoolyard_id=#{schoolyardId}

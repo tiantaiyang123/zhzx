@@ -5,6 +5,10 @@
     <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.ResultMap">
         select * from sys_staff where id = #{id}
     </select>
+    <!-- 返回简易的职工信息 -->
+    <select id="selectByIdSimple" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.BaseResultMap">
+        select * from sys_staff where id = #{id}
+    </select>
     <!-- 根据Wrapper查询 -->
     <select id="selectOne" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.ResultMap">
         select * from sys_staff ${ew.customSqlSegment} LIMIT 1

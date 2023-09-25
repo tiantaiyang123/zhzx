@@ -32,6 +32,7 @@ import com.zhzx.server.util.DateUtils;
 import com.zhzx.server.util.StringUtils;
 import com.zhzx.server.vo.ClazzVo;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -59,6 +60,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, TeacherDuty> implements TeacherDutyService {
     @Value("${web.upload-path}")
     private String uploadPath;
@@ -453,12 +455,11 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                         .eq(Clazz::getAcademicYearSemesterId, academicYearSemester.getId())
         );
 
-        List<TeacherDutyDto> teacherDutyList = this.baseMapper.selectListWithClazz(schoolyardId, gradeId, dateList.get(0), dateList.get(dateList.size() - 1));
+        List<TeacherDutyDto> teacherDutyList = this.baseMapper.selectListWithClazz(schoolyardId, gradeId, timeFrom, timeTo);
         teacherDutyList = teacherDutyList
                 .stream()
                 .filter(t -> TeacherDutyTypeEnum.TOTAL_DUTY.equals(t.getDutyType()) || CollectionUtils.isNotEmpty(t.getTeacherDutyClazzList()))
                 .collect(Collectors.toList());
-
 
         List<Map<String,Object>> formList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(teacherDutyList)) {
