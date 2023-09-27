@@ -1,3 +1,20 @@
+drop table if exists `day_campus_overview_holiday`;
+create table `day_campus_overview_holiday`
+(
+    id int(11) auto_increment not null comment 'ID系统自动生成',
+    schoolyard_id int(11) not null default 1 comment '校区ID sys_schoolyard.id',
+    leader_duty_id int(11) not null comment '领导值班ID day_leader_duty.id',
+    basic_info varchar(255) not null comment '校园基本情况',
+    phone_and_visit_info varchar(255) null comment '来电来访',
+    contingency_and_handle_info varchar(255) null comment '偶发事件及处置情况',
+    problem_and_advice_info varchar(255) null comment '问题与建议',
+    create_time datetime not null default CURRENT_TIMESTAMP,
+    update_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    primary key (`id`)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='假期校园概况表';
+create index ix_leader_duty_id on `day_campus_overview_holiday` (leader_duty_id);
+
+
 drop table if exists `sys_application_app`;
 create table `sys_application_app`
 (

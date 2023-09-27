@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.CampusOverviewHolidayBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.CampusOverviewHoliday">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="schoolyard_id" jdbcType="BIGINT" property="schoolyardId" />
+        <result column="leader_duty_id" jdbcType="BIGINT" property="leaderDutyId" />
+        <result column="basic_info" jdbcType="VARCHAR" property="basicInfo" />
+        <result column="phone_and_visit_info" jdbcType="VARCHAR" property="phoneAndVisitInfo" />
+        <result column="contingency_and_handle_info" jdbcType="VARCHAR" property="contingencyAndHandleInfo" />
+        <result column="problem_and_advice_info" jdbcType="VARCHAR" property="problemAndAdviceInfo" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.CampusOverviewHoliday" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, schoolyard_id, leader_duty_id, basic_info, phone_and_visit_info, contingency_and_handle_info, problem_and_advice_info, create_time, update_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.schoolyard_id, t.leader_duty_id, t.basic_info, t.phone_and_visit_info, t.contingency_and_handle_info, t.problem_and_advice_info, t.create_time, t.update_time
+    </sql>
+    <insert id="batchInsert">
+        insert into day_campus_overview_holiday (
+            schoolyard_id, leader_duty_id, basic_info, phone_and_visit_info, contingency_and_handle_info, problem_and_advice_info
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.schoolyardId, jdbcType=BIGINT}, #{record.leaderDutyId, jdbcType=BIGINT}, #{record.basicInfo, jdbcType=VARCHAR}, #{record.phoneAndVisitInfo, jdbcType=VARCHAR}, #{record.contingencyAndHandleInfo, jdbcType=VARCHAR}, #{record.problemAndAdviceInfo, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.CampusOverviewHoliday">
+        update day_campus_overview_holiday set
+        <trim suffixOverrides=",">
+            schoolyard_id = #{et.schoolyardId, jdbcType=BIGINT},
+            leader_duty_id = #{et.leaderDutyId, jdbcType=BIGINT},
+            basic_info = #{et.basicInfo, jdbcType=VARCHAR},
+            phone_and_visit_info = #{et.phoneAndVisitInfo, jdbcType=VARCHAR},
+            contingency_and_handle_info = #{et.contingencyAndHandleInfo, jdbcType=VARCHAR},
+            problem_and_advice_info = #{et.problemAndAdviceInfo, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>

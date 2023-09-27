@@ -478,6 +478,11 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
                 formMap.put("gradeName", k);
 
+                List<String> startEndTimeList = this.courseTimeMapper.getNightDutyTime(
+                        new ArrayList<Long>(){{this.add(v.get(0).getGradeId());}}
+                );
+                formMap.put("startEndTimeList", startEndTimeList);
+
                 List<Map<String,Object>> headerList = v.stream().map(t -> {
                     Map<String, Object> map = new HashMap<>(4);
                     map.put("name", t.getName());
@@ -710,24 +715,32 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     continue;
                 }
 
+                // 一、二阶段开始结束时间
+                Date stageOneStart = sdf.parse(dateCell+" "+stageOneStartTime);
+                Date stageOneEnd = sdf.parse(dateCell+" "+stageOneEndTime);
+                Date stageTwoStart = sdf.parse(dateCell+" "+stageTwoStartTime);
+                Date stageTwoEnd = sdf.parse(dateCell+" "+stageTwoEndTime);
+
                 // 本行是否全为空
                 boolean hasValue = false;
 
                 Map<String,List<NightDutyClassDto>> teacherDutyClazzMap = new HashMap<>();
                 Map<String,TeacherDuty> teacherDutyDtoMap = new HashMap<>();
+                Set<String> teacherStageOneSet = new HashSet<>();
 
                 StringBuilder child = new StringBuilder();
+                StringBuilder childDuplicate = new StringBuilder();
                 for (int columnIndex = 1; columnIndex < columnNum - 3; columnIndex = columnIndex + 1) {
                     teacherDuty = new TeacherDuty();
                     teacherDuty.setSchoolyardId(schoolyardId);
                     if(columnIndex > stage){
                         teacherDuty.setDutyType(TeacherDutyTypeEnum.STAGE_TWO);
-                        teacherDuty.setStartTime(sdf.parse(dateCell+" "+stageTwoStartTime));
-                        teacherDuty.setEndTime(sdf.parse(dateCell+" "+stageTwoEndTime));
+                        teacherDuty.setStartTime(stageTwoStart);
+                        teacherDuty.setEndTime(stageTwoEnd);
                     }else{
                         teacherDuty.setDutyType(TeacherDutyTypeEnum.STAGE_ONE);
-                        teacherDuty.setStartTime(sdf.parse(dateCell+" "+stageOneStartTime));
-                        teacherDuty.setEndTime(sdf.parse(dateCell+" "+stageOneEndTime));
+                        teacherDuty.setStartTime(stageOneStart);
+                        teacherDuty.setEndTime(stageOneEnd);
                     }
                     XSSFCell cell = sheet.getRow(rowIndex).getCell(columnIndex);
                     String cellValue = "";
@@ -741,7 +754,9 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     String dateCellOffset = CellUtils.getCellValue(sheet.getRow(1).getCell(columnIndex)).replace("班", "");
                     Long offset = Long.parseLong(dateCellOffset);
 
-                    if(staffMap.containsKey(cellValue)){
+                    if (staffMap.containsKey(cellValue) && columnIndex <= stage && !teacherStageOneSet.add(cellValue)) {
+                        childDuplicate.append("第").append(columnIndex + 1).append("列").append(",");
+                    } else if(staffMap.containsKey(cellValue)){
                         hasValue = true;
 
                         teacherDuty.setTeacherId(staffMap.get(cellValue).get(0).getId());
@@ -785,6 +800,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     } else if (!StringUtils.isNullOrEmpty(cellValue)){
                         child.append("第").append(columnIndex + 1).append("列").append(",");
                     }
+
                 }
                 if(!(rowDate.getTime() < DateUtils.parse(DateUtils.format(currentDate,"yyyy-MM-dd"),"yyyy-MM-dd").getTime())){
                     //年级总值班
@@ -834,6 +850,12 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     child.deleteCharAt(len - 1);
                     child.append("老师名称有误");
                     sb.append("第").append(rowIndex + 1).append("行: ").append(child).append("\r\n");
+                }
+
+                if ((len = childDuplicate.length()) > 0) {
+                    childDuplicate.deleteCharAt(len - 1);
+                    childDuplicate.append("存在一阶段重复");
+                    sb.append("第").append(rowIndex + 1).append("行: ").append(childDuplicate).append("\r\n");
                 }
 
                 if (!hasValue)

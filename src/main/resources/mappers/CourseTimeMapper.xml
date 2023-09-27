@@ -9,4 +9,15 @@
     <select id="selectOne" resultMap="com.zhzx.server.repository.base.CourseTimeBaseMapper.ResultMap">
         select * from sys_course_time ${ew.customSqlSegment} LIMIT 1
     </select>
+    <select id="getNightDutyTime" resultType="java.lang.String">
+        select concat_ws('-', start_time, end_time) from sys_course_time
+        <where>
+            <if test="entity != null and entity.size() > 0">
+                and grade_id in
+                <foreach collection="entity" item="item" separator="," open="(" close=")">#{item}</foreach>
+            </if>
+            and sort_order in (11, 12)
+        </where>
+        order by grade_id, sort_order
+    </select>
 </mapper>
