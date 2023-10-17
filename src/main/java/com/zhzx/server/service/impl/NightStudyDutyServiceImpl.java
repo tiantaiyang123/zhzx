@@ -8,6 +8,7 @@
 
 package com.zhzx.server.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -59,6 +60,8 @@ public class NightStudyDutyServiceImpl extends ServiceImpl<NightStudyDutyMapper,
     private NightStudyAttendanceMapper  nightStudyAttendanceMapper;
     @Resource
     private NightStudyAttendanceSubMapper nightStudyAttendanceSubMapper;
+    @Resource
+    private CourseTimeMapper courseTimeMapper;
     @Override
     public int updateAllFieldsById(NightStudyDuty entity) {
         return this.getBaseMapper().updateAllFieldsById(entity);
@@ -114,8 +117,22 @@ public class NightStudyDutyServiceImpl extends ServiceImpl<NightStudyDutyMapper,
             map.put("comment",commentList);
             map.put("incidentList",incidentList);
             map.put("nightStudyDutyId", leaderNightStudyDutyDtoList.get(0).getId());
+            // 插入所查年级的最晚结束时间
+            List<Long> gradeIdList = stageTwo.stream().map(ClazzVo::getGradeId).distinct().collect(Collectors.toList());
+            List<Map<String, Object>> courseTime = this.courseTimeMapper.selectMaps(
+                    new QueryWrapper<CourseTime>()
+                            .select("max(end_time) as endTime")
+                            .eq("sort_order", 12)
+                            .in("grade_id", gradeIdList)
+            );
+            map.put("endTime", courseTime.get(0).get("endTime"));
         }else {
-            return new HashMap<>();
+            // 插入最晚结束时间
+            List<Map<String, Object>> courseTime = this.courseTimeMapper.selectMaps(
+                    new QueryWrapper<CourseTime>().select("max(end_time) as endTime").eq("sort_order", 12)
+            );
+            map.put("endTime", courseTime.get(0).get("endTime"));
+            return map;
         }
         leaderNightStudyDutyDtoList.stream().forEach(leaderNightStudyDutyDto -> {
             Map<String,List<NightDutyClassDto>> stringListMap = leaderNightStudyDutyDto.getNightDutyClassDtoList().stream().collect(Collectors.groupingBy(NightDutyClassDto::getGradeName));

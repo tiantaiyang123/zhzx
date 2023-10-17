@@ -83,7 +83,7 @@ public class StaffResearchLeaderServiceImpl extends ServiceImpl<StaffResearchLea
         }
 
         Role role = this.roleMapper.selectOne(new QueryWrapper<Role>().eq("name", "ROLE_JIAOYANZUZHANG"));
-        User user = this.userMapper.selectById(
+        User user = this.userMapper.selectOne(
                 Wrappers.<User>lambdaQuery()
                         .select(User::getId)
                         .eq(User::getStaffId, entity.getStaffId())
