@@ -316,6 +316,19 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         stageMap.keySet().stream().forEach(teacherDutyTypeEnum -> {
             TeacherDutyDto teacherDutyDto = stageMap.get(teacherDutyTypeEnum).get(0);
             if(CollectionUtils.isNotEmpty(teacherDutyDto.getTeacherDutyClazzList()) && teacherDutyDto.getTeacherDutyClazzList().get(0).getTeacherDutyClassId() != null){
+                // 动态插入时间
+                int sortOrder = teacherDutyTypeEnum.equals(TeacherDutyTypeEnum.STAGE_ONE) ? 11 : 12;
+                String gradeName = teacherDutyDto.getTeacherDutyClazzList().get(0).getGradeName();
+                Long gradeId = gradeName.startsWith("高一") ? 1L : gradeName.startsWith("高二") ? 2L : 3L;
+                CourseTime courseTime = this.courseTimeMapper.selectOne(
+                        Wrappers.<CourseTime>lambdaQuery()
+                                .eq(CourseTime::getSortOrder, sortOrder)
+                                .eq(CourseTime::getGradeId, gradeId)
+                );
+                Date now = teacherDutyDto.getStartTime();
+                teacherDutyDto.setStartTime(DateUtils.parse(courseTime.getStartTime(), now));
+                teacherDutyDto.setEndTime(DateUtils.parse(courseTime.getEndTime(), now));
+
                 map.put(teacherDutyTypeEnum,stageMap.get(teacherDutyTypeEnum).get(0));
             }
         });
