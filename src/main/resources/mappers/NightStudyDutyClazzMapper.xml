@@ -107,12 +107,12 @@
     </update>
     <insert id="batchInsertWithId" parameterType="com.zhzx.server.domain.NightStudyDutyClazz" keyColumn="id" keyProperty="id">
         insert into day_night_study_duty_clazz (
-        night_study_duty_id, clazz_id, teacher, should_student_count, actual_student_count, score
+        night_study_duty_id, clazz_id, teacher, should_student_count, actual_student_count, score, duty_situation
         )
         values
         <foreach collection="records" item="record" separator=",">
             (
-            #{record.nightStudyDutyId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.teacher, jdbcType=VARCHAR}, #{record.shouldStudentCount, jdbcType=INTEGER}, #{record.actualStudentCount, jdbcType=INTEGER}, #{record.score, jdbcType=INTEGER}
+            #{record.nightStudyDutyId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.teacher, jdbcType=VARCHAR}, #{record.shouldStudentCount, jdbcType=INTEGER}, #{record.actualStudentCount, jdbcType=INTEGER}, #{record.score, jdbcType=INTEGER},#{record.dutySituation, jdbcType=VARCHAR}
             )
         </foreach>
     </insert>

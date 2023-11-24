@@ -8,9 +8,11 @@
 
 package com.zhzx.server.repository;
 
-import org.springframework.stereotype.Repository;
-import org.apache.ibatis.annotations.Param;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zhzx.server.domain.Course;
 import com.zhzx.server.repository.base.CourseBaseMapper;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -24,4 +26,6 @@ public interface CourseMapper extends CourseBaseMapper {
                              @Param("gradeId") Long gradeId);
 
     List<Long> getMeetingTime(@Param("teacherIdList")List<Long> teacherIdList, @Param("week")Integer week);
+
+    List<Course> selectListSimple(@Param("ew") QueryWrapper<Course> queryWrapper);
 }

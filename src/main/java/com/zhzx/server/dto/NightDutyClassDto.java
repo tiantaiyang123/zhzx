@@ -65,6 +65,8 @@ public class NightDutyClassDto extends BaseDto{
 
     private YesNoEnum isLeaderConfirm;
 
+    private YesNoEnum dutySituation;
+
     private List<NightStudyAttendance> nightStudyAttendances;
 
     private List<NightStudyDetail> nightStudyDetailList;

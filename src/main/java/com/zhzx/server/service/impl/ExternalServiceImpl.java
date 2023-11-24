@@ -1,28 +1,47 @@
 package com.zhzx.server.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.zhzx.server.config.bean.TirConfiguration;
-import com.zhzx.server.domain.User;
+import com.zhzx.server.domain.*;
 import com.zhzx.server.dto.CookieDto;
+import com.zhzx.server.repository.*;
 import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.service.ExternalService;
+import com.zhzx.server.util.DateUtils;
 import com.zhzx.server.util.StringUtils;
+import com.zhzx.server.vo.StudentParamVo;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class ExternalServiceImpl implements ExternalService {
     @Resource
+    private StaffMapper staffMapper;
+    @Resource
     private TirConfiguration tirConfiguration;
     @Resource
     private RestTemplate restTemplate;
+    @Resource
+    private StudentMapper studentMapper;
+    @Resource
+    private SettingsMapper settingsMapper;
+    @Resource
+    private CourseMapper courseMapper;
+    @Resource
+    private CourseTimeMapper courseTimeMapper;
 
     @Override
     public CookieDto acquireTirCookie() {
@@ -55,6 +74,57 @@ public class ExternalServiceImpl implements ExternalService {
         cookieDto.setPath("/");
 
         return cookieDto;
+    }
+
+    @Override
+    public List<Staff> listSimpleFullStaff(QueryWrapper<Staff> wrapper) {
+        return this.staffMapper.listSimpleFull(wrapper);
+    }
+
+    @Override
+    public List<Student> listSimpleIncrStudent(Settings settings, StudentParamVo param) {
+        String currentDateTime = DateUtils.format(new Date());
+        if (null == settings) {
+            settings = new Settings();
+            settings.setParams(currentDateTime);
+            settings.setCode("SYNC_STUDENT_INFO");
+            settings.setRemark("学生信息同步时间点");
+            this.settingsMapper.insert(settings);
+        } else {
+            settings.setParams(currentDateTime);
+            this.settingsMapper.updateById(settings);
+        }
+        return this.studentMapper.listSimpleIncrStudent(param);
+    }
+
+    @Override
+    public List<Course> listSimpleIncrCourse(Settings settings, QueryWrapper<Course> wrapper) {
+        String currentDateTime = DateUtils.format(new Date());
+        if (null == settings) {
+            settings = new Settings();
+            settings.setParams(currentDateTime);
+            settings.setCode("SYNC_COURSE_INFO");
+            settings.setRemark("课表信息同步时间点");
+            this.settingsMapper.insert(settings);
+        } else {
+            settings.setParams(currentDateTime);
+            this.settingsMapper.updateById(settings);
+        }
+        List<Course> courseList = this.courseMapper.selectListSimple(wrapper);
+
+        List<CourseTime> courseTimeList = this.courseTimeMapper.selectList(Wrappers.emptyWrapper());
+        Map<String, CourseTime> map = courseTimeList.stream()
+                .collect(Collectors.toMap(courseTime -> courseTime.getGradeId().toString() + courseTime.getSortOrder().toString(), Function.identity()));
+        if (CollectionUtils.isNotEmpty(courseList)) {
+            for (Course course : courseList) {
+                CourseTime courseTime = map.get(course.getGradeId().toString() + course.getSortOrder().toString());
+                if (null != courseTime) {
+                    course.setCourseEndTime(courseTime.getEndTime());
+                    course.setCourseStartTime(courseTime.getStartTime());
+                }
+            }
+        }
+        return courseList;
     }
 
     private String getCode(String realName, String phone) {

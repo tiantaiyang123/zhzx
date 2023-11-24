@@ -24,4 +24,28 @@
             and exists (select * from day_teacher_duty_clazz where teacher_duty_id=dtd.id)
         ) and ss.personnel_situation = 'TEACHER' and ss.is_delete = 'NO'
     </select>
+
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.Staff" extends="com.zhzx.server.repository.base.StaffBaseMapper.BaseResultMap">
+        <collection column="id" property="staffLessonTeacherList" select="queryStaffLessonTeacherById" />
+    </resultMap>
+
+    <resultMap id="StaffExtraResultMap" type="com.zhzx.server.domain.StaffLessonTeacher" extends="com.zhzx.server.repository.base.StaffLessonTeacherBaseMapper.BaseResultMap">
+        <result column="clazzName" property="clazzName" jdbcType="VARCHAR" />
+        <result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
+        <result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+    </resultMap>
+    <select id="queryStaffLessonTeacherById" resultMap="StaffExtraResultMap">
+        select
+            b.name as clazzName,
+            c.name as gradeName,
+            d.name as subjectName
+        from sys_staff_lesson_teacher a
+        left join sys_clazz b on a.clazz_id=b.id
+        left join sys_grade c on b.grade_id=c.id
+        left join sys_subject d on a.subject_id=d.id
+        where staff_id = #{id} and is_current='YES'
+    </select>
+    <select id="listSimpleFull" resultMap="ResultMap">
+        select * from sys_staff ${ew.customSqlSegment}
+    </select>
 </mapper>

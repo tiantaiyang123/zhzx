@@ -50,4 +50,6 @@ public interface StudentMapper extends StudentBaseMapper {
 
     IPage<StudentInfoVo> selectInfoByPage(IPage<StudentInfoVo> page,
                                           @Param("param") StudentParamVo param);
+
+    List<Student> listSimpleIncrStudent(@Param("param") StudentParamVo param);
 }

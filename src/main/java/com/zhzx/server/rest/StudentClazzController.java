@@ -6,27 +6,23 @@
 
 package com.zhzx.server.rest;
 
-import java.util.List;
-import java.util.Arrays;
-
-import javax.annotation.Resource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-
-import org.springframework.web.bind.annotation.*;
-import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.domain.StudentClazz;
 import com.zhzx.server.rest.req.StudentClazzParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.StudentClazzService;
-
+import com.zhzx.server.service.StudentService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -35,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 public class StudentClazzController {
     @Resource
     private StudentClazzService studentClazzService;
+    @Resource
+    private StudentService studentService;
 
     /**
      * 通过主键查询
@@ -56,9 +54,11 @@ public class StudentClazzController {
      */
     @PostMapping("/")
     @ApiOperation("新增")
+    @Transactional( rollbackFor = Exception.class )
     public ApiResponse<StudentClazz> add(@RequestBody StudentClazz entity) {
         entity.setDefault().validate(true);
         this.studentClazzService.save(entity);
+        this.studentService.updateTimeWhenClazzChange(entity.getStudentId(), entity.getId());
         return ApiResponse.ok(this.studentClazzService.getById(entity.getId()));
     }
 
@@ -70,12 +70,14 @@ public class StudentClazzController {
      */
     @PutMapping("/")
     @ApiOperation("更新")
+    @Transactional( rollbackFor = Exception.class )
     public ApiResponse<StudentClazz> update(@RequestBody StudentClazz entity, @RequestParam(value = "updateAllFields", defaultValue = "false") boolean updateAllFields) {
         if (updateAllFields) {
             this.studentClazzService.updateAllFieldsById(entity);
         } else {
             this.studentClazzService.updateById(entity);
         }
+        this.studentService.updateTimeWhenClazzChange(entity.getStudentId(), entity.getId());
         return ApiResponse.ok(this.studentClazzService.getById(entity.getId()));
     }
 
@@ -87,7 +89,9 @@ public class StudentClazzController {
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除")
+    @Transactional( rollbackFor = Exception.class )
     public ApiResponse<Boolean> delete(@PathVariable("id") Long id) {
+        this.studentService.updateTimeWhenClazzChange(null, id);
         return ApiResponse.ok(this.studentClazzService.removeById(id));
     }
 

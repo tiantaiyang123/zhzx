@@ -292,6 +292,36 @@
         order by sg.id,cast(replace(sc.name,'班','') as signed),cast(ss.student_number as signed)
     </select>
 
+    <select id="listSimpleIncrStudent" resultMap="InfoMap">
+        select ss.*,
+        ssc.clazz_id as clazz_id,
+        replace(concat(sg.name, sc.name), '年级', '') as clazz_name,
+        concat(sd.building, sd.floor, sd.name, ssd.bed) as bed_name
+        from  (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1)) group by student_id) tmp
+        left join sys_student ss on ss.id = tmp.student_id
+        left join sys_student_clazz ssc on tmp.id = ssc.id
+        left join sys_student_dormitory ssd on ss.id = ssd.student_id and ssd.is_default='YES'
+        left join sys_clazz sc on ssc.clazz_id = sc.id
+        left join sys_grade sg on sc.grade_id = sg.id
+        left join sys_dormitory sd on ssd.dormitory_id = sd.id
+        <if test="param!=null">
+            <where>
+                <if test="param.name!=null">
+                    AND ss.name like CONCAT('%', #{param.name}, '%')
+                </if>
+                <if test="param.gradeId!=null">
+                    AND ssc.clazz_id in (select id from sys_clazz where grade_id=#{gradeId} and academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1))
+                </if>
+                <if test="param.clazzName!=null">
+                    AND replace(concat(sg.name, sc.name), '年级', '') like CONCAT('%', #{param.clazzName}, '%')
+                </if>
+                <if test="param.updateTimeFrom!=null">
+                    AND ss.update_time &gt;= #{param.updateTimeFrom}
+                </if>
+            </where>
+        </if>
+    </select>
+
     <update id="updateDormitory">
         update sys_student ss
             left join (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = #{academicYearSemesterId}) group by student_id) tmp on ss.id = tmp.student_id

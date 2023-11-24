@@ -49,4 +49,16 @@
         select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1
         )
     </select>
+
+
+    <resultMap id="SimpleResultMap" type="com.zhzx.server.domain.Course" extends="com.zhzx.server.repository.base.CourseBaseMapper.BaseResultMap">
+        <association column="grade_id" property="grade" javaType="com.zhzx.server.domain.Grade"
+                     select="queryGradeSimple" />
+    </resultMap>
+    <select id="queryGradeSimple" resultMap="com.zhzx.server.repository.base.GradeBaseMapper.BaseResultMap">
+        select * from sys_grade where id=#{value}
+    </select>
+    <select id="selectListSimple" resultMap="SimpleResultMap">
+        select * from sys_course ${ew.customSqlSegment}
+    </select>
 </mapper>

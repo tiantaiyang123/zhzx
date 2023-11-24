@@ -50,4 +50,6 @@ public interface StudentService extends IService<Student> {
     List<Student> listByClazzStudent(Long clazzId, Long academicYearSemesterId, String studentName);
 
     XSSFWorkbook exportExcel(StudentParamVo param);
+
+    void updateTimeWhenClazzChange(Long studentId, Long studentClazzId);
 }

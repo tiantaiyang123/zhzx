@@ -95,6 +95,7 @@ public class NightStudyDutyClazzServiceImpl extends ServiceImpl<NightStudyDutyCl
             nightStudyDutyClazz.setScore(nightDutyClassDto.getScore());
             nightStudyDutyClazz.setShouldStudentCount(nightDutyClassDto.getShouldStudentCount());
             nightStudyDutyClazz.setActualStudentCount(nightDutyClassDto.getActualStudentCount());
+            nightStudyDutyClazz.setDutySituation(nightDutyClassDto.getDutySituation());
             this.baseMapper.updateById(nightStudyDutyClazz);
 
             //同步修改教师端，学生端应到实到数量

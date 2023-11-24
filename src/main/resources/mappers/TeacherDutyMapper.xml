@@ -371,7 +371,7 @@
         left join day_teacher_duty_clazz dtdc on dtd.id = dtdc.teacher_duty_id
         left join sys_clazz sc on dtdc.clazz_id = sc.id
         left join sys_grade sg on sc.grade_id = sg.id
-        where 1=1 and dtdc.teacher_duty_id is not null
+        where 1=1
         <if test="startTime !=null">
             and dtd.start_time <![CDATA[ >= ]]> #{startTime}
         </if>

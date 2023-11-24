@@ -8,22 +8,20 @@
 
 package com.zhzx.server.repository;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import org.springframework.stereotype.Repository;
-import org.apache.ibatis.annotations.Param;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zhzx.server.domain.Staff;
 import com.zhzx.server.repository.base.StaffBaseMapper;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface StaffMapper extends StaffBaseMapper {
 
 
     List<Staff> getListNoDuty(@Param("time") Date date, @Param("dutyType") String dutyType);
+
+    List<Staff> listSimpleFull(@Param("ew") QueryWrapper<Staff> wrapper);
 }

@@ -8,25 +8,15 @@
 
 package com.zhzx.server.domain;
 
-import java.io.Serializable;
-
-import com.zhzx.server.rest.res.ApiCode;
-import lombok.*;
-import java.util.List;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
+import com.zhzx.server.rest.res.ApiCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.zhzx.server.domain.AcademicYearSemester;
-import com.zhzx.server.domain.Grade;
-import com.zhzx.server.domain.Clazz;
-import com.zhzx.server.domain.Staff;
 
 @Data
 @Builder(builderMethodName = "newBuilder")
@@ -146,6 +136,11 @@ public class Course extends BaseDomain {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "", required = true)
     private java.util.Date updateTime;
+
+    @TableField(exist = false)
+    private String courseStartTime;
+    @TableField(exist = false)
+    private String courseEndTime;
 
     /**
      * 设置默认值

@@ -8,21 +8,15 @@
 
 package com.zhzx.server.domain;
 
-import java.io.Serializable;
-
-import com.zhzx.server.rest.res.ApiCode;
-import lombok.*;
-import java.util.List;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
+import com.zhzx.server.enums.YesNoEnum;
+import com.zhzx.server.rest.res.ApiCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 @Data
 @Builder(builderMethodName = "newBuilder")
@@ -74,6 +68,12 @@ public class NightStudyDutyClazz extends BaseDomain {
     @TableField(value = "score")
     @ApiModelProperty(value = "得分", required = true)
     private Integer score;
+    /**
+     * 值班情况YES正常NO缺席
+     */
+    @TableField(value = "duty_situation")
+    @ApiModelProperty(value = "值班情况", required = true)
+    private YesNoEnum dutySituation;
 
     @TableField(exist = false)
     private String clazzName;
@@ -99,6 +99,9 @@ public class NightStudyDutyClazz extends BaseDomain {
         }
         if (this.getScore() == null) {
             this.setScore(95);
+        }
+        if (this.getDutySituation() == null) {
+            this.setDutySituation(YesNoEnum.YES);
         }
         return this;
     }

@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -271,6 +273,22 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         }
 
         return book;
+    }
+
+    @Override
+    public void updateTimeWhenClazzChange(Long studentId, Long studentClazzId) {
+        if (null == studentId) {
+            List<StudentClazz> studentClazzList = this.studentClazzMapper.selectList(
+                    Wrappers.<StudentClazz>lambdaQuery()
+                            .select(StudentClazz::getStudentId)
+                            .eq(StudentClazz::getId, studentClazzId)
+            );
+            studentId = studentClazzList.get(0).getStudentId();
+        }
+        this.baseMapper.update(
+                null,
+                Wrappers.<Student>lambdaUpdate().set(Student::getUpdateTime, new Date()).eq(Student::getId, studentId)
+        );
     }
 
     @Transactional(rollbackFor = Exception.class)

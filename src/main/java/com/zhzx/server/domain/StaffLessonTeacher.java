@@ -8,25 +8,15 @@
 
 package com.zhzx.server.domain;
 
-import java.io.Serializable;
-
-import com.zhzx.server.rest.res.ApiCode;
-import lombok.*;
-import java.util.List;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
+import com.zhzx.server.enums.YesNoEnum;
+import com.zhzx.server.rest.res.ApiCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.zhzx.server.enums.YesNoEnum;
-import com.zhzx.server.domain.Staff;
-import com.zhzx.server.domain.Clazz;
-import com.zhzx.server.domain.Subject;
+import lombok.*;
 
 @Data
 @Builder(builderMethodName = "newBuilder")
@@ -84,6 +74,16 @@ public class StaffLessonTeacher extends BaseDomain {
     @TableField(value = "is_current")
     @ApiModelProperty(value = "是否当值", required = true)
     private YesNoEnum isCurrent;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "班级名称", required = true)
+    private String clazzName;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "年级名称", required = true)
+    private String gradeName;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "科目名称", required = true)
+    private String subjectName;
 
     /**
      * 设置默认值

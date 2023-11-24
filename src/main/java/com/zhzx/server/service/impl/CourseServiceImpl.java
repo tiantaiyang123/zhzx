@@ -9,23 +9,19 @@
 package com.zhzx.server.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.enums.SqlMethod;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
-import com.google.common.base.CharMatcher;
 import com.zhzx.server.domain.*;
 import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.repository.*;
 import com.zhzx.server.repository.base.CourseBaseMapper;
 import com.zhzx.server.rest.res.ApiCode;
-import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.CourseService;
 import com.zhzx.server.util.DateUtils;
-import com.zhzx.server.util.JsonUtils;
 import com.zhzx.server.util.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.CellType;
@@ -40,16 +36,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.swing.JLabel;
 
 @Service
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements CourseService {

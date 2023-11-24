@@ -26,6 +26,7 @@
         <result column="allStudentCount" jdbcType="BIGINT" property="allStudentCount" />
         <result column="shouldStudentCount" jdbcType="BIGINT" property="shouldStudentCount" />
         <result column="actualStudentCount" jdbcType="BIGINT" property="actualStudentCount" />
+        <result column="dutySituation" jdbcType="VARCHAR" property="dutySituation" />
         <result column="score" jdbcType="BIGINT" property="score" />
         <result column="isConfirm" jdbcType="VARCHAR" property="isConfirm" />
         <collection property="nightStudyDutyClazzDeductions" columnPrefix="dnsdcd_"  resultMap="com.zhzx.server.repository.base.NightStudyDutyClazzDeductionBaseMapper.ResultMap">
@@ -68,6 +69,7 @@
         sc.name as sc_clazzName ,sc.id as sc_clazzId,sg.name as sc_gradeName,sg.id as sc_gradeId,sc.student_count as sc_allStudentCount,
         dnsdc.id as sc_nightStudyDutyClazzId,dnsdc.teacher as sc_teacherName ,dnsdc.should_student_count as sc_shouldStudentCount,
         dnsdc.actual_student_count as sc_actualStudentCount,dnsdc.score as sc_score,
+        dnsdc.duty_situation as sc_dutySituation,
         dnsdcd.id as sc_dnsdcd_id,dnsdcd.Description as sc_dnsdcd_Description
         from day_night_study_duty dnsd
         left join day_leader_duty dld on dld.id = dnsd.leader_duty_id

@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @Builder(builderMethodName = "newBuilder")
@@ -69,4 +70,9 @@ public class StudentParamVo implements Serializable {
      */
     @ApiModelProperty(value = "年级ID")
     private Long gradeId;
+    /**
+     * 更新时间
+     */
+    @ApiModelProperty(value = "更新时间")
+    private Date updateTimeFrom;
 }
