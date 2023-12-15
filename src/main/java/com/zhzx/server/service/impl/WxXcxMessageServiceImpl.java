@@ -17,10 +17,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.zhzx.server.domain.Message;
 import com.zhzx.server.domain.Settings;
+import com.zhzx.server.domain.User;
 import com.zhzx.server.domain.WxXcxMessage;
 import com.zhzx.server.dto.MessageCombineDto;
 import com.zhzx.server.dto.xcx.WxXcxMessageDto;
 import com.zhzx.server.enums.MessageSystemEnum;
+import com.zhzx.server.enums.MessageTypeEnum;
 import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.repository.MessageMapper;
 import com.zhzx.server.repository.SettingsMapper;
@@ -30,6 +32,7 @@ import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.service.WxXcxMessageService;
 import com.zhzx.server.util.StringUtils;
 import com.zhzx.server.vo.MessageCombineVo;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,6 +87,16 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
 
     @Override
     public IPage<MessageCombineDto> pageApp(String orderByClause, Integer pageNum, Integer pageSize, MessageCombineVo messageCombineVo) {
+        IPage<MessageCombineDto>  iPage = new Page<>(pageNum, pageSize);
+
+        if (MessageTypeEnum.NORMAL_RESULT.equals(messageCombineVo.getMessageTypeEnum())) {
+            // 仅校长可见
+            User user = (User) SecurityUtils.getSubject().getPrincipal();
+            if (!user.getStaff().getDepartment().equals("校长室")) {
+                return iPage;
+            }
+        }
+
         String messageClassify = messageCombineVo.getMessageClassify();
         if (!StringUtils.isNullOrEmpty(messageClassify) && CollectionUtils.isEmpty(messageCombineVo.getMessageDepartment())) {
             Settings settings = this.settingsMapper.selectOne(Wrappers.<Settings>lambdaQuery().eq(Settings::getCode, "APP_MESSAGE_CLASSIFY_" + messageClassify));
@@ -93,7 +106,6 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
             messageCombineVo.setMessageDepartment(Arrays.asList(settings.getParams().split("[,]")));
         }
 
-        IPage<MessageCombineDto>  iPage = new Page<>(pageNum, pageSize);
         List<MessageCombineDto> messageCombineDtos = this.baseMapper.pageApp(iPage, orderByClause, messageCombineVo);
         iPage.setRecords(messageCombineDtos);
         return iPage;
