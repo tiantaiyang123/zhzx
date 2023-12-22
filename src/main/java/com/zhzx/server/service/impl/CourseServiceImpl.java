@@ -379,6 +379,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
                         cellValue = cell.getStringCellValue();
                     else if (cell.getCellType().equals(CellType.NUMERIC))
                         cellValue = String.valueOf(cell.getNumericCellValue());
+
+                    if (StringUtils.isNullOrEmpty(cellValue)) {
+                        continue;
+                    }
+
                     if (columnIndex % 2 == 0) {
                         course = new Course();
                         course.setAcademicYearSemesterId(academicYearSemesterId);
