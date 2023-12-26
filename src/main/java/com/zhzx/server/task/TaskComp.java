@@ -653,6 +653,75 @@ public class TaskComp {
     }
 
     /**
+     * 每天19点，提醒明日总值班
+     */
+    @Scheduled(cron = "0 0 19 ? * ?")
+    private void createWorkMessageLeader() {
+
+        Settings settings = settingsService.getOne(Wrappers.<Settings>lambdaQuery().eq(Settings::getCode,"MESSAGE_SWITCH"));
+        JSONObject jsonObject = JSON.parseObject(settings.getParams());
+
+        List<Message> messageList = new ArrayList<>();
+        Message message;
+        List<String> staffList;
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH,1);
+
+        if(Objects.equals(jsonObject.getString("TOTAL_DUTY"),"YES")){
+            List<LeaderDuty> leaderDuties = leaderDutyMapper.selectList(Wrappers.<LeaderDuty>lambdaQuery()
+                    .ge(LeaderDuty::getStartTime,DateUtils.parse("00:00",calendar.getTime()))
+                    .le(LeaderDuty::getStartTime,DateUtils.parse("23:59",calendar.getTime()))
+            );
+            Map<Long,List<LeaderDuty>> leaderDutyMap = leaderDuties.stream().filter(item->item.getLeader() != null).collect(Collectors.groupingBy(LeaderDuty::getLeaderId));
+            for (Long leaderId :leaderDutyMap.keySet()){
+                LeaderDuty leaderDuty = leaderDutyMap.get(leaderId).get(0);
+                staffList = new ArrayList<>();
+                String prefix = "您明天有" + leaderDuty.getSchoolyard().getName() + "值班。";
+                message = new Message();
+                message.setMessageTaskId(-1L);
+                message.setName("领导值班");
+                message.setTitle("领导值班");
+                message.setContent(prefix + DateUtils.format(leaderDuty.getStartTime(),"yyyy-MM-dd")+" 总值班");
+                message.setSenderId(-1L);
+                message.setSenderName("系统");
+                message.setReceiverId(leaderDuty.getLeaderId());
+                message.setReceiverName(leaderDuty.getLeader().getName());
+                message.setReceiverType(ReceiverEnum.TEACHER);
+                message.setSendTime(new Date());
+                message.setIsSend(YesNoEnum.YES);
+                message.setDefault().validate(true);
+                messageList.add(message);
+                if(StringUtils.isNullOrEmpty(leaderDuty.getLeader().getWxUsername())){
+                    staffList.add(leaderDuty.getLeader().getEmployeeNumber());
+                    staffList.add(leaderDuty.getLeader().getPhone());
+                    if(NameToPinyin.format(leaderDuty.getLeader().getName()) != null ){
+                        staffList.add(NameToPinyin.format(leaderDuty.getLeader().getName()));
+                    }
+                }else{
+                    staffList.add(leaderDuty.getLeader().getWxUsername());
+                }
+                try {
+                    StaffMessageRefuse staffMessageRefuse = staffMessageRefuseMapper.selectOne(Wrappers.<StaffMessageRefuse>lambdaQuery()
+                            .eq(StaffMessageRefuse::getStaffId,leaderDuty.getLeaderId())
+                            .eq(StaffMessageRefuse::getName,"领导值班")
+                            .eq(StaffMessageRefuse::getStatus,YesNoEnum.YES)
+                    );
+                    String suffix = " 总值班";
+                    if(staffMessageRefuse == null){
+                        wxSendMessageService.sendTeacherMessage(prefix + "\r\n"+DateUtils.format(leaderDuty.getStartTime(),"yyyy-MM-dd")+ suffix,staffList);
+                    }
+                }catch (Exception e){
+                    log.error(e.getMessage());
+                }
+            }
+        }
+        if(CollectionUtils.isNotEmpty(messageList)){
+            messageService.batchInsert(messageList);
+        }
+    }
+
+    /**
      * 每天九点十分，发送明日值班
      * todo
      */
