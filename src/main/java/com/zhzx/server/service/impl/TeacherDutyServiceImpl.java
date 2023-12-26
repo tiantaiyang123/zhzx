@@ -1328,10 +1328,15 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         for (Map.Entry<Long, List<TeacherDutyDto>> entry : map.entrySet()) {
             List<TeacherDutyDto> value = entry.getValue();
 
+            Staff currStaff = value.get(0).getTeacher();
+            if (null == currStaff) {
+                continue;
+            }
+
             row = sheet.createRow(startRow++);
             cell = row.createCell(0, CellType.STRING);
             cell.setCellStyle(style);
-            cell.setCellValue(value.get(0).getTeacher().getName());
+            cell.setCellValue(currStaff.getName());
 
             cell = row.createCell(1, CellType.STRING);
             cell.setCellStyle(style);
