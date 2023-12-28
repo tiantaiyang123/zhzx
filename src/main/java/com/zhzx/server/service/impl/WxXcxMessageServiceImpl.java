@@ -94,17 +94,19 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
             User user = (User) SecurityUtils.getSubject().getPrincipal();
             if (!user.getStaff().getDepartment().equals("校长室")) {
                 return iPage;
+            } else {
+                messageCombineVo.setStaffId("1");
             }
         }
 
-        String messageClassify = messageCombineVo.getMessageClassify();
-        if (!StringUtils.isNullOrEmpty(messageClassify) && CollectionUtils.isEmpty(messageCombineVo.getMessageDepartment())) {
-            Settings settings = this.settingsMapper.selectOne(Wrappers.<Settings>lambdaQuery().eq(Settings::getCode, "APP_MESSAGE_CLASSIFY_" + messageClassify));
-            if (null == settings) {
-                throw new ApiCode.ApiException(-5, "无效分类或分类配置缺失");
-            }
-            messageCombineVo.setMessageDepartment(Arrays.asList(settings.getParams().split("[,]")));
-        }
+//        String messageClassify = messageCombineVo.getMessageClassify();
+//        if (!StringUtils.isNullOrEmpty(messageClassify) && CollectionUtils.isEmpty(messageCombineVo.getMessageDepartment())) {
+//            Settings settings = this.settingsMapper.selectOne(Wrappers.<Settings>lambdaQuery().eq(Settings::getCode, "APP_MESSAGE_CLASSIFY_" + messageClassify));
+//            if (null == settings) {
+//                throw new ApiCode.ApiException(-5, "无效分类或分类配置缺失");
+//            }
+//            messageCombineVo.setMessageDepartment(Arrays.asList(settings.getParams().split("[,]")));
+//        }
 
         List<MessageCombineDto> messageCombineDtos = this.baseMapper.pageApp(iPage, orderByClause, messageCombineVo);
         iPage.setRecords(messageCombineDtos);
