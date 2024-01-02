@@ -81,3 +81,5 @@ xcx:
   schoolyard_url: http://dc.njzhzx.net/api/api/xcxBase/getSchoolList
   pc_login_code_url: http://dc.njzhzx.net/api/api/app/checkMobile/{name}/{mobile}
   pc_login_cookie_url: http://dc.njzhzx.net/login2Zh
+cas:
+  ticket_validate_url: http://localhost:8080/auth/cas/client/validateLogin?ticket={0}&service={1}

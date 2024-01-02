@@ -80,6 +80,8 @@ public class ShiroConfig {
         filterRuleMap.put("/v1/system/wx/**", "anon");
         // 外部控制器 单独走认证
         filterRuleMap.put("/v1/external/**", "anon");
+        // cas-rest校验
+        filterRuleMap.put("/v1/cas/**", "anon");
         // 其他的接口需要认证
         filterRuleMap.put("/v1/**", "jwt");
 
