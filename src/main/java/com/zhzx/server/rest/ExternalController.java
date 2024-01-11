@@ -8,6 +8,7 @@ import com.zhzx.server.dto.annotation.TirAuth;
 import com.zhzx.server.dto.xcx.WxXcxMessageDto;
 import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.rest.req.CourseParam;
+import com.zhzx.server.rest.req.SchoolyardParam;
 import com.zhzx.server.rest.req.StaffParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.*;
@@ -33,6 +34,8 @@ public class ExternalController {
     private WxXcxMessageService wxXcxMessageService;
     @Resource
     private CourseService courseService;
+    @Resource
+    private SchoolyardService schoolyardService;
     @Resource
     private StaffService staffService;
     @Resource
@@ -121,6 +124,23 @@ public class ExternalController {
             param.setUpdateTimeFrom(updateTime);
         }
         return ApiResponse.ok(this.externalService.listSimpleIncrStudent(settings, param));
+    }
+
+    @GetMapping("/get/schoolyard")
+    @ApiOperation("获取校区")
+    @TirAuth
+    public ApiResponse<List<Schoolyard>> getSchoolyard(@RequestParam(name = "code") String code,
+                                                    @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
+                                                 SchoolyardParam param) {
+        // 全量获取
+        QueryWrapper<Schoolyard> wrapper = param.toQueryWrapper();
+        String[] temp = orderByClause.split("[,;]");
+        Arrays.stream(temp).forEach(ob -> {
+            String[] obTemp = ob.split("\\s");
+            boolean isAsc = obTemp.length == 1 || obTemp[1].equalsIgnoreCase("asc");
+            wrapper.orderBy(true, isAsc, obTemp[0]);
+        });
+        return ApiResponse.ok(this.schoolyardService.list(wrapper));
     }
 
     @GetMapping("/acquire-tir-cookie")

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.zhzx.server.config.bean.TirConfiguration;
 import com.zhzx.server.domain.*;
 import com.zhzx.server.dto.CookieDto;
+import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.repository.*;
 import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.service.ExternalService;
@@ -78,7 +79,20 @@ public class ExternalServiceImpl implements ExternalService {
 
     @Override
     public List<Staff> listSimpleFullStaff(QueryWrapper<Staff> wrapper) {
-        return this.staffMapper.listSimpleFull(wrapper);
+        List<Staff> staffList = this.staffMapper.listSimpleFull(wrapper);
+        if (CollectionUtils.isNotEmpty(staffList)) {
+            staffList.forEach(staff -> {
+                staff.setUnionSchoolyard(YesNoEnum.NO);
+                List<StaffLessonTeacher> staffLessonTeacherList = staff.getStaffLessonTeacherList();
+                if (CollectionUtils.isNotEmpty(staffLessonTeacherList)) {
+                    long count = staffLessonTeacherList.stream().map(StaffLessonTeacher::getSchoolyardName).distinct().count();
+                    if (count > 1L) {
+                        staff.setUnionSchoolyard(YesNoEnum.YES);
+                    }
+                }
+            });
+        }
+        return staffList;
     }
 
     @Override

@@ -1,3 +1,31 @@
+drop table if exists `mal_medical_expense_reimbursement_entries`;
+create table `mal_medical_expense_reimbursement_entries`
+(
+    id int(11) auto_increment not null comment 'ID系统自动生成',
+    staff_name varchar(10) not null comment '职工名称',
+    is_delete varchar(50) not null comment '是否在职 [YES.是 NO.否]',
+    id_number varchar(20) not null comment '身份证号',
+    visit_end_date date null comment '就诊结束日期',
+    type varchar(20) not null comment '医疗类别',
+    cost_total decimal(8, 2) not null comment '医疗费合计支出',
+    cost_insurance decimal(8, 2) not null default 0 comment '医保支出',
+    cost_polling_fund decimal(8, 2) not null default 0 comment '统筹基金支出',
+    cost_serious_illness_supply decimal(8, 2) not null default 0 comment '大病救助支出',
+    cost_serious_illness decimal(8, 2) not null default 0 comment '大病支出',
+    cost_other_social_insurance decimal(8, 2) not null default 0 comment '其他社会保险支付',
+    cost_non_social_insurance decimal(8, 2) not null default 0 comment '非社会保险支付',
+    affiliated_medical_institution varchar(30) not null comment '所属医疗机构名称',
+    entry_status varchar(50) not null comment '条目状态 [FOUND.已找到 NOT_FOUND.未找到]',
+    editor_id int(11) not null comment '操作人ID sys_user.id',
+    editor_name varchar(20) not null comment '操作人 sys_user.real_name',
+    created_time datetime not null default CURRENT_TIMESTAMP,
+    updated_time datetime not null default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    primary key (`id`)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_general_ci comment='医药费报销条目表';
+create index ix_id_number on `mal_medical_expense_reimbursement_entries` (id_number);
+create index ix_staff_name_visit_end_date on `mal_medical_expense_reimbursement_entries` (staff_name,visit_end_date);
+
+
 drop table if exists `day_campus_overview_holiday`;
 create table `day_campus_overview_holiday`
 (

@@ -79,6 +79,12 @@ public class StaffLessonTeacher extends BaseDomain {
     @ApiModelProperty(value = "班级名称", required = true)
     private String clazzName;
     @TableField(exist = false)
+    @ApiModelProperty(value = "校区名称", required = true)
+    private String schoolyardName;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "校区ID", required = true)
+    private Long schoolyardId;
+    @TableField(exist = false)
     @ApiModelProperty(value = "年级名称", required = true)
     private String gradeName;
     @TableField(exist = false)

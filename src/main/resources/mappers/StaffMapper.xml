@@ -33,16 +33,21 @@
         <result column="clazzName" property="clazzName" jdbcType="VARCHAR" />
         <result column="gradeName" property="gradeName" jdbcType="VARCHAR" />
         <result column="subjectName" property="subjectName" jdbcType="VARCHAR" />
+        <result column="schoolyardName" property="schoolyardName" jdbcType="VARCHAR" />
+        <result column="schoolyardId" property="schoolyardId" jdbcType="BIGINT" />
     </resultMap>
     <select id="queryStaffLessonTeacherById" resultMap="StaffExtraResultMap">
         select
             b.name as clazzName,
             c.name as gradeName,
-            d.name as subjectName
+            d.name as subjectName,
+            e.name as schoolyardName,
+            e.id as schoolyardId
         from sys_staff_lesson_teacher a
         left join sys_clazz b on a.clazz_id=b.id
         left join sys_grade c on b.grade_id=c.id
         left join sys_subject d on a.subject_id=d.id
+        left join sys_schoolyard e on e.id=b.schoolyard_id
         where staff_id = #{id} and is_current='YES'
     </select>
     <select id="listSimpleFull" resultMap="ResultMap">

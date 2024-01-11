@@ -175,6 +175,12 @@ public class Staff extends BaseDomain {
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "", required = true)
     private java.util.Date updateTime;
+    /**
+     * 是否跨校区
+     */
+    @ApiModelProperty(value = "是否跨校区")
+    @TableField(exist = false)
+    private YesNoEnum unionSchoolyard;
 
     /**
      * 设置默认值

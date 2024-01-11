@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhzx.server.repository.base.MedicalExpenseReimbursementEntriesBaseMapper">
+    <resultMap id="BaseResultMap" type="com.zhzx.server.domain.MedicalExpenseReimbursementEntries">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="staff_name" jdbcType="VARCHAR" property="staffName" />
+        <result column="is_delete" jdbcType="VARCHAR" property="isDelete" />
+        <result column="id_number" jdbcType="VARCHAR" property="idNumber" />
+        <result column="visit_end_date" jdbcType="VARCHAR" property="visitEndDate" />
+        <result column="type" jdbcType="VARCHAR" property="type" />
+        <result column="cost_total" jdbcType="DECIMAL" property="costTotal" />
+        <result column="cost_insurance" jdbcType="DECIMAL" property="costInsurance" />
+        <result column="cost_polling_fund" jdbcType="DECIMAL" property="costPollingFund" />
+        <result column="cost_serious_illness_supply" jdbcType="DECIMAL" property="costSeriousIllnessSupply" />
+        <result column="cost_serious_illness" jdbcType="DECIMAL" property="costSeriousIllness" />
+        <result column="cost_other_social_insurance" jdbcType="DECIMAL" property="costOtherSocialInsurance" />
+        <result column="cost_non_social_insurance" jdbcType="DECIMAL" property="costNonSocialInsurance" />
+        <result column="affiliated_medical_institution" jdbcType="VARCHAR" property="affiliatedMedicalInstitution" />
+        <result column="entry_status" jdbcType="VARCHAR" property="entryStatus" />
+        <result column="editor_id" jdbcType="BIGINT" property="editorId" />
+        <result column="editor_name" jdbcType="VARCHAR" property="editorName" />
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.zhzx.server.domain.MedicalExpenseReimbursementEntries" extends="BaseResultMap">
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, staff_name, is_delete, id_number, visit_end_date, type, cost_total, cost_insurance, cost_polling_fund, cost_serious_illness_supply, cost_serious_illness, cost_other_social_insurance, cost_non_social_insurance, affiliated_medical_institution, entry_status, editor_id, editor_name, created_time, updated_time
+    </sql>
+    <sql id="Base_Column_List_With_Prefix">
+        t.id, t.staff_name, t.is_delete, t.id_number, t.visit_end_date, t.type, t.cost_total, t.cost_insurance, t.cost_polling_fund, t.cost_serious_illness_supply, t.cost_serious_illness, t.cost_other_social_insurance, t.cost_non_social_insurance, t.affiliated_medical_institution, t.entry_status, t.editor_id, t.editor_name, t.created_time, t.updated_time
+    </sql>
+    <insert id="batchInsert">
+        insert into mal_medical_expense_reimbursement_entries (
+            staff_name, is_delete, id_number, visit_end_date, type, cost_total, cost_insurance, cost_polling_fund, cost_serious_illness_supply, cost_serious_illness, cost_other_social_insurance, cost_non_social_insurance, affiliated_medical_institution, entry_status, editor_id, editor_name
+        )
+        values
+        <foreach collection="records" item="record" separator=",">
+        (
+            #{record.staffName, jdbcType=VARCHAR}, #{record.isDelete, jdbcType=VARCHAR}, #{record.idNumber, jdbcType=VARCHAR}, #{record.visitEndDate, jdbcType=VARCHAR}, #{record.type, jdbcType=VARCHAR}, #{record.costTotal, jdbcType=DECIMAL}, #{record.costInsurance, jdbcType=DECIMAL}, #{record.costPollingFund, jdbcType=DECIMAL}, #{record.costSeriousIllnessSupply, jdbcType=DECIMAL}, #{record.costSeriousIllness, jdbcType=DECIMAL}, #{record.costOtherSocialInsurance, jdbcType=DECIMAL}, #{record.costNonSocialInsurance, jdbcType=DECIMAL}, #{record.affiliatedMedicalInstitution, jdbcType=VARCHAR}, #{record.entryStatus, jdbcType=VARCHAR}, #{record.editorId, jdbcType=BIGINT}, #{record.editorName, jdbcType=VARCHAR}
+        )
+        </foreach>
+    </insert>
+    <update id="updateAllFieldsById" parameterType="com.zhzx.server.domain.MedicalExpenseReimbursementEntries">
+        update mal_medical_expense_reimbursement_entries set
+        <trim suffixOverrides=",">
+            staff_name = #{et.staffName, jdbcType=VARCHAR},
+            is_delete = #{et.isDelete, jdbcType=VARCHAR},
+            id_number = #{et.idNumber, jdbcType=VARCHAR},
+            visit_end_date = #{et.visitEndDate, jdbcType=VARCHAR},
+            type = #{et.type, jdbcType=VARCHAR},
+            cost_total = #{et.costTotal, jdbcType=DECIMAL},
+            cost_insurance = #{et.costInsurance, jdbcType=DECIMAL},
+            cost_polling_fund = #{et.costPollingFund, jdbcType=DECIMAL},
+            cost_serious_illness_supply = #{et.costSeriousIllnessSupply, jdbcType=DECIMAL},
+            cost_serious_illness = #{et.costSeriousIllness, jdbcType=DECIMAL},
+            cost_other_social_insurance = #{et.costOtherSocialInsurance, jdbcType=DECIMAL},
+            cost_non_social_insurance = #{et.costNonSocialInsurance, jdbcType=DECIMAL},
+            affiliated_medical_institution = #{et.affiliatedMedicalInstitution, jdbcType=VARCHAR},
+            entry_status = #{et.entryStatus, jdbcType=VARCHAR},
+            editor_id = #{et.editorId, jdbcType=BIGINT},
+            editor_name = #{et.editorName, jdbcType=VARCHAR},
+        </trim>
+        where id = #{et.id}
+    </update>
+</mapper>
