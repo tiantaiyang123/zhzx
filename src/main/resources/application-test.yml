@@ -77,3 +77,4 @@ xcx:
   pc_login_cookie_url: http://dc.njzhzx.net/login2Zh
 cas:
   ticket_validate_url: http://localhost:18080/cas_overlay_war_exploded/p3/serviceValidate?ticket={0}&service={1}
+  log_out_url: http://localhost:18080/cas_overlay_war_exploded/logout
