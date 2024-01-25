@@ -8,9 +8,6 @@
 
 package com.zhzx.server.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.zhzx.server.domain.Authority;
-import com.zhzx.server.domain.Settings;
 import com.zhzx.server.domain.Student;
 import com.zhzx.server.domain.StudentParent;
 import com.zhzx.server.dto.wx.WxStudent;
@@ -27,7 +24,7 @@ public interface WxSendMessageService {
 
     Boolean sendTeacherMessage(String content, List<String> userList);
 
-    Boolean sendTeacherMessageNews(List<Map<String, Object>> articles, List<String> userList);
+    void sendTeacherMessageNews(List<Map<String, Object>> articles, List<String> userList);
 
     String getWxToken(String secret,String appId);
 

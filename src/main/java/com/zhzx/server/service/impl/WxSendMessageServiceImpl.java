@@ -33,6 +33,7 @@ import com.zhzx.server.vo.StudentInfoVo;
 import com.zhzx.server.vo.StudentParamVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
@@ -117,10 +118,12 @@ public class WxSendMessageServiceImpl implements WxSendMessageService {
      * @Date: 2022/11/4 11:40
      */
     @Override
-    public Boolean sendTeacherMessageNews(List<Map<String, Object>> articles, List<String> teacherList){
+    @Async( "threadPoolExecutor" )
+    public void sendTeacherMessageNews(List<Map<String, Object>> articles, List<String> teacherList){
         String token = this.getWxToken(messageSecret,messageAppId);
         Map<String, Object> param = new HashMap<>();
-        param.put("touser",teacherList.stream().collect(Collectors.joining("|")));
+        String userinf = String.join("|", teacherList);
+        param.put("touser",userinf);
         param.put("msgtype","news");
         param.put("agentid",agentId);
 
@@ -130,12 +133,10 @@ public class WxSendMessageServiceImpl implements WxSendMessageService {
         param.put("news",map1);
         String sendMessageUrl = String.format("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s",token);
         JSONObject sendJson = restTemplate.postForEntity(sendMessageUrl, param,JSONObject.class).getBody();
-        log.info("发送值班微信返回："+teacherList.stream().collect(Collectors.joining("|"))+"--"+sendJson.toJSONString());
+        log.info("发送值班微信返回："+userinf+"--"+sendJson.toJSONString());
         if(!sendJson.get("errcode").toString().equals("0")){
-
             throw new ApiCode.ApiException(-5,sendJson.get("errmsg").toString());
         }
-        return true;
     }
 
     @Override

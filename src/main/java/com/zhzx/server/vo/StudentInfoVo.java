@@ -15,6 +15,10 @@ public class StudentInfoVo extends Student {
     @TableField(exist = false)
     private Long clazzId;
 
+    @ApiModelProperty(value = "校区ID")
+    @TableField(exist = false)
+    private Long schoolyardId;
+
     @ApiModelProperty(value = "班级")
     @TableField(exist = false)
     private String clazzName;

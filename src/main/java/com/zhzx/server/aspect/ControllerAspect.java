@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
 
 /**
@@ -23,6 +24,9 @@ import java.lang.reflect.Method;
 @Configuration
 @Slf4j
 public class ControllerAspect {
+
+    @Resource
+    private MessageInfoAspect messageInfoAspect;
 
     @Pointcut("execution(* com.zhzx.server..rest..*(..))")
     public void aspect() {
@@ -38,7 +42,7 @@ public class ControllerAspect {
         Object result = pjp.proceed();
         //是否需要记录日志
         if (method.isAnnotationPresent(MessageInfo.class)) {
-            new MessageInfoAspect().handle(pjp, method);
+            messageInfoAspect.handle(pjp, method);
         }
         return result;
     }

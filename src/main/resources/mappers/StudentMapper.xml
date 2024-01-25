@@ -175,6 +175,7 @@
     <resultMap type="com.zhzx.server.vo.StudentInfoVo" id="InfoMap" extends="com.zhzx.server.repository.base.StudentBaseMapper.BaseResultMap">
         <id property="id" column="id"/>
         <result property="clazzId" column="clazz_id"/>
+        <result property="schoolyardId" column="schoolyard_id"/>
         <result property="clazzName" column="clazz_name"/>
         <result property="bedName" column="bed_name"/>
         <result property="userId" column="user_id"/>
@@ -295,6 +296,7 @@
     <select id="listSimpleIncrStudent" resultMap="InfoMap">
         select ss.*,
         ssc.clazz_id as clazz_id,
+        syard.id as schoolyard_id,
         replace(concat(sg.name, sc.name), '年级', '') as clazz_name,
         concat(sd.building, sd.floor, sd.name, ssd.bed) as bed_name
         from  (select student_id, max(id) as id from sys_student_clazz where clazz_id in (select sysc.id from sys_clazz sysc where sysc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1)) group by student_id) tmp
@@ -302,6 +304,7 @@
         left join sys_student_clazz ssc on tmp.id = ssc.id
         left join sys_student_dormitory ssd on ss.id = ssd.student_id and ssd.is_default='YES'
         left join sys_clazz sc on ssc.clazz_id = sc.id
+        left join sys_schoolyard syard on syard.id=sc.schoolyard_id
         left join sys_grade sg on sc.grade_id = sg.id
         left join sys_dormitory sd on ssd.dormitory_id = sd.id
         <if test="param!=null">

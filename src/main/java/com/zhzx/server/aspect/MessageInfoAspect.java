@@ -21,7 +21,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -37,19 +37,15 @@ import java.util.Map;
  */
 
 @Slf4j
-@EnableAsync
+@Component
 public class MessageInfoAspect {
 
+    @Async( "threadPoolExecutor" )
     public void handle(JoinPoint pjp, Method method) throws Throwable {
         MessageInfo messageInfo = method.getAnnotation(MessageInfo.class);
-        try {
-            logHandle(messageInfo,pjp.getArgs());
-        }catch (Exception e){
-            e.getMessage();
-        }
+        logHandle(messageInfo,pjp.getArgs());
     }
 
-    @Async
     public void logHandle(MessageInfo messageInfo,Object[] args) {
         Message message = new Message();
         message.setMessageTaskId(-1L);
