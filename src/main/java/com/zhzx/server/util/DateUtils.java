@@ -65,10 +65,14 @@ public final class DateUtils {
     }
 
     public static List<Date> getMonthDays(Date timeFrom, Date timeTo) {
+
+        //返回时间集合为空
         if (null == timeFrom || null == timeTo || timeFrom.after(timeTo)) return null;
 
         List<Date> dateList = new ArrayList<>();
+        //获取当前时间
         Calendar calendar = Calendar.getInstance();
+        //开始时间设置为当前时间
         calendar.setTime(timeFrom);
 
         timeTo = parse("23:59", timeTo);

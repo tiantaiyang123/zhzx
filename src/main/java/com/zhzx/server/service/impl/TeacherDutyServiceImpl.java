@@ -461,6 +461,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         if(CollectionUtils.isEmpty(dateList)) return page;
 
         AcademicYearSemester academicYearSemester = this.academicYearSemesterMapper.selectOne(Wrappers.<AcademicYearSemester>lambdaQuery().eq(AcademicYearSemester::getIsDefault, YesNoEnum.YES));
+        //年级内每个班级的name
         List<Clazz> clazzList = this.clazzMapper.selectList(
                 Wrappers.<Clazz>lambdaQuery()
                         .eq(null != gradeId, Clazz::getGradeId, gradeId)
@@ -491,6 +492,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
                 formMap.put("gradeName", k);
 
+                //每个阶段开始的时间
                 List<String> startEndTimeList = this.courseTimeMapper.getNightDutyTime(
                         new ArrayList<Long>(){{this.add(v.get(0).getGradeId());}}
                 );
@@ -503,6 +505,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 }).collect(Collectors.toList());
                 formMap.put("clazzList", headerList);
 
+                //日期、星期
                 List<TeacherServerFormDto> gradeList = new ArrayList<>();
 
                 dateListStr.forEach(dateStr -> {
@@ -516,7 +519,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                         TeacherDutyModeEnum dutyModeGradeTeacher = null, dutyModeTotalTeacher = null;
 
                         if (typeDutyMap.containsKey(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY)) {
-                            // 年纪值班按兴隆校区统计
+                            // 年级值班按兴隆校区统计
                             List<TeacherDutyDto> dutyGradeTeachers = typeDutyMap.get(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY);
                             dutyGradeTeachers = dutyGradeTeachers.stream()
                                     .filter(t -> t.getSchoolyardId().equals(1L) && t.getTeacherDutyClazzList().get(0).getGradeName().equals(k))

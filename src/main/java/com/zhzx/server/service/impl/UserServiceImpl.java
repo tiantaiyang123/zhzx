@@ -167,6 +167,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private static final String PASSWORD_ENCODE = "Q_wqmm192nQDQOM87XXi0l";
 
     private void updateLoginError(User user) {
+        //修改用户访问次数
         Integer loginErrorCnt = user.getLoginErrorCnt();
         if (loginErrorCnt == 5) {
             this.baseMapper.update(null, Wrappers.<User>lambdaUpdate()
