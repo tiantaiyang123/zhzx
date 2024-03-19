@@ -169,7 +169,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private void updateLoginError(User user) {
         //修改用户访问次数
         Integer loginErrorCnt = user.getLoginErrorCnt();
-        if (loginErrorCnt == 5) {
+        //用户访问5次禁用用户   ——>  从5次修改为10次
+        if (loginErrorCnt == 10) {
             this.baseMapper.update(null, Wrappers.<User>lambdaUpdate()
                     .set(User::getIsDelete, YesNoEnum.YES)
                     .eq(User::getId, user.getId()));

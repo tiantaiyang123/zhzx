@@ -647,8 +647,11 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         //查询老师
         QueryWrapper<Staff> queryWrapper =  new QueryWrapper<>();
         queryWrapper.eq("is_delete",YesNoEnum.NO);
+        //查询未被删除的老师
         List<Staff> staffList = this.staffMapper.selectList(queryWrapper);
+        //对老师进行去重操作
         Map<String,List<Staff>> staffMap = staffList.stream().collect(Collectors.groupingBy(Staff::getName));
+        //符合条件的班级总数
         Integer existClazzCount = clazzMapper.selectCount(Wrappers.<Clazz>lambdaQuery()
                 .eq(Clazz::getGradeId,gradeId)
                 .eq(Clazz::getSchoolyardId, schoolyardId)
@@ -678,8 +681,9 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             if(!Objects.equals(stage,existClazzCount)){
                 throw new ApiCode.ApiException(-5,"班级行数错误");
             }
-
+            //截取第一阶段
             String stageOne = sheet.getRow(0).getCell(1).toString().replace("（","(").replace("）",")");
+            //截取第二阶段
             String stageTwo = sheet.getRow(0).getCell(stage+1).toString().replace("（","(").replace("）",")");
 
             if(!(stageOne.contains("(") && stageOne.contains(")"))){
@@ -693,12 +697,14 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             String stageTwoStartTime = stageTwo.split("\\(")[1].split("\\)")[0].split("-")[0];
             String stageTwoEndTime = stageTwo.split("\\(")[1].split("\\)")[0].split("-")[1];
 
+            //11节次的时间设置为第一阶段的时间--->主要是开始时间和结束时间
             courseTimeMapper.update(new CourseTime(),Wrappers.<CourseTime>lambdaUpdate()
                     .set(CourseTime::getStartTime,stageOneStartTime)
                     .set(CourseTime::getEndTime,stageOneEndTime)
                     .eq(CourseTime::getSortOrder,11)
                     .eq(CourseTime::getGradeId,gradeId)
             );
+            //12节次的时间设置为第一阶段的时间--->主要是开始时间和结束时间
             courseTimeMapper.update(new CourseTime(),Wrappers.<CourseTime>lambdaUpdate()
                     .set(CourseTime::getStartTime,stageTwoStartTime)
                     .set(CourseTime::getEndTime,stageTwoEndTime)
@@ -707,11 +713,12 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             );
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
+            //符合条件的校区班级的集合
             List<Clazz> clazzList = this.clazzMapper.selectList(Wrappers.<Clazz>lambdaQuery()
                     .eq(Clazz::getGradeId, gradeId)
                     .eq(Clazz::getAcademicYearSemesterId, academicYearSemesterId)
                     .eq(Clazz::getSchoolyardId, schoolyardId));
+            //验证集合是否存在空值
             if (CollectionUtils.isEmpty(clazzList))
                 throw new ApiCode.ApiException(-5,"校区无效！");
 
@@ -745,10 +752,13 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 Set<String> teacherStageOneSet = new HashSet<>();
 
                 StringBuilder child = new StringBuilder();
+                //判断是否存在第一阶段是否存在重复的教师名称
                 StringBuilder childDuplicate = new StringBuilder();
                 for (int columnIndex = 1; columnIndex < columnNum - 3; columnIndex = columnIndex + 1) {
                     teacherDuty = new TeacherDuty();
+                    //设置校区
                     teacherDuty.setSchoolyardId(schoolyardId);
+                    //列数量大于阶段数量，则说明是第二阶段的，反之则是第一阶段的
                     if(columnIndex > stage){
                         teacherDuty.setDutyType(TeacherDutyTypeEnum.STAGE_TWO);
                         teacherDuty.setStartTime(stageTwoStart);
