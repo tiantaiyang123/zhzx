@@ -669,15 +669,19 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             int rowNum = sheet.getPhysicalNumberOfRows();
             // 获得总列数
             int columnNum = sheet.getRow(0).getPhysicalNumberOfCells();
+            //打散之后的总列数
+            int cells = sheet.getRow(2).getPhysicalNumberOfCells();
             // 教师值班列表
             List<TeacherDuty> teacherDutyList = new ArrayList<>();
             // 读取单元格数据
             TeacherDuty teacherDuty = null;
             int clazz = (columnNum - 4)%2;
+            //通过excel的列数是否存在余数来判断excel的格式是否正确
             if(clazz != 0){
                 throw new ApiCode.ApiException(-5,"格式错误");
             }
-            int stage = (columnNum - 4)/2;
+            //16
+            int stage = (cells - 4)/2;
             if(!Objects.equals(stage,existClazzCount)){
                 throw new ApiCode.ApiException(-5,"班级行数错误");
             }
@@ -726,6 +730,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             List<Date> emptyList = new ArrayList<>();
             Set<String> dateSet = new HashSet<>();
 
+            //开始循环取数据
             for (int rowIndex = 2; rowIndex < rowNum; rowIndex = rowIndex + 1) {
                 String dateCell = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(0),"yyyy-MM-dd");
                 // 检查一下日期唯一性
@@ -754,7 +759,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 StringBuilder child = new StringBuilder();
                 //判断是否存在第一阶段是否存在重复的教师名称
                 StringBuilder childDuplicate = new StringBuilder();
-                for (int columnIndex = 1; columnIndex < columnNum - 3; columnIndex = columnIndex + 1) {
+                for (int columnIndex = 1; columnIndex < cells - 4; columnIndex = columnIndex + 1) {
                     teacherDuty = new TeacherDuty();
                     //设置校区
                     teacherDuty.setSchoolyardId(schoolyardId);
@@ -768,6 +773,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                         teacherDuty.setStartTime(stageOneStart);
                         teacherDuty.setEndTime(stageOneEnd);
                     }
+                    //循环读取第二行数据
                     XSSFCell cell = sheet.getRow(rowIndex).getCell(columnIndex);
                     String cellValue = "";
                     if(cell == null){
@@ -783,6 +789,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     if (staffMap.containsKey(cellValue) && columnIndex <= stage && !teacherStageOneSet.add(cellValue)) {
                         childDuplicate.append("第").append(columnIndex + 1).append("列").append(",");
                     } else if(staffMap.containsKey(cellValue)){
+
                         hasValue = true;
 
                         teacherDuty.setTeacherId(staffMap.get(cellValue).get(0).getId());

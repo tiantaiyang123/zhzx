@@ -45,7 +45,7 @@ public class NightDutyClassDto extends BaseDto{
 
     private String clazzRemark;
 
-    private String teacherName;
+    private String teacherName;//老师名称
 
     private Long teacherNewId;
 
