@@ -9,8 +9,8 @@ spring:
   datasource:
     mysql:
       jdbc-url: jdbc:mysql://localhost:3306/zhzx_prod?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&failOverReadOnly=false&useSSL=false&allowMultiQueries=true
-      username: root
-      password: 123456
+      username: zxax
+      password: zxxb@yy330
     mssql:
       jdbc-url: jdbc:sqlserver://10.100.10.111:1433;DatabaseName=AsiaCardserver
       username: EKT
@@ -19,7 +19,7 @@ spring:
     host: 127.0.0.1
     database: 1
     port: 6379
-    password:
+    password: chenghe666666
     timeout: 10000
     lettuce:
       pool:
@@ -37,7 +37,7 @@ upload:
   SYSTEM_TYPE: LINUX
   BASE_URL: 39.105.20.167
   FTP_PORT: 21
-  DOMAIN_URL: http://1.15.119.160:8088
+  DOMAIN_URL: http://47.96.107.184:8088
   DOMAIN_URL_FTP: http://39.105.20.167:21
   COMMON_PATH: zhzx/tmg
   USER_NAME: haha
