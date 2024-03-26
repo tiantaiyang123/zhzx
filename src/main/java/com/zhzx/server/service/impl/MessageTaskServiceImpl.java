@@ -27,6 +27,7 @@ import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.repository.MessageMapper;
 import com.zhzx.server.repository.MessageTaskReceiverMapper;
 import com.zhzx.server.rest.res.ApiCode;
+import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.util.JsonToCornUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Service;
@@ -54,9 +55,13 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
         if(CollectionUtils.isEmpty(entity.getMessageTaskReceiverList())){
             throw new ApiCode.ApiException(-5,"接收人不能为空");
         }
+        //获取登录者的登录信息
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         entity.setEditorId(user.getStaffId());
+
         entity.setEditorName(user.getRealName());
+
+
         String corn = JsonToCornUtils.jsonToCron(entity.getCronJson());
         JSONObject jsonObject = JSON.parseObject(entity.getCronJson());
         if(jsonObject.containsKey("noticeDayTime")){
@@ -73,19 +78,52 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
         entity.setDefault().validate(true);
         this.baseMapper.insert(entity);
 
+        //获取能接受消息的集合的所有人
         List<MessageTaskReceiver> messageTaskReceiverList = entity.getMessageTaskReceiverList().stream().collect(
                 Collectors.collectingAndThen(
                         Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(MessageTaskReceiver::getReceiverId))), ArrayList::new
                 )
         );
-        messageTaskReceiverList.forEach(messageTaskReceiver -> {
+        //创建消息集合
+        List<Message> messages = new ArrayList<>();
+        if (!messageTaskReceiverList.isEmpty()) {
+            messageTaskReceiverList.forEach(messageTaskReceiver -> {
             messageTaskReceiver.setMessageTaskId(entity.getId());
             messageTaskReceiver.setReceiverType(entity.getReceiverType());
             messageTaskReceiver.setDefault().validate(true);
+            //创建消息对象
+                Message message = createMessage(user, entity, messageTaskReceiver);
+                messages.add(message);
         });
+        }
         messageTaskReceiverMapper.batchInsert(messageTaskReceiverList);
+        //插入信息表
+        this.messageMapper.batchInsert(messages);
         return entity;
     }
+    // 创建消息的方法
+    private Message createMessage(User user, MessageTaskDto entity, MessageTaskReceiver messageTaskReceiver) {
+        Message message = new Message();
+        message.setSenderId(user.getId());
+        message.setSenderName(user.getRealName());
+        message.setSendTime(entity.getStartTime());
+        message.setMessageTaskId(entity.getId());
+        message.setName(entity.getTitle());
+        message.setTitle(entity.getTitle());
+        message.setContent(entity.getContent());
+        message.setReceiverId(messageTaskReceiver.getReceiverId());
+        message.setReceiverName(messageTaskReceiver.getReceiverName());
+        message.setReceiverType(messageTaskReceiver.getReceiverType());
+        message.setIsSend(entity.getSendType());
+        message.setIsRead(YesNoEnum.NO);
+        message.setIsWrite(YesNoEnum.NO);
+        message.setNeedWrite(entity.getNeedWrite());
+        message.setSendNum(0);
+        message.setCreatedTime(new Date());
+        message.setUpdatedTime(new Date());
+        return message;
+    }
+
 
     @Transactional
     @Override
@@ -111,28 +149,31 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
         entity.setCron(corn);
 
         entity.setDefault().validate(true);
-        this.baseMapper.updateById(entity);
-        messageTaskReceiverMapper.delete(Wrappers.<MessageTaskReceiver>lambdaQuery()
-                .eq(MessageTaskReceiver::getMessageTaskId,entity.getId())
-        );
-        List<MessageTaskReceiver> messageTaskReceiverList = entity.getMessageTaskReceiverList().stream().collect(
-                Collectors.collectingAndThen(
-                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(MessageTaskReceiver::getReceiverId))), ArrayList::new
-                )
-        );
-        messageTaskReceiverList.forEach(messageTaskReceiver -> {
-            messageTaskReceiver.setMessageTaskId(entity.getId());
-            messageTaskReceiver.setReceiverType(entity.getReceiverType());
-            messageTaskReceiver.setDefault().validate(true);
-        });
-        messageTaskReceiverMapper.batchInsert(messageTaskReceiverList);
-        Integer message = messageMapper.update(new Message(),Wrappers.<Message>lambdaUpdate()
-                .set(Message::getContent,entity.getContent())
-                .set(Message::getTitle,entity.getTitle())
-                .set(Message::getName,entity.getName())
-                .eq(Message::getMessageTaskId,entity.getId())
-                .eq(Message::getIsSend,YesNoEnum.NO)
-        );
+        int i = this.baseMapper.updateById(entity);
+        if (i>0){
+            //将接收人表中的数据删除
+            messageTaskReceiverMapper.delete(Wrappers.<MessageTaskReceiver>lambdaQuery()
+                    .eq(MessageTaskReceiver::getMessageTaskId,entity.getId())
+            );
+            messageMapper.delete(Wrappers.<Message>lambdaQuery().eq(Message::getMessageTaskId,entity.getId()));
+            List<MessageTaskReceiver> messageTaskReceiverList = entity.getMessageTaskReceiverList().stream().collect(
+                    Collectors.collectingAndThen(
+                            Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(MessageTaskReceiver::getReceiverId))), ArrayList::new
+                    )
+            );
+            List<Message> messages =new ArrayList<>();
+            messageTaskReceiverList.forEach(messageTaskReceiver -> {
+                messageTaskReceiver.setMessageTaskId(entity.getId());
+                messageTaskReceiver.setReceiverType(entity.getReceiverType());
+                messageTaskReceiver.setDefault().validate(true);
+                //创建messages对象
+                Message message = createMessage(user, entity, messageTaskReceiver);
+                messages.add(message);
+            });
+            messageTaskReceiverMapper.batchInsert(messageTaskReceiverList);
+            //插入信息表
+            this.messageMapper.batchInsert(messages);
+        }
         return entity;
     }
 

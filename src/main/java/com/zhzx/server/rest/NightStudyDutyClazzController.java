@@ -187,8 +187,7 @@ public class NightStudyDutyClazzController {
     }
 
     /**
-     * count查询
-     *
+     * 一日常规中值班老师替换 ----- > pad端领导替换
      * @return int
      */
     @PostMapping("/create/or/update")

@@ -996,6 +996,12 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 //        return teacherDutySubstituteMapper.insert(teacherDutySubstitute);
 //    }
 
+
+    /**
+     * 更新值班老师逻辑变更
+     * @param nightDutyClassDto
+     * @return
+     */
     @Override
     public Integer updateTeacher(NightDutyClassDto nightDutyClassDto) {
         // 对应领导晚班

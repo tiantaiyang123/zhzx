@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by A2 on 2022/1/11.
+ * 老师代班entity
  */
 @Data
 public class NightDutyClassDto extends BaseDto{
@@ -29,33 +29,33 @@ public class NightDutyClassDto extends BaseDto{
 
     private Long  teacherDutyClassId;
 
-    private Long  clazzId;
+    private Long  clazzId;//班级id
 
-    private Long  gradeId;
+    private Long  gradeId;//年级id
 
     private Long  updateClazzId;
 
-    private String gradeName;
+    private String gradeName;//年级名称
 
     private String schoolyardName;
 
     private Long schoolyardIdd;
 
-    private String clazzName;
+    private String clazzName;//班级名称
 
     private String clazzRemark;
 
     private String teacherName;//老师名称
 
-    private Long teacherNewId;
+    private Long teacherNewId;//老师id
 
-    private Integer shouldStudentCount;
+    private Integer shouldStudentCount;//应到人数
 
-    private Integer actualStudentCount;
+    private Integer actualStudentCount;//实到人数
 
-    private Integer allStudentCount;
+    private Integer allStudentCount;//班级总人数
 
-    private Integer score;
+    private Integer score;//得分
 
     private String phone;
 
@@ -63,15 +63,15 @@ public class NightDutyClassDto extends BaseDto{
 
     private YesNoEnum isConfirm;
 
-    private YesNoEnum isLeaderConfirm;
+    private YesNoEnum isLeaderConfirm;//领导是否确认
 
-    private YesNoEnum dutySituation;
+    private YesNoEnum dutySituation;//值班情况
 
     private List<NightStudyAttendance> nightStudyAttendances;
 
     private List<NightStudyDetail> nightStudyDetailList;
 
-    private List<NightStudyDutyClazzDeduction> nightStudyDutyClazzDeductions;
+    private List<NightStudyDutyClazzDeduction> nightStudyDutyClazzDeductions;//扣分情况
 
     private Map<String,List<NightStudyAttendance>> nightStudyDetailMap;
 
@@ -79,7 +79,7 @@ public class NightDutyClassDto extends BaseDto{
 
     private List<CommentImages> picList;
 
-    private TeacherDutyTypeEnum teacherDutyTypeEnum;
+    private TeacherDutyTypeEnum teacherDutyTypeEnum;//晚自习阶段
 
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date startTime;
@@ -88,5 +88,5 @@ public class NightDutyClassDto extends BaseDto{
     private Date endTime;
 
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date time;
+    private Date time;//时间
 }

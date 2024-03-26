@@ -334,20 +334,27 @@ public class NightStudyDutyClazzServiceImpl extends ServiceImpl<NightStudyDutyCl
         return book;
     }
 
+    /**
+     * 刷新，即重新查询晚自习管理的老师值班列表
+     * @return
+     */
     @Override
     public Object refresh() {
         Map<TeacherDutyTypeEnum, Map<Long, NightStudyDutyClazz>> map = new HashMap<>();
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         Staff staff = user.getStaff();
+        //通过教职工表的id获取当前日期所需要值班的领导 ----即获取领导值班表的id
         LeaderDuty leaderDuty = this.leaderDutyMapper.selectOne(Wrappers.<LeaderDuty>lambdaQuery()
                 .eq(LeaderDuty::getDutyType, LeaderDutyTypeEnum.NIGHT_STUDY)
                 .eq(LeaderDuty::getLeaderId, staff.getId())
                 .apply("to_days(start_time)" + "=" + "to_days({0})", new Date()));
         if (leaderDuty == null) return map;
+        //通过领导值班表的id获取晚自习行政值班表对象 ----即两个阶段的晚自习值班信息
         List<NightStudyDuty> nightStudyDutyList = this.nightStudyDutyMapper.selectList(Wrappers.<NightStudyDuty>lambdaQuery()
                 .eq(NightStudyDuty::getLeaderDutyId, leaderDuty.getId())
                 .orderByAsc(NightStudyDuty::getStartTime));
         if (nightStudyDutyList == null || nightStudyDutyList.size() != 2) return map;
+        //循环两次
         for (int i = 0; i < 2; i++) {
             List<NightStudyDutyClazz> nightStudyDutyClazzes = this.baseMapper.selectList(Wrappers.<NightStudyDutyClazz>lambdaQuery()
                     .eq(NightStudyDutyClazz::getNightStudyDutyId, nightStudyDutyList.get(i).getId()));

@@ -26,7 +26,11 @@ public interface NightStudyDutyClazzService extends IService<NightStudyDutyClazz
      */
     int updateAllFieldsById(NightStudyDutyClazz entity);
 
-
+    /**
+     * pad端第二阶段值班老师更新 ----> 一个老师值多个班级，替换的时候全部替换掉了，但实际上是单个替换
+     * @param nightDutyClassDto
+     * @return
+     */
     NightDutyClassDto createOrUpdate(NightDutyClassDto nightDutyClassDto);
 
     IPage pageDetail(IPage leaderPage, TeacherDutyTypeEnum dutyType, String name,String clazzName, Date startTime, Date endTime, Long gradeId, Long clazzId, Long schoolyardId);
