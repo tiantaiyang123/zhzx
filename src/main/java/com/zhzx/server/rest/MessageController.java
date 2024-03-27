@@ -116,8 +116,6 @@ public class MessageController {
         messageTaskIds = list.stream().map(Message::getMessageTaskId).collect(Collectors.toList());
         //去重
         List<Long> distinctMessageTaskIds = messageTaskIds.stream().distinct().collect(Collectors.toList());
-        distinctMessageTaskIds.add(Long.valueOf(-1));
-        distinctMessageTaskIds.add(Long.valueOf(-2));
         return ApiResponse.ok(distinctMessageTaskIds);
     }
 
@@ -138,6 +136,12 @@ public class MessageController {
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
+        List<Long> messageTaskIds = param.getMessageTaskIds();
+        if (messageTaskIds.size()>0){
+            messageTaskIds.addAll(Collections.singletonList(param.getMessageTaskId()));
+            param.setMessageTaskId(null);
+            param.setMessageTaskIds(messageTaskIds);
+        }
         QueryWrapper<Message> wrapper = param.toQueryWrapper();
         String[] temp = orderByClause.split("[,;]]");
         Arrays.stream(temp).forEach(ob -> {
