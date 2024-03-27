@@ -40,6 +40,9 @@ public class MessageParam implements Serializable {
      */
     @ApiModelProperty(value = "ID系统自动生成 IN值List")
     private List<Long> idList;
+
+    private List<Long> messageTaskIds;
+
     /**
      * 任务id
      */
