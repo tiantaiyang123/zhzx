@@ -8,25 +8,22 @@
 
 package com.zhzx.server.repository;
 
-import java.io.Serializable;
+import com.zhzx.server.domain.Message;
+import com.zhzx.server.repository.base.MessageBaseMapper;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import org.springframework.stereotype.Repository;
-import org.apache.ibatis.annotations.Param;
-import com.zhzx.server.domain.Message;
-import com.zhzx.server.repository.base.MessageBaseMapper;
 
 @Repository
 public interface MessageMapper extends MessageBaseMapper {
 
 
     int batchInsert(@Param("records") List<Message> messageList);
+
+    int updateBatch(@Param("messages")List<Message> messages);
 
     List<Map<String,Object>> calculateMessage(@Param("time") Date date);
 }

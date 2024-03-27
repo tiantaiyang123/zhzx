@@ -8,10 +8,12 @@
 
 package com.zhzx.server.service;
 
-import java.util.Date;
-import java.util.List;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zhzx.server.domain.Message;
+import com.zhzx.server.domain.MessageTask;
+
+import java.util.Date;
+import java.util.List;
 
 public interface MessageService extends IService<Message> {
 
@@ -25,4 +27,7 @@ public interface MessageService extends IService<Message> {
     int batchInsert(List<Message> messageList);
 
     void calculateMessage(Date date);
+
+     int updateIsSendOnMessage(MessageTask entity);
+
 }

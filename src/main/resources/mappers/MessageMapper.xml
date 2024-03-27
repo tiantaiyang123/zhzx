@@ -2,19 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zhzx.server.repository.MessageMapper">
     <!-- 根据主键查询 -->
-    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.MessageBaseMapper.ResultMap">
-        select * from mes_message where id = #{id}
+    <select id="selectById" parameterType="java.io.Serializable"
+            resultMap="com.zhzx.server.repository.base.MessageBaseMapper.ResultMap">
+        select *
+        from mes_message
+        where id = #{id}
     </select>
     <!-- 根据Wrapper查询 -->
     <select id="selectOne" resultMap="com.zhzx.server.repository.base.MessageBaseMapper.ResultMap">
-        select * from mes_message ${ew.customSqlSegment} LIMIT 1
+        select *
+        from mes_message ${ew.customSqlSegment} LIMIT 1
     </select>
     <!-- 根据Wrapper查询 -->
     <select id="selectPage" resultMap="com.zhzx.server.repository.base.MessageBaseMapper.ResultMap">
-        select * from mes_message ${ew.customSqlSegment}
+        select *
+        from mes_message ${ew.customSqlSegment}
     </select>
     <select id="selectList" resultMap="com.zhzx.server.repository.base.MessageBaseMapper.ResultMap">
-        select * from mes_message ${ew.customSqlSegment}
+        select *
+        from mes_message ${ew.customSqlSegment}
     </select>
     <insert id="batchInsert">
         insert into mes_message (
@@ -44,14 +50,28 @@
         </foreach>
     </insert>
 
+    <update id="updateBatch">
+        <foreach collection="messages" item="message" separator=";">
+            UPDATE mes_message
+            <set>
+                <if test="message.isSend!=null">is_send=#{message.isSend}</if>
+            </set>
+            where message_task_id=#{message.messageTaskId}
+        </foreach>
+    </update>
+
     <select id="calculateMessage" resultType="java.util.Map">
-        select mm.message_task_id ,mms.title,mms.editor_id as editorId,mms.editor_name as editorName,mms.need_write as needWrite,
-            sum(case mm.is_send when 'YES' then 1 else 0 end) as sendNum,
-            sum(case mm.is_send when 'NO' then 1 else 0 end) as sendErrNum,
-            sum(case mm.is_read when 'YES' then 1 else 0 end) as readNum,
-            sum(case mm.is_write when 'YES' then 1 else 0 end) as writeNum
+        select mm.message_task_id,
+               mms.title,
+               mms.editor_id                                      as editorId,
+               mms.editor_name                                    as editorName,
+               mms.need_write                                     as needWrite,
+               sum(case mm.is_send when 'YES' then 1 else 0 end)  as sendNum,
+               sum(case mm.is_send when 'NO' then 1 else 0 end)   as sendErrNum,
+               sum(case mm.is_read when 'YES' then 1 else 0 end)  as readNum,
+               sum(case mm.is_write when 'YES' then 1 else 0 end) as writeNum
         from mes_message mm
-        left join mes_message_task mms on mm.message_task_id = mms.id
+                 left join mes_message_task mms on mm.message_task_id = mms.id
         where mm.repeat_send_time between date_add(#{time}, interval - 5 minute) and #{time}
         group by mm.message_task_id
     </select>

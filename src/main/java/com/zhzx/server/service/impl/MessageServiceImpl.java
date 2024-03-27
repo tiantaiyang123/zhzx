@@ -12,9 +12,11 @@ import java.util.*;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zhzx.server.domain.MessageTask;
 import com.zhzx.server.enums.ReceiverEnum;
 import com.zhzx.server.enums.YesNoEnum;
 import org.springframework.stereotype.Service;
@@ -75,6 +77,23 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                 }
             }
         }
+    }
+
+    @Override
+    public int updateIsSendOnMessage(MessageTask entity) {
+        List<Message> messageList = this.baseMapper.selectList
+                (Wrappers.<Message>lambdaQuery().eq(Message::getMessageTaskId,entity.getId()));
+        //判断查询的数量
+        List<Message> messages = new ArrayList<>();
+        if (messageList.size()>0){
+            messageList.forEach(message -> {
+                message.setIsSend(entity.getSendType());
+                messages.add(message);
+            });
+
+        }
+        int updateBatch = this.baseMapper.updateBatch(messages);
+        return updateBatch;
     }
 
 

@@ -8,16 +8,19 @@ package com.zhzx.server.rest;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhzx.server.domain.Message;
 import com.zhzx.server.domain.MessageTask;
 import com.zhzx.server.dto.MessageTaskDto;
 import com.zhzx.server.rest.req.MessageTaskParam;
 import com.zhzx.server.rest.res.ApiResponse;
+import com.zhzx.server.service.MessageService;
 import com.zhzx.server.service.MessageTaskService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.resources.Messages;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
@@ -29,6 +32,9 @@ import java.util.Arrays;
 public class MessageTaskController {
     @Resource
     private MessageTaskService messageTaskService;
+
+    @Resource
+    private MessageService messageService;
 
     /**
      * 通过主键查询
@@ -73,6 +79,8 @@ public class MessageTaskController {
             this.messageTaskService.updateAllFieldsById(entity);
         } else {
             this.messageTaskService.updateById(entity);
+            //更新message信息
+            this.messageService.updateIsSendOnMessage(entity);
         }
         return ApiResponse.ok(this.messageTaskService.getById(entity.getId()));
     }
