@@ -111,8 +111,8 @@ public class MessageController {
                 .eq(Message::getReceiverId, staffId)
                 .eq(Message::getIsRead, YesNoEnum.NO)
                 .eq(Message::getIsSend, YesNoEnum.YES)
-                .ne(Message::getId, -1)
-                .ne(Message::getId, -2));
+                .ne(Message::getMessageTaskId, -1)
+                .ne(Message::getMessageTaskId, -2));
         messageTaskIds = list.stream().map(Message::getMessageTaskId).collect(Collectors.toList());
         //去重
         List<Long> distinctMessageTaskIds = messageTaskIds.stream().distinct().collect(Collectors.toList());
