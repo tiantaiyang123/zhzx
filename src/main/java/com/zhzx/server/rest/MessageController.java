@@ -1,8 +1,9 @@
 /**
-* 项目：中华中学管理平台
-* @Author: xiongwei
-* @Date: 2020-07-23 17:08:00
-*/
+ * 项目：中华中学管理平台
+ *
+ * @Author: xiongwei
+ * @Date: 2020-07-23 17:08:00
+ */
 
 package com.zhzx.server.rest;
 
@@ -30,10 +31,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,6 +43,7 @@ public class MessageController {
     private MessageService messageService;
     @Resource
     private StaffMessageRefuseService staffMessageRefuseService;
+
     /**
      * 通过主键查询
      *
@@ -100,21 +99,44 @@ public class MessageController {
         return ApiResponse.ok(this.messageService.removeById(id));
     }
 
+
+    /**
+     * 查询当前用户所能接收消息的任务id
+     */
+    @GetMapping("/search/messageTaskIds")
+    @ApiOperation("寻找当前用户能接受的消息任务id")
+    public ApiResponse<List<Long>> selectMessageTaskIds(@RequestParam(value = "staffId") Long staffId) {
+        List<Long> messageTaskIds = new ArrayList<>();
+        List<Message> list = messageService.list(Wrappers.<Message>lambdaQuery()
+                .eq(Message::getReceiverId, staffId)
+                .eq(Message::getIsRead, YesNoEnum.NO)
+                .eq(Message::getIsSend, YesNoEnum.YES)
+                .ne(Message::getId, -1)
+                .ne(Message::getId, -2));
+        messageTaskIds = list.stream().map(Message::getMessageTaskId).collect(Collectors.toList());
+        //去重
+        List<Long> distinctMessageTaskIds = messageTaskIds.stream().distinct().collect(Collectors.toList());
+        distinctMessageTaskIds.add(Long.valueOf(-1));
+        distinctMessageTaskIds.add(Long.valueOf(-2));
+        return ApiResponse.ok(distinctMessageTaskIds);
+    }
+
+
     /**
      * 分页查询
      *
-     * @param param 查询参数
-     * @param pageNum pageNum
+     * @param param    查询参数
+     * @param pageNum  pageNum
      * @param pageSize pageSize
      * @return int
      */
     @GetMapping("/search")
     @ApiOperation("分页查询")
     public ApiResponse<IPage<Message>> selectByPage(
-        MessageParam param,
-        @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
-        @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-        @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+            MessageParam param,
+            @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
+            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         QueryWrapper<Message> wrapper = param.toQueryWrapper();
         String[] temp = orderByClause.split("[,;]]");
@@ -127,16 +149,16 @@ public class MessageController {
         this.messageService.page(authorityPage, wrapper);
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         List<StaffMessageRefuse> staffMessageRefuseList = staffMessageRefuseService.list(Wrappers.<StaffMessageRefuse>lambdaQuery()
-                .eq(StaffMessageRefuse::getStaffId,user.getStaffId())
-                .eq(StaffMessageRefuse::getStatus,YesNoEnum.YES)
+                .eq(StaffMessageRefuse::getStaffId, user.getStaffId())
+                .eq(StaffMessageRefuse::getStatus, YesNoEnum.YES)
         );
-        if(CollectionUtils.isNotEmpty(staffMessageRefuseList)){
-            Map<String,List<StaffMessageRefuse>> refuseMap = staffMessageRefuseList.stream().collect(Collectors.groupingBy(StaffMessageRefuse::getName));
-            List<MessageDto> messageDtos = (List<MessageDto>) authorityPage.getRecords().stream().map(item->{
+        if (CollectionUtils.isNotEmpty(staffMessageRefuseList)) {
+            Map<String, List<StaffMessageRefuse>> refuseMap = staffMessageRefuseList.stream().collect(Collectors.groupingBy(StaffMessageRefuse::getName));
+            List<MessageDto> messageDtos = (List<MessageDto>) authorityPage.getRecords().stream().map(item -> {
                 Message message = (Message) item;
                 MessageDto messageDto = new MessageDto();
-                BeanUtils.copyProperties(message,messageDto);
-                if(Objects.equals(message.getMessageTaskId(),-1L) && refuseMap.containsKey(message.getName())){
+                BeanUtils.copyProperties(message, messageDto);
+                if (Objects.equals(message.getMessageTaskId(), -1L) && refuseMap.containsKey(message.getName())) {
                     messageDto.setRefuseStatus(YesNoEnum.YES);
                 }
                 return messageDto;
@@ -170,7 +192,7 @@ public class MessageController {
     public ApiResponse<Boolean> parentUpdate(@RequestBody MessageDto messageDto) {
         String username = JWTUtils.getUsername(messageDto.getToken());
         if (!JWTUtils.verify(messageDto.getToken(), username, "password_zhzx")) {
-            throw new ApiCode.ApiException(-5,"Invalid auth token!");
+            throw new ApiCode.ApiException(-5, "Invalid auth token!");
         }
 
         return ApiResponse.ok(this.messageService.update(Wrappers.<Message>lambdaUpdate()
@@ -178,7 +200,7 @@ public class MessageController {
                 .set(Message::getIsRead, YesNoEnum.YES)
                 .set(Message::getIsWrite, YesNoEnum.YES)
                 .set(Message::getContent, messageDto.getContent())
-                .eq(Message::getId,messageDto.getId())
+                .eq(Message::getId, messageDto.getId())
         ));
     }
 
@@ -193,7 +215,7 @@ public class MessageController {
     public ApiResponse<Message> parentRead(@RequestBody MessageDto messageDto) {
         String username = JWTUtils.getUsername(messageDto.getToken());
         if (!JWTUtils.verify(messageDto.getToken(), username, "password_zhzx")) {
-            throw new ApiCode.ApiException(-5,"Invalid auth token!");
+            throw new ApiCode.ApiException(-5, "Invalid auth token!");
         }
         this.messageService.update(Wrappers.<Message>lambdaUpdate()
                 .set(Message::getIsRead, YesNoEnum.YES)
