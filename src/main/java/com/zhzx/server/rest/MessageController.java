@@ -137,7 +137,7 @@ public class MessageController {
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         List<Long> messageTaskIds = param.getMessageTaskIds();
-        if (messageTaskIds.size()>0){
+        if (!messageTaskIds.isEmpty()){
             messageTaskIds.addAll(Collections.singletonList(param.getMessageTaskId()));
             param.setMessageTaskId(null);
             param.setMessageTaskIds(messageTaskIds);
