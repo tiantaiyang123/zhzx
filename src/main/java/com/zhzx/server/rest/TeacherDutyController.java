@@ -282,7 +282,7 @@ public class TeacherDutyController {
         return ApiResponse.ok(this.teacherDutyService.importTeacherDuty(schoolyardId,academicYearSemesterId,gradeId,fileUrl));
     }
     /**
-     * 值班老师帮替值班
+     * 值班老师帮替值班 ---- app端老师帮人代班
      *
      */
     @PostMapping("/update/teacher/duty")

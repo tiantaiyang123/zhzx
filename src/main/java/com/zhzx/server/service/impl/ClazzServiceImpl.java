@@ -99,18 +99,7 @@ public class ClazzServiceImpl extends ServiceImpl<ClazzMapper, Clazz> implements
     public List<ClazzVo> getListTeacherDutyClazz(Date date, TeacherDutyTypeEnum dutyType) {
         List<ClazzVo> clazzVoList = this.baseMapper.clazzWithDutyTeacher(date, dutyType.toString());
         clazzVoList = clazzVoList.stream().filter(clazzVo -> (clazzVo.getTeacherDutyName() != null && clazzVo.getTeacherDutyName() != "")).collect(Collectors.toList());
-        Map<Long,List<ClazzVo>> map = clazzVoList.stream().collect(Collectors.groupingBy(ClazzVo::getTeacherDutyTeacherId));
-        List<ClazzVo> clazzVos = new ArrayList<>();
-        for (Long key : map.keySet()) {
-            String name = map.get(key).stream().map(clazzVo -> clazzVo.getName()).collect(Collectors.joining("/"));
-            map.get(key).get(0).setName(name);
-            clazzVos.add(map.get(key).get(0));
-        }
-        clazzVos = clazzVos.stream()
-                .sorted(Comparator.comparing(ClazzVo::getGradeId)
-                        .thenComparing(ClazzVo::getId))
-                .collect(Collectors.toList());
-        return clazzVos;
+        return clazzVoList;
     }
 
     @Transactional(rollbackFor = Exception.class)

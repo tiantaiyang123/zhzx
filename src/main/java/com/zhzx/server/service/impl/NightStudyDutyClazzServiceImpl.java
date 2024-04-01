@@ -86,6 +86,7 @@ public class NightStudyDutyClazzServiceImpl extends ServiceImpl<NightStudyDutyCl
         if(nightDutyClassDto.getNightStudyDutyClazzId() == null){
             throw new ApiCode.ApiException(-5,"nightStudyDutyClazzId 必传");
         }else{
+            //
             NightStudyDutyClazz old =  this.baseMapper.selectById(nightDutyClassDto.getNightStudyDutyClazzId());
             NightStudyDutyClazz nightStudyDutyClazz = new NightStudyDutyClazz();
             nightStudyDutyClazz.setId(nightDutyClassDto.getNightStudyDutyClazzId());
