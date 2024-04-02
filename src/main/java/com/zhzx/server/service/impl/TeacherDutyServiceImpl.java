@@ -1014,6 +1014,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         TeacherDuty teacherDuty = this.baseMapper.getByTimeAndClazzId(nightDutyClassDto.getClazzId(),nightDutyClassDto.getTime(),nightDutyClassDto.getTeacherDutyTypeEnum().toString());
         //新班级值班老师
         TeacherDuty teacherDuty1 = this.baseMapper.getByClazz(nightDutyClassDto.getTeacherNewId(),nightDutyClassDto.getTime(),nightDutyClassDto.getTeacherDutyTypeEnum().toString());
+        //在day_teacher_duty表中插入新的数据，原来老数据不删除，实际上是需要删除的，不然导出老师工作量不正确
         if(teacherDuty == null){
             if(teacherDuty1 == null ){
                 teacherDuty1 = new TeacherDuty();
@@ -1048,13 +1049,11 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             this.baseMapper.insert(teacherDuty1);
         }
 
-//        teacherDutyClazzMapper.update(new TeacherDutyClazz(),Wrappers.<TeacherDutyClazz>lambdaUpdate()
-//                .set(TeacherDutyClazz::getTeacherDutyId,teacherDuty1.getId())
-//                .eq(TeacherDutyClazz::getTeacherDutyId,teacherDuty.getId())
-//        );
+        //替换表day_teacher_duty_clazz中teacher_duty_id为原值班教师的数据
         teacherDutyClazzMapper.update(new TeacherDutyClazz(),Wrappers.<TeacherDutyClazz>lambdaUpdate()
                 .set(TeacherDutyClazz::getTeacherDutyId,teacherDuty1.getId())
                 .eq(TeacherDutyClazz::getTeacherDutyId,teacherDuty.getId())
+                .eq(TeacherDutyClazz::getClazzId,nightStudyDutyClazz.getClazzId())
         );
         teacherDutySubstituteMapper.update(new TeacherDutySubstitute(),Wrappers.<TeacherDutySubstitute>lambdaUpdate()
                 .set(TeacherDutySubstitute::getTeacherDutyId,teacherDuty1.getId())
