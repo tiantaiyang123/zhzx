@@ -16,7 +16,7 @@ spring:
       username: EKT
       password: 1qaz!QAZ
   redis:
-    host: 127.0.0.1
+    host: 47.96.107.184
     database: 1
     port: 6379
     password: chenghe666666

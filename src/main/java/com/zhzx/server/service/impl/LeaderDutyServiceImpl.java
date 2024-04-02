@@ -1511,7 +1511,7 @@ public class LeaderDutyServiceImpl extends ServiceImpl<LeaderDutyMapper, LeaderD
         if (StringUtils.isNullOrEmpty(fileUrl))
             throw new ApiCode.ApiException(-1, "没有上传文件！");
         String[] items = fileUrl.split("/");
-        File file = new File(uploadPath + "\\" + items[items.length - 2] + "\\" + items[items.length - 1]);
+        File file = new File(uploadPath + File.separator + items[items.length - 2] + File.separator + items[items.length - 1]);
 
         //查询老师
         QueryWrapper<Staff> queryWrapper = new QueryWrapper<>();
@@ -1552,7 +1552,7 @@ public class LeaderDutyServiceImpl extends ServiceImpl<LeaderDutyMapper, LeaderD
             StringBuilder sb = new StringBuilder();
             for (int rowIndex = 1; rowIndex < rowNum; rowIndex = rowIndex + 1) {
                 String dateCell = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(0), "yyyy-MM-dd");
-                if (DateUtils.parse(dateCell, "yyyy-MM-dd").getTime() <= DateUtils.parse(DateUtils.format(new Date(), "yyyy-MM-dd"), "yyyy-MM-dd").getTime()) {
+                if (DateUtils.parse(dateCell, "yyyy-MM-dd").getTime() < DateUtils.parse(DateUtils.format(new Date(), "yyyy-MM-dd"), "yyyy-MM-dd").getTime()) {
                     sb.append("第").append(rowIndex + 1).append("行: ").append("日期早于当前日期").append("\r\n");
                     continue;
                 }

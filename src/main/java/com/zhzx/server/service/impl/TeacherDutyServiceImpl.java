@@ -467,6 +467,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                         .eq(null != gradeId, Clazz::getGradeId, gradeId)
                         .eq(null != schoolyardId, Clazz::getSchoolyardId, schoolyardId)
                         .eq(Clazz::getAcademicYearSemesterId, academicYearSemester.getId())
+                        .ne(Clazz::getName,"23班")
         );
 
         List<TeacherDutyDto> teacherDutyList = this.baseMapper.selectListWithClazz(schoolyardId, gradeId, timeFrom, timeTo);
@@ -759,7 +760,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 StringBuilder child = new StringBuilder();
                 //判断是否存在第一阶段是否存在重复的教师名称
                 StringBuilder childDuplicate = new StringBuilder();
-                for (int columnIndex = 1; columnIndex < cells - 4; columnIndex = columnIndex + 1) {
+                for (int columnIndex = 1; columnIndex < cells - 3; columnIndex = columnIndex + 1) {
                     teacherDuty = new TeacherDuty();
                     //设置校区
                     teacherDuty.setSchoolyardId(schoolyardId);
