@@ -28,6 +28,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -54,7 +55,8 @@ public class WxXcxMessageController {
         List<WxXcxChatBookDto> wxXcxChatBookDtoList = new ArrayList<>();
         if (null != chatBookSettings) {
             JSONObject jsonObject = JSONObject.parseObject(chatBookSettings.getParams());
-            wxXcxChatBookDtoList = JSONObject.parseObject(jsonObject.getString(schoolId.toString()), new TypeReference<List<WxXcxChatBookDto>>() {});
+            wxXcxChatBookDtoList = JSONObject.parseObject(jsonObject.getString(schoolId.toString()), new TypeReference<List<WxXcxChatBookDto>>() {
+            });
             if (!StringUtils.isNullOrEmpty(keyword)) {
                 wxXcxChatBookDtoList.removeIf(t -> {
                     List<WxXcxContactsDto> wxXcxContactsDtoList = t.getList();
@@ -62,9 +64,17 @@ public class WxXcxMessageController {
                     return CollectionUtils.isEmpty(wxXcxContactsDtoList);
                 });
             }
-
+            //将编码转义的手机号码转义回数字
+            wxXcxChatBookDtoList.forEach(dto -> {
+                List<WxXcxContactsDto> wxXcxContactsDtos = dto.getList();
+                wxXcxContactsDtos.forEach(wxXcxContacts -> {
+                    String phone = wxXcxContacts.getPhone();
+                    phone = new String(Base64Utils.decodeFromString(phone));
+                    wxXcxContacts.setPhone(phone);
+                });
+            });
         }
-        return ApiResponse.ok(wxXcxChatBookDtoList);
+            return ApiResponse.ok(wxXcxChatBookDtoList);
     }
 
     @GetMapping("/chat-book-situation")
