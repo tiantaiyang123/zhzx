@@ -64,6 +64,10 @@ public interface TeacherDutyMapper extends TeacherDutyBaseMapper {
                                     @Param("time") Date date,
                                     @Param("dutyType") String dutyType);
 
+    TeacherDuty getByTimeAndClazzIds(@Param("clazzIds") List<Long> clazzIds,
+                                    @Param("time") Date date,
+                                    @Param("dutyType") String dutyType);
+
     TeacherDuty getByClazz(@Param("teacherId") Long teacherId,
                                        @Param("time") Date date,
                                        @Param("dutyType") String dutyType);

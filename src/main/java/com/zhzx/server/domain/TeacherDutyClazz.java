@@ -52,6 +52,12 @@ public class TeacherDutyClazz extends BaseDomain {
     @TableField(value = "clazz_id")
     @ApiModelProperty(value = "班级ID sys_clazz.id", required = true)
     private Long clazzId;
+
+    /**
+     * 班级ids 适用于app代班
+     */
+    private List<Long> clazzIds;
+
     /**
      * 班级ID sys_clazz.id
      */

@@ -37,4 +37,9 @@ public interface TeacherDutyClazzMapper extends TeacherDutyClazzBaseMapper {
                           @Param("dutyType") String dutyType);
 
     int batchInsertWithId(@Param("records") List<TeacherDutyClazz> teacherDutyClazzes);
+
+    /**
+     * app中根据班级的集合循环更新day_teacher_duty_clazz表中的数据
+     */
+    Integer updateByClazzIds(@Param("newId")Long newId,@Param("clazzIds")List<Long> clazzIds,@Param("oldId")Long oldId);
 }

@@ -31,6 +31,8 @@ public class NightDutyClassDto extends BaseDto{
 
     private Long  clazzId;//班级id
 
+    private List<Long> clazzIds;//班级id集合,适用于app端的代班
+
     private Long  gradeId;//年级id
 
     private Long  updateClazzId;

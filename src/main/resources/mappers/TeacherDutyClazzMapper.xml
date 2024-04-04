@@ -2,16 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zhzx.server.repository.TeacherDutyClazzMapper">
     <!-- 根据主键查询 -->
-    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.TeacherDutyClazzBaseMapper.ResultMap">
-        select * from day_teacher_duty_clazz where id = #{id}
+    <select id="selectById" parameterType="java.io.Serializable"
+            resultMap="com.zhzx.server.repository.base.TeacherDutyClazzBaseMapper.ResultMap">
+        select *
+        from day_teacher_duty_clazz
+        where id = #{id}
     </select>
     <!-- 根据Wrapper查询 -->
     <select id="selectOne" resultMap="com.zhzx.server.repository.base.TeacherDutyClazzBaseMapper.ResultMap">
-        select * from day_teacher_duty_clazz ${ew.customSqlSegment} LIMIT 1
+        select *
+        from day_teacher_duty_clazz ${ew.customSqlSegment} LIMIT 1
     </select>
     <!-- 根据Wrapper查询 -->
     <select id="selectList" resultMap="com.zhzx.server.repository.base.TeacherDutyClazzBaseMapper.ResultMap">
-        select * from day_teacher_duty_clazz ${ew.customSqlSegment}
+        select *
+        from day_teacher_duty_clazz ${ew.customSqlSegment}
     </select>
     <update id="updateClazzId">
         update day_teacher_duty_clazz a, sys_clazz b set a.clazz_id=b.id
@@ -24,14 +29,18 @@
         </foreach>
     </update>
     <update id="leaderConfirm">
-        update day_teacher_duty_clazz a set a.is_leader_comfirm = 'YES'
+        update day_teacher_duty_clazz a
+        set a.is_leader_comfirm = 'YES'
         where a.teacher_duty_id = #{teacherDutyId}
     </update>
     <!-- 根据Wrapper查询 -->
     <select id="getTeacherDutyId" resultType="java.lang.Long">
-        select dtd.id from day_teacher_duty_clazz t
-            left join day_teacher_duty dtd on t.teacher_duty_id = dtd.id
-            where to_days(dtd.start_time) = to_days(#{time}) and t.clazz_id = #{clazzId} and dtd.duty_type = #{dutyType}
+        select dtd.id
+        from day_teacher_duty_clazz t
+                 left join day_teacher_duty dtd on t.teacher_duty_id = dtd.id
+        where to_days(dtd.start_time) = to_days(#{time})
+          and t.clazz_id = #{clazzId}
+          and dtd.duty_type = #{dutyType}
     </select>
     <insert id="batchInsertWithId" keyColumn="id" keyProperty="id">
         insert into day_teacher_duty_clazz (
@@ -40,8 +49,22 @@
         values
         <foreach collection="records" item="record" separator=",">
             (
-            #{record.teacherDutyId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT}, #{record.isComfirm, jdbcType=VARCHAR}, #{record.isLeaderComfirm, jdbcType=VARCHAR}
+            #{record.teacherDutyId, jdbcType=BIGINT}, #{record.clazzId, jdbcType=BIGINT},
+            #{record.isComfirm, jdbcType=VARCHAR}, #{record.isLeaderComfirm, jdbcType=VARCHAR}
             )
         </foreach>
     </insert>
+
+
+    <update id="updateByClazzIds">
+        UPDATE day_teacher_duty_clazz
+        SET teacher_duty_id = #{newId}
+        WHERE
+        teacher_duty_id=#{oldId} AND
+        clazz_id IN
+        <foreach collection="clazzIds" item="clazzId" open="(" close=")" separator=",">
+            #{clazzId}
+        </foreach>
+    </update>
+
 </mapper>

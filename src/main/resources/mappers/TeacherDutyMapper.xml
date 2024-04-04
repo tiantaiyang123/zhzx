@@ -201,6 +201,22 @@
         </if>
         limit 1
     </select>
+
+    <select id="getByTimeAndClazzIds" resultMap="com.zhzx.server.repository.base.TeacherDutyBaseMapper.ResultMap">
+        select dtd.*,dtdc.id as teacherDutyClazzId
+        from day_teacher_duty dtd
+        left join day_teacher_duty_clazz dtdc on dtdc.teacher_duty_id = dtd.id
+        where dtdc.clazz_id in
+          <foreach collection="clazzIds" item="clazzId" separator="," open="(" close=")">
+              #{clazzId}
+          </foreach>
+          and to_days(dtd.start_time ) = to_days(#{time})
+        <if test="dutyType != null">
+            and dtd.duty_type = #{dutyType}
+        </if>
+        limit 1
+    </select>
+
     <select id="getByClazz" resultMap="com.zhzx.server.repository.base.TeacherDutyBaseMapper.ResultMap">
         select dtd.*
         from day_teacher_duty dtd

@@ -2,9 +2,10 @@
  * 项目：中华中学流程自动化管理平台
  * 模型分组：一日常规管理
  * 模型名称：教师值班表
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.service.impl;
 
@@ -109,7 +110,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
     }
 
     private BufferedImage rotateImage(final BufferedImage src,
-                                            final int angel) {
+                                      final int angel) {
         int src_width = src.getWidth(null);
         int src_height = src.getHeight(null);
         // 计算旋转后图片的尺寸
@@ -158,8 +159,8 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         if (gradeId == null) {
             return new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
         }
-        Page<Map<String,Object>> page = this.getTeacherDutyFormV2(1, 9999, timeFrom, timeTo, null, gradeId, null, YesNoEnum.YES);
-        List<Map<String,Object>> list = page.getRecords();
+        Page<Map<String, Object>> page = this.getTeacherDutyFormV2(1, 9999, timeFrom, timeTo, null, gradeId, null, YesNoEnum.YES);
+        List<Map<String, Object>> list = page.getRecords();
         if (CollectionUtils.isEmpty(page.getRecords())) {
             return new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
         }
@@ -177,7 +178,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         int rowHeightDay = rowHeight * 2 + padding * 3;
         int rowHeightOther = rowHeight + padding * 3 / 2;
         int ascent = this.getStringWidthHeight("综治办半半")[2];
-        int imageWidth = 80 + 80  + (2 * clazzList.size() + 1) * (columnWidth + padding * 3) + (columnWithLarge + padding * 3);
+        int imageWidth = 80 + 80 + (2 * clazzList.size() + 1) * (columnWidth + padding * 3) + (columnWithLarge + padding * 3);
         int imageHeight = rowHeightDay + rowHeightOther * gradeList.size();
         BufferedImage image = new BufferedImage(imageWidth + 20, imageHeight + 20, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = (Graphics2D) image.getGraphics();
@@ -195,13 +196,13 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         // 日期星期单元格 宽度固定80
         graphics.drawString("日期", 10 + (80 - this.getStringWidthHeight("日期")[0]) / 2, 10 + middle + ascent);
 
-        graphics.drawString("星期",  90 + (80 - this.getStringWidthHeight("星期")[0]) / 2, 10 + middle + ascent);
+        graphics.drawString("星期", 90 + (80 - this.getStringWidthHeight("星期")[0]) / 2, 10 + middle + ascent);
 
         for (int i = 0; i < clazzList.size() * 2; i++) {
             int p = x;
             if (i == 0 || i == clazzList.size()) {
                 graphics.drawLine(x, 10, x, 10 + imageHeight);
-                graphics.drawString(i == 0 ? "第一阶段" : "第二阶段", x + ((columnWidth + 3 * padding)* clazzList.size() - this.getStringWidthHeight("第一阶段")[0]) / 2, 10 + ascent + padding);
+                graphics.drawString(i == 0 ? "第一阶段" : "第二阶段", x + ((columnWidth + 3 * padding) * clazzList.size() - this.getStringWidthHeight("第一阶段")[0]) / 2, 10 + ascent + padding);
                 x += columnWidth + padding * 3;
             } else {
                 x += columnWidth + padding * 3;
@@ -272,50 +273,50 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
     }
 
     @Override
-    public  Map<Object,Object> nightRoutine(Date time,RoutineEnum type) {
+    public Map<Object, Object> nightRoutine(Date time, RoutineEnum type) {
 
-        Map<Object,Object> map = new HashMap<>();
+        Map<Object, Object> map = new HashMap<>();
 
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         Staff staff = staffMapper.selectById(user.getStaffId());
-        List<TeacherDutyDto> teacherDutyDtoList = this.baseMapper.nightRoutine(time,type.toString(),staff.getId(),new ArrayList<String>(){{
+        List<TeacherDutyDto> teacherDutyDtoList = this.baseMapper.nightRoutine(time, type.toString(), staff.getId(), new ArrayList<String>() {{
             this.add(TeacherDutyTypeEnum.STAGE_ONE.toString());
             this.add(TeacherDutyTypeEnum.STAGE_TWO.toString());
         }});
 
         //查询年级及总值班信息
         TeacherDutyDto gradeTeacherDuty = this.getGradeTeacherDuty(time);
-        map.put("totalDutyTeacher",gradeTeacherDuty.getTotalDutyTeacher());
-        map.put("gradeOneTeacher",gradeTeacherDuty.getGradeOneTeacher());
-        map.put("gradeTwoTeacher",gradeTeacherDuty.getGradeTwoTeacher());
-        map.put("gradeThreeTeacher",gradeTeacherDuty.getGradeThreeTeacher());
+        map.put("totalDutyTeacher", gradeTeacherDuty.getTotalDutyTeacher());
+        map.put("gradeOneTeacher", gradeTeacherDuty.getGradeOneTeacher());
+        map.put("gradeTwoTeacher", gradeTeacherDuty.getGradeTwoTeacher());
+        map.put("gradeThreeTeacher", gradeTeacherDuty.getGradeThreeTeacher());
 
 
         for (TeacherDutyDto teacherDutyDto : teacherDutyDtoList) {
-            teacherDutyDto.getTeacherDutyClazzList().stream().forEach(nightDutyClassDto ->{
+            teacherDutyDto.getTeacherDutyClazzList().stream().forEach(nightDutyClassDto -> {
                 List<CommentImages> commentImagesList = new ArrayList<>();
-                if(CollectionUtils.isNotEmpty(nightDutyClassDto.getCommentDtoList())){
-                    for(CommentDto commentDto : nightDutyClassDto.getCommentDtoList()){
-                        if(commentDto.getCommentImagesList() != null){
+                if (CollectionUtils.isNotEmpty(nightDutyClassDto.getCommentDtoList())) {
+                    for (CommentDto commentDto : nightDutyClassDto.getCommentDtoList()) {
+                        if (commentDto.getCommentImagesList() != null) {
                             commentImagesList.addAll(commentDto.getCommentImagesList());
                         }
                     }
                 }
                 nightDutyClassDto.setPicList(commentImagesList);
-                if(CollectionUtils.isNotEmpty(nightDutyClassDto.getNightStudyAttendances())){
-                    NightStudyAttendance nightStudyAttendance = nightDutyClassDto.getNightStudyAttendances().get(nightDutyClassDto.getNightStudyAttendances().size()-1);
+                if (CollectionUtils.isNotEmpty(nightDutyClassDto.getNightStudyAttendances())) {
+                    NightStudyAttendance nightStudyAttendance = nightDutyClassDto.getNightStudyAttendances().get(nightDutyClassDto.getNightStudyAttendances().size() - 1);
                     nightDutyClassDto.setActualStudentCount(nightStudyAttendance.getActualNum());
                     nightDutyClassDto.setShouldStudentCount(nightStudyAttendance.getShouldNum());
-                    Map<String,List<NightStudyAttendance>> detailMap = nightDutyClassDto.getNightStudyAttendances().stream()
-                            .collect(Collectors.groupingBy(entity->entity.getClassify()));
+                    Map<String, List<NightStudyAttendance>> detailMap = nightDutyClassDto.getNightStudyAttendances().stream()
+                            .collect(Collectors.groupingBy(entity -> entity.getClassify()));
                     nightDutyClassDto.setNightStudyDetailMap(detailMap);
                 }
             });
         }
-        Map<TeacherDutyTypeEnum,List<TeacherDutyDto>> stageMap = teacherDutyDtoList.stream().collect(Collectors.groupingBy(TeacherDutyDto::getDutyType));
+        Map<TeacherDutyTypeEnum, List<TeacherDutyDto>> stageMap = teacherDutyDtoList.stream().collect(Collectors.groupingBy(TeacherDutyDto::getDutyType));
         stageMap.keySet().stream().forEach(teacherDutyTypeEnum -> {
             TeacherDutyDto teacherDutyDto = stageMap.get(teacherDutyTypeEnum).get(0);
-            if(CollectionUtils.isNotEmpty(teacherDutyDto.getTeacherDutyClazzList()) && teacherDutyDto.getTeacherDutyClazzList().get(0).getTeacherDutyClassId() != null){
+            if (CollectionUtils.isNotEmpty(teacherDutyDto.getTeacherDutyClazzList()) && teacherDutyDto.getTeacherDutyClazzList().get(0).getTeacherDutyClassId() != null) {
                 // 动态插入时间
                 int sortOrder = teacherDutyTypeEnum.equals(TeacherDutyTypeEnum.STAGE_ONE) ? 11 : 12;
                 String gradeName = teacherDutyDto.getTeacherDutyClazzList().get(0).getGradeName();
@@ -329,42 +330,42 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 teacherDutyDto.setStartTime(DateUtils.parse(courseTime.getStartTime(), now));
                 teacherDutyDto.setEndTime(DateUtils.parse(courseTime.getEndTime(), now));
 
-                map.put(teacherDutyTypeEnum,stageMap.get(teacherDutyTypeEnum).get(0));
+                map.put(teacherDutyTypeEnum, stageMap.get(teacherDutyTypeEnum).get(0));
             }
         });
-        List<Label> labels = labelMapper.selectList(Wrappers.<Label>lambdaQuery().eq(Label::getClassify,"WZXKQ"));
-        map.put("classify",labels);
+        List<Label> labels = labelMapper.selectList(Wrappers.<Label>lambdaQuery().eq(Label::getClassify, "WZXKQ"));
+        map.put("classify", labels);
         return map;
     }
 
     @Override
-    public Page<Map<String,Object>> getTeacherDutyForm(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName,Long gradeId, Long schoolyardId, YesNoEnum fromApp) {
-        Page<Map<String,Object>> page = new Page();
+    public Page<Map<String, Object>> getTeacherDutyForm(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName, Long gradeId, Long schoolyardId, YesNoEnum fromApp) {
+        Page<Map<String, Object>> page = new Page();
         page.setCurrent(pageNum);
         page.setSize(pageSize);
 
         // 如果是APP端按年级查看当月值班表，则dateList默认当月所有日期
         List<Date> dateList = null;
         if (YesNoEnum.NO.equals(fromApp)) {
-            List<TeacherServerFormDto> timeList = this.baseMapper.getTeacherDutyForm(page,timeFrom,timeTo,teacherDutyName,null, schoolyardId);
+            List<TeacherServerFormDto> timeList = this.baseMapper.getTeacherDutyForm(page, timeFrom, timeTo, teacherDutyName, null, schoolyardId);
             dateList = timeList.stream().map(TeacherServerFormDto::getTime).collect(Collectors.toList());
         } else {
             dateList = DateUtils.getMonthDays(timeFrom, timeTo);
             page.setTotal(dateList.size());
         }
 
-        if(CollectionUtils.isEmpty(dateList)) return page;
+        if (CollectionUtils.isEmpty(dateList)) return page;
 
         // 按月查询每次查询量近万，数据加载很慢
-        List<ClazzVo> clazzVoList = this.baseMapper.getFormList(dateList,gradeId, schoolyardId);
+        List<ClazzVo> clazzVoList = this.baseMapper.getFormList(dateList, gradeId, schoolyardId);
 
-        List<Map<String,Object>> formList = new ArrayList<>();
-        if(CollectionUtils.isNotEmpty(clazzVoList)){
-            Map<String,List<ClazzVo>> gradeMap = clazzVoList.stream().collect(Collectors.groupingBy(ClazzVo::getGradeName));
+        List<Map<String, Object>> formList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(clazzVoList)) {
+            Map<String, List<ClazzVo>> gradeMap = clazzVoList.stream().collect(Collectors.groupingBy(ClazzVo::getGradeName));
             for (String key : gradeMap.keySet()) {
-                List<Map<String,Object>> headerList = new ArrayList<>();
-                Map<String ,Object> formMap = new HashMap<>();
-                Map<Date,List<ClazzVo>> timeTeacherMap = gradeMap.get(key).stream().collect(Collectors.groupingBy(ClazzVo::getTime));
+                List<Map<String, Object>> headerList = new ArrayList<>();
+                Map<String, Object> formMap = new HashMap<>();
+                Map<Date, List<ClazzVo>> timeTeacherMap = gradeMap.get(key).stream().collect(Collectors.groupingBy(ClazzVo::getTime));
                 List<TeacherServerFormDto> list = new ArrayList<>();
                 Map<Date, List<ClazzVo>> resultMap = new TreeMap<>((str1, str2) -> str1.compareTo(str2));
                 resultMap.putAll(timeTeacherMap);
@@ -378,21 +379,21 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
                     List<ClazzVo> clazzVos = timeTeacherMap.get(date);
 
-                    if(dateList.contains(date)){
+                    if (dateList.contains(date)) {
                         TeacherDutyGradeTotalDto teacherDuty2 = this.baseMapper.selectTeacherDutyGradeTotalDto(date, 1L, clazzVos.get(0).getGradeId());
                         if (teacherDuty2 != null)
                             teacherServerFormDto.setDutyMode(teacherDuty2.getDutyMode());
                     }
                     for (ClazzVo item : clazzVos) {
-                        if(!flag){
-                            Map<String,Object> headerMap = new HashMap<>();
-                            headerMap.put("name",item.getName());
+                        if (!flag) {
+                            Map<String, Object> headerMap = new HashMap<>();
+                            headerMap.put("name", item.getName());
                             headerList.add(headerMap);
                         }
-                        if(item.getGradeDutyTeacher() != null){
+                        if (item.getGradeDutyTeacher() != null) {
                             teacherServerFormDto.setGradeDutyTeacher(item.getGradeDutyTeacher());
                         }
-                        if(item.getTotalDutyTeacher() != null){
+                        if (item.getTotalDutyTeacher() != null) {
                             teacherServerFormDto.setTotalDutyTeacher(item.getTotalDutyTeacher());
                         }
                     }
@@ -404,17 +405,17 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                             .map(item -> (item.getGradeDutyTeacher() == null ? "" : item.getGradeDutyTeacher()).concat("(").concat(item.getSchoolyardName()).concat(")"))
                             .collect(Collectors.joining(" ")));
                     teacherServerFormDto.setTotalDutyTeacherYard(distinctBySchoolyard.stream()
-                                    .filter(item -> !StringUtils.isNullOrEmpty(item.getTotalDutyTeacher()))
-                                    .map(item -> item.getTotalDutyTeacher().concat("(").concat(item.getSchoolyardName().replace("校区", "")).concat(")"))
-                                    .collect(Collectors.joining(" ")));
+                            .filter(item -> !StringUtils.isNullOrEmpty(item.getTotalDutyTeacher()))
+                            .map(item -> item.getTotalDutyTeacher().concat("(").concat(item.getSchoolyardName().replace("校区", "")).concat(")"))
+                            .collect(Collectors.joining(" ")));
                     teacherServerFormDto.setClazzVoList(timeTeacherMap.get(date));
 
                     list.add(teacherServerFormDto);
                     flag = true;
                 }
-                formMap.put("gradeList",list);
-                formMap.put("gradeName",key);
-                formMap.put("clazzList",headerList);
+                formMap.put("gradeList", list);
+                formMap.put("gradeName", key);
+                formMap.put("clazzList", headerList);
                 formList.add(formMap);
             }
         }
@@ -426,7 +427,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         try {
             return sdf.parse(date);
-        } catch (ParseException ignored){
+        } catch (ParseException ignored) {
         }
         throw new ApiCode.ApiException(-5, "时间格式化失败");
     }
@@ -444,21 +445,21 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
     @Override
     public Page<Map<String, Object>> getTeacherDutyFormV2(Integer pageNum, Integer pageSize, Date timeFrom, Date timeTo, String teacherDutyName, Long gradeId, Long schoolyardId, YesNoEnum fromApp) {
-        Page<Map<String,Object>> page = new Page<>();
+        Page<Map<String, Object>> page = new Page<>();
         page.setCurrent(pageNum);
         page.setSize(pageSize);
 
         // 如果是APP端按年级查看当月值班表，则dateList默认当月所有日期
         List<Date> dateList = null;
         if (YesNoEnum.NO.equals(fromApp)) {
-            List<TeacherServerFormDto> timeList = this.baseMapper.getTeacherDutyForm(page,timeFrom,timeTo,teacherDutyName,null, schoolyardId);
+            List<TeacherServerFormDto> timeList = this.baseMapper.getTeacherDutyForm(page, timeFrom, timeTo, teacherDutyName, null, schoolyardId);
             dateList = timeList.stream().map(TeacherServerFormDto::getTime).collect(Collectors.toList());
         } else {
             dateList = DateUtils.getMonthDays(timeFrom, timeTo);
             page.setTotal(dateList.size());
         }
 
-        if(CollectionUtils.isEmpty(dateList)) return page;
+        if (CollectionUtils.isEmpty(dateList)) return page;
 
         AcademicYearSemester academicYearSemester = this.academicYearSemesterMapper.selectOne(Wrappers.<AcademicYearSemester>lambdaQuery().eq(AcademicYearSemester::getIsDefault, YesNoEnum.YES));
         //年级内每个班级的name
@@ -467,7 +468,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                         .eq(null != gradeId, Clazz::getGradeId, gradeId)
                         .eq(null != schoolyardId, Clazz::getSchoolyardId, schoolyardId)
                         .eq(Clazz::getAcademicYearSemesterId, academicYearSemester.getId())
-                        .ne(Clazz::getName,"23班")
+                        .ne(Clazz::getName, "23班")
         );
 
         List<TeacherDutyDto> teacherDutyList = this.baseMapper.selectListWithClazz(schoolyardId, gradeId, timeFrom, timeTo);
@@ -476,7 +477,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 .filter(t -> TeacherDutyTypeEnum.TOTAL_DUTY.equals(t.getDutyType()) || CollectionUtils.isNotEmpty(t.getTeacherDutyClazzList()))
                 .collect(Collectors.toList());
 
-        List<Map<String,Object>> formList = new ArrayList<>();
+        List<Map<String, Object>> formList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(teacherDutyList)) {
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE", Locale.CHINA);
 
@@ -489,17 +490,19 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     .collect(Collectors.groupingBy(t -> DateUtils.format(t.getStartTime(), "yyyy-MM-dd"), Collectors.groupingBy(TeacherDuty::getDutyType)));
 
             clazzMap.forEach((k, v) -> {
-                Map<String ,Object> formMap = new HashMap<>();
+                Map<String, Object> formMap = new HashMap<>();
 
                 formMap.put("gradeName", k);
 
                 //每个阶段开始的时间
                 List<String> startEndTimeList = this.courseTimeMapper.getNightDutyTime(
-                        new ArrayList<Long>(){{this.add(v.get(0).getGradeId());}}
+                        new ArrayList<Long>() {{
+                            this.add(v.get(0).getGradeId());
+                        }}
                 );
                 formMap.put("startEndTimeList", startEndTimeList);
 
-                List<Map<String,Object>> headerList = v.stream().map(t -> {
+                List<Map<String, Object>> headerList = v.stream().map(t -> {
                     Map<String, Object> map = new HashMap<>(4);
                     map.put("name", t.getName());
                     return map;
@@ -605,7 +608,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         return page;
     }
 
-    public TeacherDutyDto getGradeTeacherDuty (Date time){
+    public TeacherDutyDto getGradeTeacherDuty(Date time) {
         //查询年级及总值班信息
         List<TeacherDutyDto> totalDutyList = this.baseMapper.getTotalDutyList(time);
 
@@ -614,21 +617,25 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         String gradeOneTeacher = "";
         String gradeTwoTeacher = "";
         String gradeThreeTeacher = "";
-        if(CollectionUtils.isNotEmpty(totalDuty))  totalDutyTeacher = totalDuty.stream().map(TeacherDutyDto::getTeacherName).collect(Collectors.joining(","));
+        if (CollectionUtils.isNotEmpty(totalDuty))
+            totalDutyTeacher = totalDuty.stream().map(TeacherDutyDto::getTeacherName).collect(Collectors.joining(","));
 
         totalDutyList = totalDutyList.stream().filter(item -> !StringUtils.isNullOrEmpty(item.getGradeName())).collect(Collectors.toList());
         List<TeacherDutyDto> gradeTotalDutyList = totalDutyList.stream().filter(teacherDutyDto -> TeacherDutyTypeEnum.GRADE_TOTAL_DUTY.equals(teacherDutyDto.getDutyType())).collect(Collectors.toList());
 
-        List<TeacherDutyDto> gradeOneTotalDutyList = gradeTotalDutyList.stream().filter(gradeTotalDuty ->gradeTotalDuty.getGradeName().contains("一")).collect(Collectors.toList());
-        if(CollectionUtils.isNotEmpty(gradeOneTotalDutyList)) gradeOneTeacher = gradeOneTotalDutyList.stream().map(TeacherDutyDto::getTeacherName).collect(Collectors.joining(","));
+        List<TeacherDutyDto> gradeOneTotalDutyList = gradeTotalDutyList.stream().filter(gradeTotalDuty -> gradeTotalDuty.getGradeName().contains("一")).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(gradeOneTotalDutyList))
+            gradeOneTeacher = gradeOneTotalDutyList.stream().map(TeacherDutyDto::getTeacherName).collect(Collectors.joining(","));
 
-        List<TeacherDutyDto> gradeTwoTotalDutyList = gradeTotalDutyList.stream().filter(gradeTotalDuty ->gradeTotalDuty.getGradeName().contains("二")).collect(Collectors.toList());
-        if(CollectionUtils.isNotEmpty(gradeTwoTotalDutyList)) gradeTwoTeacher = gradeTwoTotalDutyList.stream().map(TeacherDutyDto::getTeacherName).collect(Collectors.joining(","));
+        List<TeacherDutyDto> gradeTwoTotalDutyList = gradeTotalDutyList.stream().filter(gradeTotalDuty -> gradeTotalDuty.getGradeName().contains("二")).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(gradeTwoTotalDutyList))
+            gradeTwoTeacher = gradeTwoTotalDutyList.stream().map(TeacherDutyDto::getTeacherName).collect(Collectors.joining(","));
 
-        List<TeacherDutyDto> gradeThreeTotalDutyList = gradeTotalDutyList.stream().filter(gradeTotalDuty ->gradeTotalDuty.getGradeName().contains("三")).collect(Collectors.toList());
+        List<TeacherDutyDto> gradeThreeTotalDutyList = gradeTotalDutyList.stream().filter(gradeTotalDuty -> gradeTotalDuty.getGradeName().contains("三")).collect(Collectors.toList());
 
-        if(CollectionUtils.isNotEmpty(gradeThreeTotalDutyList)) gradeThreeTeacher = gradeThreeTotalDutyList.stream().map(TeacherDutyDto::getTeacherName).collect(Collectors.joining(","));
-        TeacherDutyDto teacherDutyDto = new TeacherDutyDto() ;
+        if (CollectionUtils.isNotEmpty(gradeThreeTotalDutyList))
+            gradeThreeTeacher = gradeThreeTotalDutyList.stream().map(TeacherDutyDto::getTeacherName).collect(Collectors.joining(","));
+        TeacherDutyDto teacherDutyDto = new TeacherDutyDto();
         teacherDutyDto.setTotalDutyTeacher(totalDutyTeacher);
         teacherDutyDto.setGradeThreeTeacher(gradeThreeTeacher);
         teacherDutyDto.setGradeTwoTeacher(gradeTwoTeacher);
@@ -646,17 +653,17 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
         Date currentDate = new Date();
         //查询老师
-        QueryWrapper<Staff> queryWrapper =  new QueryWrapper<>();
-        queryWrapper.eq("is_delete",YesNoEnum.NO);
+        QueryWrapper<Staff> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("is_delete", YesNoEnum.NO);
         //查询未被删除的老师
         List<Staff> staffList = this.staffMapper.selectList(queryWrapper);
         //对老师进行去重操作
-        Map<String,List<Staff>> staffMap = staffList.stream().collect(Collectors.groupingBy(Staff::getName));
+        Map<String, List<Staff>> staffMap = staffList.stream().collect(Collectors.groupingBy(Staff::getName));
         //符合条件的班级总数
         Integer existClazzCount = clazzMapper.selectCount(Wrappers.<Clazz>lambdaQuery()
-                .eq(Clazz::getGradeId,gradeId)
+                .eq(Clazz::getGradeId, gradeId)
                 .eq(Clazz::getSchoolyardId, schoolyardId)
-                .eq(Clazz::getAcademicYearSemesterId,academicYearSemesterId)
+                .eq(Clazz::getAcademicYearSemesterId, academicYearSemesterId)
         );
 
         if (!file.exists())
@@ -676,26 +683,26 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             List<TeacherDuty> teacherDutyList = new ArrayList<>();
             // 读取单元格数据
             TeacherDuty teacherDuty = null;
-            int clazz = (columnNum - 4)%2;
+            int clazz = (columnNum - 4) % 2;
             //通过excel的列数是否存在余数来判断excel的格式是否正确
-            if(clazz != 0){
-                throw new ApiCode.ApiException(-5,"格式错误");
+            if (clazz != 0) {
+                throw new ApiCode.ApiException(-5, "格式错误");
             }
             //16
-            int stage = (cells - 4)/2;
-            if(!Objects.equals(stage,existClazzCount)){
-                throw new ApiCode.ApiException(-5,"班级行数错误");
+            int stage = (cells - 4) / 2;
+            if (!Objects.equals(stage, existClazzCount)) {
+                throw new ApiCode.ApiException(-5, "班级行数错误");
             }
             //截取第一阶段
-            String stageOne = sheet.getRow(0).getCell(1).toString().replace("（","(").replace("）",")");
+            String stageOne = sheet.getRow(0).getCell(1).toString().replace("（", "(").replace("）", ")");
             //截取第二阶段
-            String stageTwo = sheet.getRow(0).getCell(stage+1).toString().replace("（","(").replace("）",")");
+            String stageTwo = sheet.getRow(0).getCell(stage + 1).toString().replace("（", "(").replace("）", ")");
 
-            if(!(stageOne.contains("(") && stageOne.contains(")"))){
-                throw new ApiCode.ApiException(-5,"第一阶段开始结束时间必传！");
+            if (!(stageOne.contains("(") && stageOne.contains(")"))) {
+                throw new ApiCode.ApiException(-5, "第一阶段开始结束时间必传！");
             }
-            if(!(stageTwo.contains("(") && stageTwo.contains(")"))){
-                throw new ApiCode.ApiException(-5,"第二阶段开始结束时间必传！");
+            if (!(stageTwo.contains("(") && stageTwo.contains(")"))) {
+                throw new ApiCode.ApiException(-5, "第二阶段开始结束时间必传！");
             }
             String stageOneStartTime = stageOne.split("\\(")[1].split("\\)")[0].split("-")[0];
             String stageOneEndTime = stageOne.split("\\(")[1].split("\\)")[0].split("-")[1];
@@ -703,18 +710,18 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             String stageTwoEndTime = stageTwo.split("\\(")[1].split("\\)")[0].split("-")[1];
 
             //11节次的时间设置为第一阶段的时间--->主要是开始时间和结束时间
-            courseTimeMapper.update(new CourseTime(),Wrappers.<CourseTime>lambdaUpdate()
-                    .set(CourseTime::getStartTime,stageOneStartTime)
-                    .set(CourseTime::getEndTime,stageOneEndTime)
-                    .eq(CourseTime::getSortOrder,11)
-                    .eq(CourseTime::getGradeId,gradeId)
+            courseTimeMapper.update(new CourseTime(), Wrappers.<CourseTime>lambdaUpdate()
+                    .set(CourseTime::getStartTime, stageOneStartTime)
+                    .set(CourseTime::getEndTime, stageOneEndTime)
+                    .eq(CourseTime::getSortOrder, 11)
+                    .eq(CourseTime::getGradeId, gradeId)
             );
             //12节次的时间设置为第一阶段的时间--->主要是开始时间和结束时间
-            courseTimeMapper.update(new CourseTime(),Wrappers.<CourseTime>lambdaUpdate()
-                    .set(CourseTime::getStartTime,stageTwoStartTime)
-                    .set(CourseTime::getEndTime,stageTwoEndTime)
-                    .eq(CourseTime::getSortOrder,12)
-                    .eq(CourseTime::getGradeId,gradeId)
+            courseTimeMapper.update(new CourseTime(), Wrappers.<CourseTime>lambdaUpdate()
+                    .set(CourseTime::getStartTime, stageTwoStartTime)
+                    .set(CourseTime::getEndTime, stageTwoEndTime)
+                    .eq(CourseTime::getSortOrder, 12)
+                    .eq(CourseTime::getGradeId, gradeId)
             );
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -725,7 +732,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     .eq(Clazz::getSchoolyardId, schoolyardId));
             //验证集合是否存在空值
             if (CollectionUtils.isEmpty(clazzList))
-                throw new ApiCode.ApiException(-5,"校区无效！");
+                throw new ApiCode.ApiException(-5, "校区无效！");
 
             StringBuilder sb = new StringBuilder();
             List<Date> emptyList = new ArrayList<>();
@@ -733,28 +740,28 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
             //开始循环取数据
             for (int rowIndex = 2; rowIndex < rowNum; rowIndex = rowIndex + 1) {
-                String dateCell = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(0),"yyyy-MM-dd");
+                String dateCell = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(0), "yyyy-MM-dd");
                 // 检查一下日期唯一性
                 if (!dateSet.add(dateCell))
-                    throw new ApiCode.ApiException(-5,"日期重复！");
+                    throw new ApiCode.ApiException(-5, "日期重复！");
 
-                Date rowDate = DateUtils.parse(dateCell,"yyyy-MM-dd");
-                if(rowDate.getTime() < DateUtils.parse(DateUtils.format(currentDate,"yyyy-MM-dd"),"yyyy-MM-dd").getTime()){
+                Date rowDate = DateUtils.parse(dateCell, "yyyy-MM-dd");
+                if (rowDate.getTime() < DateUtils.parse(DateUtils.format(currentDate, "yyyy-MM-dd"), "yyyy-MM-dd").getTime()) {
                     sb.append("第").append(rowIndex + 1).append("行: ").append("日期早于当前日期").append("\r\n");
                     continue;
                 }
 
                 // 一、二阶段开始结束时间
-                Date stageOneStart = sdf.parse(dateCell+" "+stageOneStartTime);
-                Date stageOneEnd = sdf.parse(dateCell+" "+stageOneEndTime);
-                Date stageTwoStart = sdf.parse(dateCell+" "+stageTwoStartTime);
-                Date stageTwoEnd = sdf.parse(dateCell+" "+stageTwoEndTime);
+                Date stageOneStart = sdf.parse(dateCell + " " + stageOneStartTime);
+                Date stageOneEnd = sdf.parse(dateCell + " " + stageOneEndTime);
+                Date stageTwoStart = sdf.parse(dateCell + " " + stageTwoStartTime);
+                Date stageTwoEnd = sdf.parse(dateCell + " " + stageTwoEndTime);
 
                 // 本行是否全为空
                 boolean hasValue = false;
 
-                Map<String,List<NightDutyClassDto>> teacherDutyClazzMap = new HashMap<>();
-                Map<String,TeacherDuty> teacherDutyDtoMap = new HashMap<>();
+                Map<String, List<NightDutyClassDto>> teacherDutyClazzMap = new HashMap<>();
+                Map<String, TeacherDuty> teacherDutyDtoMap = new HashMap<>();
                 Set<String> teacherStageOneSet = new HashSet<>();
 
                 StringBuilder child = new StringBuilder();
@@ -765,11 +772,11 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     //设置校区
                     teacherDuty.setSchoolyardId(schoolyardId);
                     //列数量大于阶段数量，则说明是第二阶段的，反之则是第一阶段的
-                    if(columnIndex > stage){
+                    if (columnIndex > stage) {
                         teacherDuty.setDutyType(TeacherDutyTypeEnum.STAGE_TWO);
                         teacherDuty.setStartTime(stageTwoStart);
                         teacherDuty.setEndTime(stageTwoEnd);
-                    }else{
+                    } else {
                         teacherDuty.setDutyType(TeacherDutyTypeEnum.STAGE_ONE);
                         teacherDuty.setStartTime(stageOneStart);
                         teacherDuty.setEndTime(stageOneEnd);
@@ -777,9 +784,9 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                     //循环读取第二行数据
                     XSSFCell cell = sheet.getRow(rowIndex).getCell(columnIndex);
                     String cellValue = "";
-                    if(cell == null){
+                    if (cell == null) {
                         cellValue = "";
-                    }else if (cell.getCellType().equals(CellType.STRING))
+                    } else if (cell.getCellType().equals(CellType.STRING))
                         cellValue = cell.getStringCellValue();
                     else if (CellType.NUMERIC.equals(cell.getCellType()))
                         cellValue = String.valueOf(cell.getNumericCellValue());
@@ -789,65 +796,65 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
                     if (staffMap.containsKey(cellValue) && columnIndex <= stage && !teacherStageOneSet.add(cellValue)) {
                         childDuplicate.append("第").append(columnIndex + 1).append("列").append(",");
-                    } else if(staffMap.containsKey(cellValue)){
+                    } else if (staffMap.containsKey(cellValue)) {
 
                         hasValue = true;
 
                         teacherDuty.setTeacherId(staffMap.get(cellValue).get(0).getId());
                         teacherDuty.setDefault().validate(true);
                         //查询今天是否老师值日两个班级，是就合并
-                        if(teacherDutyClazzMap.containsKey(cellValue + teacherDuty.getDutyType())){
+                        if (teacherDutyClazzMap.containsKey(cellValue + teacherDuty.getDutyType())) {
                             NightDutyClassDto nightDutyClassDto = new NightDutyClassDto();
-                            if(teacherDuty.getDutyType().equals(TeacherDutyTypeEnum.STAGE_ONE)){
+                            if (teacherDuty.getDutyType().equals(TeacherDutyTypeEnum.STAGE_ONE)) {
                                 nightDutyClassDto.setClazzId(offset);
-                            }else{
+                            } else {
                                 nightDutyClassDto.setClazzId(offset);
                             }
 
                             List<NightDutyClassDto> nightDutyClassDtoList = teacherDutyClazzMap.get(cellValue + teacherDuty.getDutyType());
                             nightDutyClassDtoList.add(nightDutyClassDto);
-                            if(teacherDutyDtoMap.containsKey(cellValue + teacherDuty.getDutyType())){
+                            if (teacherDutyDtoMap.containsKey(cellValue + teacherDuty.getDutyType())) {
                                 teacherDutyDtoMap.get(cellValue + teacherDuty.getDutyType()).setTeacherDutyClazzList(nightDutyClassDtoList);
-                            }else{
+                            } else {
                                 teacherDuty.setTeacherDutyClazzList(nightDutyClassDtoList);
-                                teacherDutyDtoMap.put(cellValue + teacherDuty.getDutyType(),teacherDuty);
+                                teacherDutyDtoMap.put(cellValue + teacherDuty.getDutyType(), teacherDuty);
                                 teacherDutyList.add(teacherDuty);
                             }
-                        }else{
+                        } else {
                             List<NightDutyClassDto> clazzes = new ArrayList<>();
                             NightDutyClassDto nightDutyClassDto = new NightDutyClassDto();
-                            if(teacherDuty.getDutyType().equals(TeacherDutyTypeEnum.STAGE_ONE)){
+                            if (teacherDuty.getDutyType().equals(TeacherDutyTypeEnum.STAGE_ONE)) {
                                 nightDutyClassDto.setClazzId(offset);
-                            }else{
+                            } else {
                                 nightDutyClassDto.setClazzId(offset);
                             }
                             clazzes.add(nightDutyClassDto);
-                            teacherDutyClazzMap.put(cellValue + teacherDuty.getDutyType(),clazzes);
-                            if(teacherDutyDtoMap.containsKey(cellValue + teacherDuty.getDutyType())){
+                            teacherDutyClazzMap.put(cellValue + teacherDuty.getDutyType(), clazzes);
+                            if (teacherDutyDtoMap.containsKey(cellValue + teacherDuty.getDutyType())) {
                                 teacherDutyDtoMap.get(cellValue + teacherDuty.getDutyType()).getTeacherDutyClazzList().add(nightDutyClassDto);
-                            }else{
+                            } else {
                                 teacherDuty.setTeacherDutyClazzList(clazzes);
-                                teacherDutyDtoMap.put(cellValue + teacherDuty.getDutyType(),teacherDuty);
+                                teacherDutyDtoMap.put(cellValue + teacherDuty.getDutyType(), teacherDuty);
                                 teacherDutyList.add(teacherDuty);
                             }
                         }
-                    } else if (!StringUtils.isNullOrEmpty(cellValue)){
+                    } else if (!StringUtils.isNullOrEmpty(cellValue)) {
                         child.append("第").append(columnIndex + 1).append("列").append(",");
                     }
 
                 }
-                if(!(rowDate.getTime() < DateUtils.parse(DateUtils.format(currentDate,"yyyy-MM-dd"),"yyyy-MM-dd").getTime())){
+                if (!(rowDate.getTime() < DateUtils.parse(DateUtils.format(currentDate, "yyyy-MM-dd"), "yyyy-MM-dd").getTime())) {
                     //年级总值班
-                    String key = String.valueOf(sheet.getRow(rowIndex).getCell(columnNum-3));
-                    if(staffMap.containsKey(key)){
+                    String key = String.valueOf(sheet.getRow(rowIndex).getCell(columnNum - 3));
+                    if (staffMap.containsKey(key)) {
                         hasValue = true;
 
                         String dateCell1 = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(columnNum - 1));
                         TeacherDuty totalTeacherDuty = new TeacherDuty();
                         totalTeacherDuty.setTeacherId(staffMap.get(key).get(0).getId());
                         totalTeacherDuty.setDutyType(TeacherDutyTypeEnum.GRADE_TOTAL_DUTY);
-                        totalTeacherDuty.setStartTime(sdf.parse(dateCell+" "+stageOneStartTime));
-                        totalTeacherDuty.setEndTime(sdf.parse(dateCell+" "+stageTwoEndTime));
+                        totalTeacherDuty.setStartTime(sdf.parse(dateCell + " " + stageOneStartTime));
+                        totalTeacherDuty.setEndTime(sdf.parse(dateCell + " " + stageTwoEndTime));
                         totalTeacherDuty.setDutyMode("是".equals(dateCell1) ? TeacherDutyModeEnum.HOLIDAY : TeacherDutyModeEnum.NORMAL);
                         totalTeacherDuty.setSchoolyardId(schoolyardId);
                         totalTeacherDuty.setDefault().validate(true);
@@ -859,20 +866,20 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                         }).collect(Collectors.toList());
                         totalTeacherDuty.setTeacherDutyClazzList(nightDutyClassDtoList);
                         teacherDutyList.add(totalTeacherDuty);
-                    } else if (!StringUtils.isNullOrEmpty(key)){
+                    } else if (!StringUtils.isNullOrEmpty(key)) {
                         child.append("第").append(columnNum - 1).append("列").append(",");
                     }
                     //总值班
-                    key = String.valueOf(sheet.getRow(rowIndex).getCell(columnNum-2));
-                    if(staffMap.containsKey(key)){
+                    key = String.valueOf(sheet.getRow(rowIndex).getCell(columnNum - 2));
+                    if (staffMap.containsKey(key)) {
                         hasValue = true;
 
                         TeacherDuty totalTeacherDuty = new TeacherDuty();
                         totalTeacherDuty.setSchoolyardId(schoolyardId);
                         totalTeacherDuty.setTeacherId(staffMap.get(key).get(0).getId());
                         totalTeacherDuty.setDutyType(TeacherDutyTypeEnum.TOTAL_DUTY);
-                        totalTeacherDuty.setStartTime(sdf.parse(dateCell+" "+stageOneStartTime));
-                        totalTeacherDuty.setEndTime(sdf.parse(dateCell+" "+stageTwoEndTime));
+                        totalTeacherDuty.setStartTime(sdf.parse(dateCell + " " + stageOneStartTime));
+                        totalTeacherDuty.setEndTime(sdf.parse(dateCell + " " + stageTwoEndTime));
                         totalTeacherDuty.setDefault().validate(true);
                         teacherDutyList.add(totalTeacherDuty);
                     } else if (!StringUtils.isNullOrEmpty(key)) {
@@ -901,25 +908,25 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             }
 
             for (Date date : emptyList)
-                this.baseMapper.removeByTime(date,schoolyardId,gradeId,academicYearSemesterId);
+                this.baseMapper.removeByTime(date, schoolyardId, gradeId, academicYearSemesterId);
 
-            Map<String,Integer> map = new HashMap<>();
+            Map<String, Integer> map = new HashMap<>();
             for (TeacherDuty teacherDuty1 : teacherDutyList) {
-                if(!map.containsKey(DateUtils.format(teacherDuty1.getStartTime(),"yyyy-MM-dd"))){
-                    map.put(DateUtils.format(teacherDuty1.getStartTime(),"yyyy-MM-dd"),1);
-                    this.baseMapper.removeByTime(teacherDuty1.getStartTime(),schoolyardId,gradeId,academicYearSemesterId);
+                if (!map.containsKey(DateUtils.format(teacherDuty1.getStartTime(), "yyyy-MM-dd"))) {
+                    map.put(DateUtils.format(teacherDuty1.getStartTime(), "yyyy-MM-dd"), 1);
+                    this.baseMapper.removeByTime(teacherDuty1.getStartTime(), schoolyardId, gradeId, academicYearSemesterId);
                 }
-                importTeacherDuty(teacherDuty1,gradeId,academicYearSemesterId);
+                importTeacherDuty(teacherDuty1, gradeId, academicYearSemesterId);
             }
             return "导入成功";
         } catch (IOException | InvalidFormatException e) {
             throw new ApiCode.ApiException(-1, "导入数据失败！");
-        } catch(ParseException p){
+        } catch (ParseException p) {
             throw new ApiCode.ApiException(-1, "时间解析失败");
         }
     }
 
-    private void importTeacherDuty(TeacherDuty teacherDuty,Long gradeId,Long academicYearSemesterId){
+    private void importTeacherDuty(TeacherDuty teacherDuty, Long gradeId, Long academicYearSemesterId) {
         // 如果是总值班 直接更新teacherId
         if (TeacherDutyTypeEnum.TOTAL_DUTY.equals(teacherDuty.getDutyType())) {
             TeacherDuty teacherDuty2 = this.baseMapper.selectOne(new QueryWrapper<TeacherDuty>()
@@ -936,19 +943,19 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             }
             return;
         }
-        TeacherDuty teacherDuty1 = this.baseMapper.getByTimeDutyType(teacherDuty.getStartTime(),teacherDuty.getDutyType().toString(),teacherDuty.getTeacherId());
-        if(teacherDuty1 != null){
+        TeacherDuty teacherDuty1 = this.baseMapper.getByTimeDutyType(teacherDuty.getStartTime(), teacherDuty.getDutyType().toString(), teacherDuty.getTeacherId());
+        if (teacherDuty1 != null) {
             teacherDuty1.setStartTime(teacherDuty.getStartTime());
             teacherDuty1.setEndTime(teacherDuty.getEndTime());
             teacherDuty1.setTeacherId(teacherDuty.getTeacherId());
             this.baseMapper.updateById(teacherDuty1);
             teacherDuty.setId(teacherDuty1.getId());
-        }else{
+        } else {
             this.baseMapper.insert(teacherDuty);
         }
         List<TeacherDutyClazz> teacherDutyClazzes = new ArrayList<>();
         List<NightStudy> nightStudyList = new ArrayList<>();
-        if(CollectionUtils.isNotEmpty(teacherDuty.getTeacherDutyClazzList())) {
+        if (CollectionUtils.isNotEmpty(teacherDuty.getTeacherDutyClazzList())) {
             teacherDuty.getTeacherDutyClazzList().stream().forEach(teacherDutyClazzDto -> {
                 TeacherDutyClazz teacherDutyClazz = new TeacherDutyClazz();
                 teacherDutyClazz.setClazzId(teacherDutyClazzDto.getClazzId());
@@ -958,7 +965,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 teacherDutyClazzes.add(teacherDutyClazz);
             });
             this.teacherDutyClazzMapper.batchInsertWithId(teacherDutyClazzes);
-            teacherDutyClazzes.stream().forEach(item->{
+            teacherDutyClazzes.stream().forEach(item -> {
                 NightStudy nightStudy = new NightStudy();
                 nightStudy.setShouldStudentCount(0);
                 nightStudy.setActualStudentCount(0);
@@ -966,8 +973,8 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 nightStudyList.add(nightStudy);
             });
             this.nightStudyMapper.batchInsert(nightStudyList);
-            List<Long> teacherDutyClazzIds = teacherDutyClazzes.stream().map(item->item.getId()).collect(Collectors.toList());
-            teacherDutyClazzMapper.updateClazzId(teacherDutyClazzIds,gradeId,academicYearSemesterId);
+            List<Long> teacherDutyClazzIds = teacherDutyClazzes.stream().map(item -> item.getId()).collect(Collectors.toList());
+            teacherDutyClazzMapper.updateClazzId(teacherDutyClazzIds, gradeId, academicYearSemesterId);
         }
     }
 
@@ -1011,21 +1018,21 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         Long schoolyardId = nightStudyDuty.getLeaderDuty().getSchoolyardId();
 
         //原始班级值班教师
-        TeacherDuty teacherDuty = this.baseMapper.getByTimeAndClazzId(nightDutyClassDto.getClazzId(),nightDutyClassDto.getTime(),nightDutyClassDto.getTeacherDutyTypeEnum().toString());
+        TeacherDuty teacherDuty = this.baseMapper.getByTimeAndClazzId(nightDutyClassDto.getClazzId(), nightDutyClassDto.getTime(), nightDutyClassDto.getTeacherDutyTypeEnum().toString());
         //新班级值班老师
-        TeacherDuty teacherDuty1 = this.baseMapper.getByClazz(nightDutyClassDto.getTeacherNewId(),nightDutyClassDto.getTime(),nightDutyClassDto.getTeacherDutyTypeEnum().toString());
+        TeacherDuty teacherDuty1 = this.baseMapper.getByClazz(nightDutyClassDto.getTeacherNewId(), nightDutyClassDto.getTime(), nightDutyClassDto.getTeacherDutyTypeEnum().toString());
         //在day_teacher_duty表中插入新的数据，原来老数据不删除，实际上是需要删除的，不然导出老师工作量不正确
-        if(teacherDuty == null){
-            if(teacherDuty1 == null ){
+        if (teacherDuty == null) {
+            if (teacherDuty1 == null) {
                 teacherDuty1 = new TeacherDuty();
                 teacherDuty1.setSchoolyardId(schoolyardId);
                 teacherDuty1.setTeacherId(nightDutyClassDto.getTeacherNewId());
                 Clazz clazz = clazzMapper.selectById(nightDutyClassDto.getClazzId());
                 CourseTime courseTime = courseTimeMapper.selectOne(Wrappers.<CourseTime>lambdaQuery()
-                        .eq(CourseTime::getSortOrder,Objects.equals(nightDutyClassDto.getTeacherDutyTypeEnum(),TeacherDutyTypeEnum.STAGE_ONE) ? 11:12)
-                        .eq(CourseTime::getGradeId,clazz.getGradeId()));
-                teacherDuty1.setStartTime(DateUtils.parse(courseTime.getStartTime(),nightDutyClassDto.getTime()));
-                teacherDuty1.setEndTime(DateUtils.parse(courseTime.getEndTime(),nightDutyClassDto.getTime()));
+                        .eq(CourseTime::getSortOrder, Objects.equals(nightDutyClassDto.getTeacherDutyTypeEnum(), TeacherDutyTypeEnum.STAGE_ONE) ? 11 : 12)
+                        .eq(CourseTime::getGradeId, clazz.getGradeId()));
+                teacherDuty1.setStartTime(DateUtils.parse(courseTime.getStartTime(), nightDutyClassDto.getTime()));
+                teacherDuty1.setEndTime(DateUtils.parse(courseTime.getEndTime(), nightDutyClassDto.getTime()));
                 teacherDuty1.setDutyType(nightDutyClassDto.getTeacherDutyTypeEnum());
                 teacherDuty1.setDefault().validate(true);
                 this.baseMapper.insert(teacherDuty1);
@@ -1035,10 +1042,10 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             teacherDutyClazz.setTeacherDutyId(teacherDuty1.getId());
             teacherDutyClazz.setDefault().validate(true);
             return teacherDutyClazzMapper.insert(teacherDutyClazz);
-        }else if(teacherDuty1 != null && teacherDuty.getId().equals(teacherDuty1.getId())){
+        } else if (teacherDuty1 != null && teacherDuty.getId().equals(teacherDuty1.getId())) {
             return 1;
         }
-        if(teacherDuty1 == null ){
+        if (teacherDuty1 == null) {
             teacherDuty1 = new TeacherDuty();
             teacherDuty1.setSchoolyardId(schoolyardId);
             teacherDuty1.setTeacherId(nightDutyClassDto.getTeacherNewId());
@@ -1050,14 +1057,14 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         }
 
         //替换表day_teacher_duty_clazz中teacher_duty_id为原值班教师的数据
-        teacherDutyClazzMapper.update(new TeacherDutyClazz(),Wrappers.<TeacherDutyClazz>lambdaUpdate()
-                .set(TeacherDutyClazz::getTeacherDutyId,teacherDuty1.getId())
-                .eq(TeacherDutyClazz::getTeacherDutyId,teacherDuty.getId())
-                .eq(TeacherDutyClazz::getClazzId,nightStudyDutyClazz.getClazzId())
+        teacherDutyClazzMapper.update(new TeacherDutyClazz(), Wrappers.<TeacherDutyClazz>lambdaUpdate()
+                .set(TeacherDutyClazz::getTeacherDutyId, teacherDuty1.getId())
+                .eq(TeacherDutyClazz::getTeacherDutyId, teacherDuty.getId())
+                .eq(TeacherDutyClazz::getClazzId, nightStudyDutyClazz.getClazzId())
         );
-        teacherDutySubstituteMapper.update(new TeacherDutySubstitute(),Wrappers.<TeacherDutySubstitute>lambdaUpdate()
-                .set(TeacherDutySubstitute::getTeacherDutyId,teacherDuty1.getId())
-                .eq(TeacherDutySubstitute::getTeacherDutyId,teacherDuty.getId())
+        teacherDutySubstituteMapper.update(new TeacherDutySubstitute(), Wrappers.<TeacherDutySubstitute>lambdaUpdate()
+                .set(TeacherDutySubstitute::getTeacherDutyId, teacherDuty1.getId())
+                .eq(TeacherDutySubstitute::getTeacherDutyId, teacherDuty.getId())
         );
         TeacherDutySubstitute teacherDutySubstitute = new TeacherDutySubstitute();
         teacherDutySubstitute.setTeacherDutyId(teacherDuty.getId());
@@ -1070,9 +1077,9 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
     @Override
     @Transactional
     public Integer nightStudyConfirm(NightDutyClassDto nightDutyClassDto) {
-        return teacherDutyClazzMapper.update(new TeacherDutyClazz(),Wrappers.<TeacherDutyClazz>lambdaUpdate()
-                .set(TeacherDutyClazz::getIsComfirm,YesNoEnum.YES)
-                .eq(TeacherDutyClazz::getId,nightDutyClassDto.getTeacherDutyClassId())
+        return teacherDutyClazzMapper.update(new TeacherDutyClazz(), Wrappers.<TeacherDutyClazz>lambdaUpdate()
+                .set(TeacherDutyClazz::getIsComfirm, YesNoEnum.YES)
+                .eq(TeacherDutyClazz::getId, nightDutyClassDto.getTeacherDutyClassId())
         );
 //        NightStudy nightStudy = new NightStudy();
 //        nightStudy.setTeacherDutyClazzId(nightDutyClassDto.getTeacherDutyClassId());
@@ -1085,22 +1092,29 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
     @Override
     @Transactional
     public Integer updateTeacherDuty(NightDutyClassDto nightDutyClassDto) {
-        User user = (User)SecurityUtils.getSubject().getPrincipal();
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
         Staff staff = staffMapper.selectById(user.getStaffId());
-        TeacherDuty teacherDuty = this.baseMapper.getByTimeAndClazzId(nightDutyClassDto.getClazzId(),nightDutyClassDto.getTime(),nightDutyClassDto.getTeacherDutyTypeEnum().toString());
-
-        if(teacherDuty == null || teacherDuty.getTeacherId().equals(staff.getId())){
-            throw new ApiCode.ApiException(-5,"未查询到教师值班或您无法替自己带班");
+        List<Long> clazzIds = nightDutyClassDto.getClazzIds();
+        TeacherDuty teacherDuty = null;
+        TeacherDutyClazz teacherDutyClazz = new TeacherDutyClazz();
+        //查询原来班级绑定的信息
+        if (!clazzIds.isEmpty()) {
+            teacherDuty = this.baseMapper.getByTimeAndClazzIds(clazzIds, nightDutyClassDto.getTime(), nightDutyClassDto.getTeacherDutyTypeEnum().toString());
+            teacherDutyClazz.setClazzIds(clazzIds);
+            teacherDutyClazz.setTeacherDutyId(teacherDuty.getId());
+        }
+        if (teacherDuty == null || teacherDuty.getTeacherId().equals(staff.getId())) {
+            throw new ApiCode.ApiException(-5, "未查询到教师值班或您无法替自己带班");
         }
         Integer count = teacherDutySubstituteMapper.selectCount(Wrappers.<TeacherDutySubstitute>lambdaQuery()
-                .eq(TeacherDutySubstitute::getIsAgree,YesNoEnum.YES)
-                .eq(TeacherDutySubstitute::getTeacherDutyId,teacherDuty.getId())
+                .eq(TeacherDutySubstitute::getIsAgree, YesNoEnum.YES)
+                .eq(TeacherDutySubstitute::getTeacherDutyId, teacherDuty.getId())
         );
-        if(count > 0){
-            throw new ApiCode.ApiException(-5,"领导修改值班，无法被带班");
+        if (count > 0) {
+            throw new ApiCode.ApiException(-5, "领导修改值班，无法被带班");
         }
-        TeacherDuty teacherDuty1 = this.baseMapper.getByClazz(staff.getId(),nightDutyClassDto.getTime(),nightDutyClassDto.getTeacherDutyTypeEnum().toString());
-        if(teacherDuty1 == null){
+        TeacherDuty teacherDuty1 = this.baseMapper.getByClazz(staff.getId(), nightDutyClassDto.getTime(), nightDutyClassDto.getTeacherDutyTypeEnum().toString());
+        if (teacherDuty1 == null) {
             teacherDuty1 = new TeacherDuty();
             teacherDuty1.setSchoolyardId(teacherDuty.getSchoolyardId());
             teacherDuty1.setTeacherId(staff.getId());
@@ -1109,23 +1123,24 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             teacherDuty1.setDutyType(nightDutyClassDto.getTeacherDutyTypeEnum());
             teacherDuty1.setDefault().validate(true);
             this.baseMapper.insert(teacherDuty1);
-        }else{
+        } else {
             List<TeacherDutyClazz> teacherDutyClazzes = teacherDutyClazzMapper.selectList(Wrappers.<TeacherDutyClazz>lambdaQuery()
-                    .eq(TeacherDutyClazz::getTeacherDutyId,teacherDuty1.getId())
+                    .eq(TeacherDutyClazz::getTeacherDutyId, teacherDuty1.getId())
             );
-            if(CollectionUtils.isNotEmpty(teacherDutyClazzes)){
-                throw new ApiCode.ApiException(-5,"您当天已有值班，无法带班！");
+            if (CollectionUtils.isNotEmpty(teacherDutyClazzes)) {
+                throw new ApiCode.ApiException(-5, "您当天已有值班，无法带班！");
             }
         }
+        //存在的两个老师的id是否被值班领导所确定
         List<Long> ids = new ArrayList<>();
         ids.add(teacherDuty1.getId());
         ids.add(teacherDuty.getId());
         Integer leaderConfirmCount = this.teacherDutyClazzMapper.selectCount(Wrappers.<TeacherDutyClazz>lambdaQuery()
-                .in(TeacherDutyClazz::getTeacherDutyId,ids)
-                .eq(TeacherDutyClazz::getIsLeaderComfirm,YesNoEnum.YES)
+                .in(TeacherDutyClazz::getTeacherDutyId, ids)
+                .eq(TeacherDutyClazz::getIsLeaderComfirm, YesNoEnum.YES)
         );
-        if(leaderConfirmCount > 0){
-            throw new ApiCode.ApiException(-5,"领导已确认您的值班或您代值的班级，无法代值");
+        if (leaderConfirmCount > 0) {
+            throw new ApiCode.ApiException(-5, "领导已确认您的值班或您代值的班级，无法代值");
         }
 // 帮替一个班级
 //        teacherDutyClazzMapper.deleteById(teacherDuty.getTeacherDutyClazzId());
@@ -1134,13 +1149,16 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 //        teacherDutyClazz.setClazzId(nightDutyClassDto.getClazzId());
 //        teacherDutyClazzMapper.insert(teacherDutyClazz);
 // 帮替一个所有班级
-        teacherDutyClazzMapper.update(new TeacherDutyClazz(),Wrappers.<TeacherDutyClazz>lambdaUpdate()
-                .set(TeacherDutyClazz::getTeacherDutyId,teacherDuty1.getId())
-                .eq(TeacherDutyClazz::getTeacherDutyId,teacherDuty.getId())
-        );
-        teacherDutySubstituteMapper.update(new TeacherDutySubstitute(),Wrappers.<TeacherDutySubstitute>lambdaUpdate()
-                .set(TeacherDutySubstitute::getTeacherDutyId,teacherDuty1.getId())
-                .eq(TeacherDutySubstitute::getTeacherDutyId,teacherDuty.getId())
+        teacherDutyClazzMapper.updateByClazzIds(teacherDuty1.getId(),teacherDutyClazz.getClazzIds(),teacherDutyClazz.getTeacherDutyId());
+        //全部更新，实际上应该是根据选择的班级进行更新
+        /*teacherDutyClazzMapper.update(new TeacherDutyClazz(), Wrappers.<TeacherDutyClazz>lambdaUpdate()
+                .set(TeacherDutyClazz::getTeacherDutyId, teacherDuty1.getId())
+                .in(TeacherDutyClazz::getClazzIds,nightDutyClassDto.getClazzIds())
+                .eq(TeacherDutyClazz::getTeacherDutyId, teacherDuty.getId())
+        );*/
+        teacherDutySubstituteMapper.update(new TeacherDutySubstitute(), Wrappers.<TeacherDutySubstitute>lambdaUpdate()
+                .set(TeacherDutySubstitute::getTeacherDutyId, teacherDuty1.getId())
+                .eq(TeacherDutySubstitute::getTeacherDutyId, teacherDuty.getId())
         );
         TeacherDutySubstitute teacherDutySubstitute = new TeacherDutySubstitute();
         teacherDutySubstitute.setTeacherDutyId(teacherDuty1.getId());
@@ -1150,9 +1168,9 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
     }
 
     @Override
-    public IPage pageDetail(IPage teacherPage, TeacherDutyTypeEnum dutyType, String name, String clazzName,Date startTime, Date endTime, Long gradeId, Long clazzId, Long schoolyardId) {
-        teacherPage.setTotal(this.baseMapper.countPageDetail(dutyType,name,clazzName,startTime,endTime,gradeId,clazzId,schoolyardId));
-        List<NightDutyClassDto> nightDutyClassDtoList = this.baseMapper.pageDetail(teacherPage,dutyType,name,clazzName,startTime,endTime,gradeId,clazzId,schoolyardId);
+    public IPage pageDetail(IPage teacherPage, TeacherDutyTypeEnum dutyType, String name, String clazzName, Date startTime, Date endTime, Long gradeId, Long clazzId, Long schoolyardId) {
+        teacherPage.setTotal(this.baseMapper.countPageDetail(dutyType, name, clazzName, startTime, endTime, gradeId, clazzId, schoolyardId));
+        List<NightDutyClassDto> nightDutyClassDtoList = this.baseMapper.pageDetail(teacherPage, dutyType, name, clazzName, startTime, endTime, gradeId, clazzId, schoolyardId);
 //        nightDutyClassDtoList.stream().forEach(nightDutyClassDto->{
 //            if(CollectionUtils.isNotEmpty(nightDutyClassDto.getNightStudyAttendances())){
 //                NightStudyAttendance nightStudyAttendance = nightDutyClassDto.getNightStudyAttendances().get(nightDutyClassDto.getNightStudyAttendances().size()-1);
@@ -1176,7 +1194,8 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             if (CollectionUtils.isNotEmpty(leaderNightStudyDutyDto.getNightDutyClassDtoList())) {
                 NightDutyClassDto nightDutyClassDto1 = leaderNightStudyDutyDto.getNightDutyClassDtoList().get(0);
                 nightDutyClassDto.setScore(nightDutyClassDto1.getScore());
-                if (nightDutyClassDto1.getNightStudyDutyClazzDeductions() != null) nightDutyClassDto.setNightStudyDutyClazzDeductions(nightDutyClassDto1.getNightStudyDutyClazzDeductions());
+                if (nightDutyClassDto1.getNightStudyDutyClazzDeductions() != null)
+                    nightDutyClassDto.setNightStudyDutyClazzDeductions(nightDutyClassDto1.getNightStudyDutyClazzDeductions());
             }
         }
         teacherPage.setRecords(nightDutyClassDtoList);
@@ -1188,24 +1207,24 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
     public Integer cancelTeacherDuty(NightDutyClassDto nightDutyClassDto) {
         TeacherDuty teacherDuty = this.baseMapper.selectById(nightDutyClassDto.getTeacherDutyId());
         List<TeacherDutyClazz> teacherDutyClazzList = this.teacherDutyClazzMapper.selectList(Wrappers.<TeacherDutyClazz>lambdaQuery()
-                .eq(TeacherDutyClazz::getTeacherDutyId,nightDutyClassDto.getTeacherDutyId())
+                .eq(TeacherDutyClazz::getTeacherDutyId, nightDutyClassDto.getTeacherDutyId())
         );
-        if(teacherDutyClazzList == null || teacherDutyClazzList.size() == 0){
-            throw new ApiCode.ApiException(-5,"您当天没有值班，无法取消");
+        if (teacherDutyClazzList == null || teacherDutyClazzList.size() == 0) {
+            throw new ApiCode.ApiException(-5, "您当天没有值班，无法取消");
         }
         Integer count = teacherDutySubstituteMapper.selectCount(Wrappers.<TeacherDutySubstitute>lambdaQuery()
-                .eq(TeacherDutySubstitute::getIsAgree,YesNoEnum.YES)
-                .eq(TeacherDutySubstitute::getTeacherDutyId,teacherDuty.getId())
+                .eq(TeacherDutySubstitute::getIsAgree, YesNoEnum.YES)
+                .eq(TeacherDutySubstitute::getTeacherDutyId, teacherDuty.getId())
         );
-        if(count > 0){
-            throw new ApiCode.ApiException(-5,"领导修改值班，无法取消");
+        if (count > 0) {
+            throw new ApiCode.ApiException(-5, "领导修改值班，无法取消");
         }
-        Long leaderConfirmCount = teacherDutyClazzList.stream().filter(item->YesNoEnum.YES.equals(item.getIsLeaderComfirm())).count();
-        if(leaderConfirmCount > 0){
-            throw new ApiCode.ApiException(-5,"领导已确认，无法取消");
+        Long leaderConfirmCount = teacherDutyClazzList.stream().filter(item -> YesNoEnum.YES.equals(item.getIsLeaderComfirm())).count();
+        if (leaderConfirmCount > 0) {
+            throw new ApiCode.ApiException(-5, "领导已确认，无法取消");
         }
-        TeacherDuty teacherDuty1 = this.baseMapper.getByClazz(nightDutyClassDto.getTeacherNewId(),teacherDuty.getStartTime(),teacherDuty.getDutyType().toString());
-        if(teacherDuty1 == null){
+        TeacherDuty teacherDuty1 = this.baseMapper.getByClazz(nightDutyClassDto.getTeacherNewId(), teacherDuty.getStartTime(), teacherDuty.getDutyType().toString());
+        if (teacherDuty1 == null) {
             teacherDuty1 = new TeacherDuty();
             teacherDuty1.setSchoolyardId(teacherDuty.getSchoolyardId());
             teacherDuty1.setTeacherId(nightDutyClassDto.getTeacherNewId());
@@ -1215,27 +1234,27 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             teacherDuty1.setDefault().validate(true);
             this.baseMapper.insert(teacherDuty1);
         }
-        return teacherDutyClazzMapper.update(new TeacherDutyClazz(),Wrappers.<TeacherDutyClazz>lambdaUpdate()
-                .set(TeacherDutyClazz::getTeacherDutyId,teacherDuty1.getId())
-                .eq(TeacherDutyClazz::getTeacherDutyId,teacherDuty.getId())
+        return teacherDutyClazzMapper.update(new TeacherDutyClazz(), Wrappers.<TeacherDutyClazz>lambdaUpdate()
+                .set(TeacherDutyClazz::getTeacherDutyId, teacherDuty1.getId())
+                .eq(TeacherDutyClazz::getTeacherDutyId, teacherDuty.getId())
         );
     }
 
     @Override
     public List<Staff> cancelTeacherList(Long teacherDutyId) {
-        User user = (User)SecurityUtils.getSubject().getPrincipal();
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
         TeacherDutySubstitute teacherDutySubstitute = teacherDutySubstituteMapper.selectOne(Wrappers.<TeacherDutySubstitute>lambdaQuery()
-                .eq(TeacherDutySubstitute::getTeacherDutyId,teacherDutyId)
-                .eq(TeacherDutySubstitute::getTeacherId,user.getStaffId())
+                .eq(TeacherDutySubstitute::getTeacherDutyId, teacherDutyId)
+                .eq(TeacherDutySubstitute::getTeacherId, user.getStaffId())
                 .orderByDesc(TeacherDutySubstitute::getId)
         );
         List<TeacherDutySubstitute> teacherDutySubstitutes = teacherDutySubstituteMapper.selectList(Wrappers.<TeacherDutySubstitute>lambdaQuery()
-                .eq(TeacherDutySubstitute::getTeacherDutyId,teacherDutyId)
-                .le(TeacherDutySubstitute::getId,teacherDutySubstitute.getId())
+                .eq(TeacherDutySubstitute::getTeacherDutyId, teacherDutyId)
+                .le(TeacherDutySubstitute::getId, teacherDutySubstitute.getId())
         );
         List<Long> ids = new ArrayList<>();
         teacherDutySubstitutes.stream().forEach(item -> {
-            if(!item.getTeacherOldId().equals(user.getStaffId())){
+            if (!item.getTeacherOldId().equals(user.getStaffId())) {
                 ids.add(item.getTeacherOldId());
             }
         });
@@ -1244,82 +1263,88 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
     @Override
     public List<TeacherServerFormDto> getTeacherDutyByStaffId(Date timeFrom, Date timeTo) {
-        User user = (User)SecurityUtils.getSubject().getPrincipal();
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
         QueryWrapper<TeacherDuty> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("teacher_id",user.getStaffId());
-        queryWrapper.ge("start_time",timeFrom);
-        queryWrapper.le("start_time",timeTo);
+        queryWrapper.eq("teacher_id", user.getStaffId());
+        queryWrapper.ge("start_time", timeFrom);
+        queryWrapper.le("start_time", timeTo);
         List<TeacherDuty> teacherDuties = this.baseMapper.selectList(queryWrapper);
-        Map<String,List<TeacherDuty>> teacherDutyMap =  teacherDuties.stream().collect(Collectors.groupingBy(item->DateUtils.format(item.getStartTime(),"yyyy-MM-dd")));
-        Map<String,TeacherServerFormDto> exist = new HashMap<>();
+        Map<String, List<TeacherDuty>> teacherDutyMap = teacherDuties.stream().collect(Collectors.groupingBy(item -> DateUtils.format(item.getStartTime(), "yyyy-MM-dd")));
+        Map<String, TeacherServerFormDto> exist = new HashMap<>();
 
         for (String time : teacherDutyMap.keySet()) {
             for (TeacherDuty teacherDuty : teacherDutyMap.get(time)) {
                 List<TeacherDutyClazz> teacherDutyClazzes = teacherDutyClazzMapper.selectList(Wrappers.<TeacherDutyClazz>lambdaQuery()
-                        .eq(TeacherDutyClazz::getTeacherDutyId,teacherDuty.getId())
+                        .eq(TeacherDutyClazz::getTeacherDutyId, teacherDuty.getId())
                 );
-                if(CollectionUtils.isEmpty(teacherDutyClazzes)){
+                if (CollectionUtils.isEmpty(teacherDutyClazzes)) {
                     continue;
                 }
                 List<ClazzVo> clazzVos = this.parseClazzVo(teacherDutyClazzes);
-                if(exist.containsKey(time)){
+                if (exist.containsKey(time)) {
                     TeacherServerFormDto teacherServerFormDto = exist.get(time);
-                    Map<TeacherDutyTypeEnum,List<ClazzVo>> map = teacherServerFormDto.getClazzVoListMap();
-                    map.put(teacherDuty.getDutyType(),clazzVos);
+                    Map<TeacherDutyTypeEnum, List<ClazzVo>> map = teacherServerFormDto.getClazzVoListMap();
+                    map.put(teacherDuty.getDutyType(), clazzVos);
                     teacherServerFormDto.setClazzVoListMap(map);
 
                     List<ClazzVo> clazzList = teacherServerFormDto.getClazzVoList();
                     clazzList.addAll(clazzVos);
                     clazzList = clazzList.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
-                            -> new TreeSet<>(Comparator.comparing(ClazzVo :: getId))), ArrayList::new));
+                            -> new TreeSet<>(Comparator.comparing(ClazzVo::getId))), ArrayList::new));
                     teacherServerFormDto.setClazzVoList(clazzList);
-                    exist.put(time,teacherServerFormDto);
-                }else{
+                    exist.put(time, teacherServerFormDto);
+                } else {
                     List<ClazzVo> clazzList = new ArrayList<>();
                     clazzList.addAll(clazzVos);
                     TeacherServerFormDto teacherServerFormDto = new TeacherServerFormDto();
                     teacherServerFormDto.setDutyType(teacherDuty.getDutyType());
                     teacherServerFormDto.setTime(teacherDuty.getStartTime());
                     teacherServerFormDto.setClazzVoList(clazzList);
-                    teacherServerFormDto.setClazzVoListMap(new HashMap<TeacherDutyTypeEnum,List<ClazzVo>>(){{this.put(teacherDuty.getDutyType(),clazzVos);}});
-                    exist.put(time,teacherServerFormDto);
+                    teacherServerFormDto.setClazzVoListMap(new HashMap<TeacherDutyTypeEnum, List<ClazzVo>>() {{
+                        this.put(teacherDuty.getDutyType(), clazzVos);
+                    }});
+                    exist.put(time, teacherServerFormDto);
                 }
             }
         }
         QueryWrapper<LeaderDuty> queryWrapper1 = new QueryWrapper<>();
-        queryWrapper1.eq("leader_id",user.getStaffId());
-        queryWrapper1.ge("start_time",timeFrom);
-        queryWrapper1.le("start_time",timeTo);
+        queryWrapper1.eq("leader_id", user.getStaffId());
+        queryWrapper1.ge("start_time", timeFrom);
+        queryWrapper1.le("start_time", timeTo);
         List<LeaderDuty> leaderDutyList = this.leaderDutyMapper.selectList(queryWrapper1);
         for (LeaderDuty leaderDuty : leaderDutyList) {
-            String time = DateUtils.format(leaderDuty.getStartTime(),"yyyy-MM-dd");
-            if(!exist.containsKey(time)){
+            String time = DateUtils.format(leaderDuty.getStartTime(), "yyyy-MM-dd");
+            if (!exist.containsKey(time)) {
                 TeacherServerFormDto teacherServerFormDto = new TeacherServerFormDto();
                 TeacherDutyClazz teacherDutyClazz = teacherDutyClazzMapper.selectOne(Wrappers.<TeacherDutyClazz>lambdaQuery()
-                        .eq(TeacherDutyClazz::getIsLeaderComfirm,YesNoEnum.NO)
-                        .inSql(TeacherDutyClazz::getTeacherDutyId,"select id from day_teacher_duty where to_days(start_time) = "+"to_days("+time+")")
+                        .eq(TeacherDutyClazz::getIsLeaderComfirm, YesNoEnum.NO)
+                        .inSql(TeacherDutyClazz::getTeacherDutyId, "select id from day_teacher_duty where to_days(start_time) = " + "to_days(" + time + ")")
                 );
                 ClazzVo clazzVo = new ClazzVo();
                 clazzVo.setIsLeaderConfirm(YesNoEnum.YES);
-                if(teacherDutyClazz == null){
+                if (teacherDutyClazz == null) {
                     clazzVo.setIsLeaderConfirm(YesNoEnum.NO);
                 }
-                teacherServerFormDto.setClazzVoList(new ArrayList<ClazzVo>(){{this.add(clazzVo);}});
+                teacherServerFormDto.setClazzVoList(new ArrayList<ClazzVo>() {{
+                    this.add(clazzVo);
+                }});
                 teacherServerFormDto.setDutyType(TeacherDutyTypeEnum.TOTAL_DUTY);
                 teacherServerFormDto.setTime(leaderDuty.getStartTime());
-                teacherServerFormDto.setClazzVoListMap(new HashMap<TeacherDutyTypeEnum,List<ClazzVo>>(){{this.put(TeacherDutyTypeEnum.TOTAL_DUTY,teacherServerFormDto.getClazzVoList());}});
-                exist.put(time,teacherServerFormDto);
+                teacherServerFormDto.setClazzVoListMap(new HashMap<TeacherDutyTypeEnum, List<ClazzVo>>() {{
+                    this.put(TeacherDutyTypeEnum.TOTAL_DUTY, teacherServerFormDto.getClazzVoList());
+                }});
+                exist.put(time, teacherServerFormDto);
             }
         }
-        return exist.values().stream().map(item -> (TeacherServerFormDto)item).collect(Collectors.toList());
+        return exist.values().stream().map(item -> (TeacherServerFormDto) item).collect(Collectors.toList());
     }
 
     @Override
     public Integer updateDutyMode(TeacherServerFormDto teacherServerFormDto) {
-        if(teacherServerFormDto.getTime() == null || teacherServerFormDto.getDutyMode() == null || StringUtils.isNullOrEmpty(teacherServerFormDto.getGradeDutyTeacher())){
-            throw new ApiCode.ApiException(-5,"请传入时间及模式及值班老师");
+        if (teacherServerFormDto.getTime() == null || teacherServerFormDto.getDutyMode() == null || StringUtils.isNullOrEmpty(teacherServerFormDto.getGradeDutyTeacher())) {
+            throw new ApiCode.ApiException(-5, "请传入时间及模式及值班老师");
         }
-        return this.teacherDutyMapper.updateByTime(teacherServerFormDto.getTime(),teacherServerFormDto.getDutyMode(), teacherServerFormDto.getGradeDutyTeacher());
+        return this.teacherDutyMapper.updateByTime(teacherServerFormDto.getTime(), teacherServerFormDto.getDutyMode(), teacherServerFormDto.getGradeDutyTeacher());
     }
 
     @Override
@@ -1367,7 +1392,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             cell = row.createCell(1, CellType.STRING);
             cell.setCellStyle(style);
             cell.setCellValue(value.stream().filter(item ->
-                TeacherDutyTypeEnum.STAGE_ONE.equals(item.getDutyType()) && CollectionUtils.isNotEmpty(item.getTeacherDutyClazzList())
+                    TeacherDutyTypeEnum.STAGE_ONE.equals(item.getDutyType()) && CollectionUtils.isNotEmpty(item.getTeacherDutyClazzList())
             ).count());
 
             cell = row.createCell(2, CellType.STRING);
@@ -1386,7 +1411,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
             cell.setCellStyle(style);
             cell.setCellValue(value.stream().filter(item -> {
                 String date = DateUtils.format(item.getStartTime(), "yyyyMMdd");
-                return TeacherDutyTypeEnum.TOTAL_DUTY.equals(item.getDutyType())  && !teacherDutyGradeTotalMap.containsKey(date);
+                return TeacherDutyTypeEnum.TOTAL_DUTY.equals(item.getDutyType()) && !teacherDutyGradeTotalMap.containsKey(date);
             }).count());
         }
         return book;
@@ -1400,8 +1425,8 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         InputStream is = getClass().getResourceAsStream("/static/templates/晚自习值班统计.xlsx");
         XSSFWorkbook book = new XSSFWorkbook(is);
 
-        Page<Map<String,Object>> page = this.getTeacherDutyFormV2(1, 9999, timeFrom, timeTo, null, gradeId, schoolyardId, YesNoEnum.NO);
-        List<Map<String,Object>> records = page.getRecords();
+        Page<Map<String, Object>> page = this.getTeacherDutyFormV2(1, 9999, timeFrom, timeTo, null, gradeId, schoolyardId, YesNoEnum.NO);
+        List<Map<String, Object>> records = page.getRecords();
 
         XSSFCellStyle style = book.createCellStyle();
         style.setBorderLeft(BorderStyle.THIN);
@@ -1419,7 +1444,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
     }
 
     @SuppressWarnings("unchecked")
-    private void putData(XSSFWorkbook book, XSSFCellStyle style, Map<String,Object> data) {
+    private void putData(XSSFWorkbook book, XSSFCellStyle style, Map<String, Object> data) {
         String gradeName = data.get("gradeName").toString();
         XSSFSheet sheet = book.getSheet(gradeName);
 
@@ -1550,7 +1575,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         }
     }
 
-    private List<ClazzVo> parseClazzVo(List<TeacherDutyClazz> teacherDutyClazzes){
+    private List<ClazzVo> parseClazzVo(List<TeacherDutyClazz> teacherDutyClazzes) {
         return teacherDutyClazzes.stream().map(teacherDutyClazz -> {
             ClazzVo clazzVo = new ClazzVo();
             clazzVo.setGradeName(teacherDutyClazz.getClazz().getGrade().getName());
