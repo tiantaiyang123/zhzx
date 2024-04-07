@@ -97,13 +97,6 @@ public class Staff extends BaseDomain {
     private GenderEnum gender;
 
     /**
-     * 性别
-     */
-    @TableField(value = "wx_username")
-    @ApiModelProperty(value = "企业微信账号", required = true)
-    private String wxUserName;
-
-    /**
      * 手机号
      */
     @TableField(value = "phone")
