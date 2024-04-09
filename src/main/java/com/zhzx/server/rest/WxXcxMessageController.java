@@ -22,6 +22,7 @@ import com.zhzx.server.rest.req.WxXcxMessageParam;
 import com.zhzx.server.rest.res.ApiResponse;
 import com.zhzx.server.service.SettingsService;
 import com.zhzx.server.service.WxXcxMessageService;
+import com.zhzx.server.util.AESUtils;
 import com.zhzx.server.util.StringUtils;
 import com.zhzx.server.vo.MessageCombineVo;
 import io.swagger.annotations.Api;
@@ -44,6 +45,8 @@ public class WxXcxMessageController {
     @Resource
     private SettingsService settingsService;
 
+    private static final String AES_EBC_KEY="jd8dh3742o8tr98y";
+
     @GetMapping("/chat-book")
     @ApiOperation("查询通讯录")
     @SneakyThrows
@@ -64,15 +67,17 @@ public class WxXcxMessageController {
                     return CollectionUtils.isEmpty(wxXcxContactsDtoList);
                 });
             }
-            //将编码转义的手机号码转义回数字
-            wxXcxChatBookDtoList.forEach(dto -> {
-                List<WxXcxContactsDto> wxXcxContactsDtos = dto.getList();
-                wxXcxContactsDtos.forEach(wxXcxContacts -> {
-                    String phone = wxXcxContacts.getPhone();
-                    phone = new String(Base64Utils.decodeFromString(phone));
-                    wxXcxContacts.setPhone(phone);
+            if (!wxXcxChatBookDtoList.isEmpty()){
+                //将编码转义的手机号码转义回数字
+                wxXcxChatBookDtoList.forEach(dto -> {
+                    List<WxXcxContactsDto> wxXcxContactsDtos = dto.getList();
+                    wxXcxContactsDtos.forEach(wxXcxContacts -> {
+                        String phone = wxXcxContacts.getPhone();
+                        phone = AESUtils.decrypt(phone,AES_EBC_KEY);
+                        wxXcxContacts.setPhone(phone);
+                    });
                 });
-            });
+            }
         }
             return ApiResponse.ok(wxXcxChatBookDtoList);
     }
