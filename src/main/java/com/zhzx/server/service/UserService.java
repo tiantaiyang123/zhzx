@@ -2,9 +2,10 @@
  * 项目：中华中学流程自动化管理平台
  * 模型分组：系统管理
  * 模型名称：用户表
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.service;
 
@@ -20,6 +21,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 更新全部字段
+     *
      * @param entity
      * @return
      */
@@ -27,6 +29,7 @@ public interface UserService extends IService<User> {
 
     /**
      * 保存
+     *
      * @param entity
      * @return
      */
@@ -34,12 +37,15 @@ public interface UserService extends IService<User> {
 
     /**
      * 更新
+     *
      * @param entity
      * @return
      */
     boolean updateById(User entity);
+
     /**
      * 登录
+     *
      * @param username
      * @param password
      * @return
@@ -48,17 +54,19 @@ public interface UserService extends IService<User> {
 
     /**
      * 登录V2
+     *
      * @param username
      * @param password
      * @return
      */
-    UserVo loginV2(String username, String password,String code, YesNoEnum decode);
+    UserVo loginV2(String username, String password, String code, YesNoEnum decode);
 
 
     UserVo loginWithoutPassword(String username);
 
     /**
      * 用户注册
+     *
      * @param user
      * @param roleName
      * @return
@@ -67,16 +75,17 @@ public interface UserService extends IService<User> {
 
     /**
      * 根据username查询
+     *
      * @param username
      * @return
      */
-    User selectByUsername(String username, YesNoEnum ... fromCache);
+    User selectByUsername(String username, YesNoEnum... fromCache);
 
     void updateIsDelete(Long id);
 
     void resetPassword(Long id);
 
-    UserVo wxLogin(String code,String agentid);
+    UserVo wxLogin(String code, String agentid);
 
     List<Clazz> mutateYear(Long academicYearSemesterId);
 
@@ -85,4 +94,14 @@ public interface UserService extends IService<User> {
     Integer removeUser(Long id);
 
     Integer allocStudentDuty(Long id, String type);
+
+    /**
+     * 调取e办公平台的接口，传入手机号码使用无密码获取密钥登录
+     */
+    String getEWorkSecretKey(String realName, String phone);
+
+    /**
+     * 验证e办公平台是否能够登录成功
+     */
+    String verifyLogin(String phone, String par1);
 }

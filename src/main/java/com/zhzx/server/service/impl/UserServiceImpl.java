@@ -2,12 +2,14 @@
  * 项目：中华中学流程自动化管理平台
  * 模型分组：系统管理
  * 模型名称：用户表
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -32,10 +34,7 @@ import com.zhzx.server.rest.res.ApiCode;
 import com.zhzx.server.service.AcademicYearSemesterService;
 import com.zhzx.server.service.UserService;
 import com.zhzx.server.service.WxSendMessageService;
-import com.zhzx.server.util.NameToPinyin;
-import com.zhzx.server.util.RedisUtil;
-import com.zhzx.server.util.StringUtils;
-import com.zhzx.server.util.TreeUtils;
+import com.zhzx.server.util.*;
 import com.zhzx.server.vo.AuthorityVo;
 import com.zhzx.server.vo.UserVo;
 import lombok.extern.slf4j.Slf4j;
@@ -182,7 +181,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public UserVo loginV2(String username, String password,String code, YesNoEnum decode) {
+    public UserVo loginV2(String username, String password, String code, YesNoEnum decode) {
         // 先检查密码
         User user0 = this.baseMapper.selectOne(
                 Wrappers.<User>lambdaQuery()
@@ -218,24 +217,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = this.selectByUsername(username);
 
         //教师登录发送验证码
-        if(user.getStaff() != null){
-            if(!Objects.equals(code,"666666")){
+        if (user.getStaff() != null) {
+            if (!Objects.equals(code, "666666")) {
                 TokenDto tokenDto = TokenCacheConfig.getKey(user.getId().toString());
-                if(StringUtils.isNullOrEmpty(code)){
-                    throw new ApiCode.ApiException(-5,"请先发送验证码！");
+                if (StringUtils.isNullOrEmpty(code)) {
+                    throw new ApiCode.ApiException(-5, "请先发送验证码！");
                 }
-                if(tokenDto == null){
+                if (tokenDto == null) {
                     updateLoginError(user0);
-                    throw new ApiCode.ApiException(-5,"请先发送验证码！");
-                }else{
+                    throw new ApiCode.ApiException(-5, "请先发送验证码！");
+                } else {
                     Boolean isExpire = wxSendMessageService.isExpire(user.getId().toString());
-                    if(isExpire){
+                    if (isExpire) {
                         updateLoginError(user0);
                         TokenCacheConfig.removeKey(user.getId().toString());
-                        throw new ApiCode.ApiException(-5,"验证码已失效！");
-                    }else if(!Objects.equals(tokenDto.getToken(),code)){
+                        throw new ApiCode.ApiException(-5, "验证码已失效！");
+                    } else if (!Objects.equals(tokenDto.getToken(), code)) {
                         updateLoginError(user0);
-                        throw new ApiCode.ApiException(-5,"验证码不正确！");
+                        throw new ApiCode.ApiException(-5, "验证码不正确！");
                     }
                     // 验证成功 清除验证码
                     TokenCacheConfig.removeKey(user.getId().toString());
@@ -280,7 +279,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private String env;
 
     @Override
-    public User selectByUsername(String username, YesNoEnum ... fromCache) {
+    public User selectByUsername(String username, YesNoEnum... fromCache) {
         // get from redis
         String redisKey = RedisConstants.USER_CACHE_PREFIX + username;
         User userRedis;
@@ -304,63 +303,63 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             //学科信息
             List<Clazz> clazzes = null;
             List<Subject> subjectList = null;
-            if(user.getStaff() != null){
+            if (user.getStaff() != null) {
                 Staff staff = user.getStaff();
-                if(staff.getFunction() != null){
-                    if(FunctionEnum.PRINCIPAL.equals(staff.getFunction()) ||
-                            FunctionEnum.DEAN.equals(staff.getFunction()) ){
+                if (staff.getFunction() != null) {
+                    if (FunctionEnum.PRINCIPAL.equals(staff.getFunction()) ||
+                            FunctionEnum.DEAN.equals(staff.getFunction())) {
                         QueryWrapper<Clazz> wrapper = new QueryWrapper<>();
-                        wrapper.inSql("academic_year_semester_id","select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
+                        wrapper.inSql("academic_year_semester_id", "select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
                         clazzes = clazzMapper.selectList(wrapper);
-                        subjectList = subjectMapper.selectList(Wrappers.<Subject>lambdaQuery().eq(Subject::getIsMain,YesNoEnum.YES));
+                        subjectList = subjectMapper.selectList(Wrappers.<Subject>lambdaQuery().eq(Subject::getIsMain, YesNoEnum.YES));
                     }
                 }
-                List<StaffGradeLeader> staffGradeLeaderList = staff.getStaffGradeLeaderList().stream().filter(i->YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
-                List<StaffLessonLeader> staffLessonLeaderList = staff.getStaffLessonLeaderList().stream().filter(i->YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
-                List<StaffLessonTeacher> staffLessonTeacherList = staff.getStaffLessonTeacherList().stream().filter(i->YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
-                List<StaffClazzAdviser> staffClazzAdviserList = staff.getStaffClazzAdviserList().stream().filter(i->YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
+                List<StaffGradeLeader> staffGradeLeaderList = staff.getStaffGradeLeaderList().stream().filter(i -> YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
+                List<StaffLessonLeader> staffLessonLeaderList = staff.getStaffLessonLeaderList().stream().filter(i -> YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
+                List<StaffLessonTeacher> staffLessonTeacherList = staff.getStaffLessonTeacherList().stream().filter(i -> YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
+                List<StaffClazzAdviser> staffClazzAdviserList = staff.getStaffClazzAdviserList().stream().filter(i -> YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
 
                 // 当前学年班主任班级
                 if (CollectionUtils.isNotEmpty(staffClazzAdviserList)) {
                     user.setClazz(clazzMapper.selectById(staffClazzAdviserList.get(0).getClazzId()));
                 }
 
-                if(clazzes == null){
-                    if(CollectionUtils.isNotEmpty(staffGradeLeaderList)){
+                if (clazzes == null) {
+                    if (CollectionUtils.isNotEmpty(staffGradeLeaderList)) {
                         QueryWrapper<Clazz> wrapper = new QueryWrapper<>();
-                        wrapper.inSql("academic_year_semester_id","select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
-                        wrapper.in("grade_id",staffGradeLeaderList.stream().map(staffGradeLeader -> staffGradeLeader.getGradeId()).collect(Collectors.toList()));
+                        wrapper.inSql("academic_year_semester_id", "select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
+                        wrapper.in("grade_id", staffGradeLeaderList.stream().map(staffGradeLeader -> staffGradeLeader.getGradeId()).collect(Collectors.toList()));
                         clazzes = clazzMapper.selectList(wrapper);
-                    }else if(CollectionUtils.isNotEmpty(staffLessonLeaderList)){
+                    } else if (CollectionUtils.isNotEmpty(staffLessonLeaderList)) {
                         QueryWrapper<Clazz> wrapper = new QueryWrapper<>();
-                        wrapper.inSql("academic_year_semester_id","select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
-                        wrapper.in("grade_id",staffLessonLeaderList.stream().map(staffLessonLeader -> staffLessonLeader.getGradeId()).collect(Collectors.toList()));
+                        wrapper.inSql("academic_year_semester_id", "select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
+                        wrapper.in("grade_id", staffLessonLeaderList.stream().map(staffLessonLeader -> staffLessonLeader.getGradeId()).collect(Collectors.toList()));
                         clazzes = clazzMapper.selectList(wrapper);
-                    }else if(CollectionUtils.isNotEmpty(staffLessonTeacherList)){
+                    } else if (CollectionUtils.isNotEmpty(staffLessonTeacherList)) {
                         Set<Long> clazzIds = staffLessonTeacherList.stream().collect(Collectors.groupingBy(StaffLessonTeacher::getClazzId)).keySet();
                         QueryWrapper<Clazz> wrapper = new QueryWrapper<>();
-                        wrapper.inSql("academic_year_semester_id","select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
-                        wrapper.in("id",clazzIds);
+                        wrapper.inSql("academic_year_semester_id", "select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
+                        wrapper.in("id", clazzIds);
                         clazzes = clazzMapper.selectList(wrapper);
-                    }else if(CollectionUtils.isNotEmpty(staffClazzAdviserList)){
+                    } else if (CollectionUtils.isNotEmpty(staffClazzAdviserList)) {
                         QueryWrapper<Clazz> wrapper = new QueryWrapper<>();
-                        wrapper.inSql("academic_year_semester_id","select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
-                        wrapper.in("id",staffClazzAdviserList.stream().map(staffClazzAdviser -> staffClazzAdviser.getClazzId()).collect(Collectors.toList()));
+                        wrapper.inSql("academic_year_semester_id", "select says.id from sys_academic_year_semester says where says.is_default = 'YES'");
+                        wrapper.in("id", staffClazzAdviserList.stream().map(staffClazzAdviser -> staffClazzAdviser.getClazzId()).collect(Collectors.toList()));
                         clazzes = clazzMapper.selectList(wrapper);
                     }
                 }
 
-                if(subjectList == null){
-                    if(CollectionUtils.isNotEmpty(staffGradeLeaderList) || CollectionUtils.isNotEmpty(staffClazzAdviserList)){
-                        subjectList = subjectMapper.selectList(Wrappers.<Subject>lambdaQuery().eq(Subject::getIsMain,YesNoEnum.YES));
-                    }else if(CollectionUtils.isNotEmpty(staffLessonLeaderList)){
-                        Map<Long, Subject> all = this.subjectMapper.selectList(Wrappers.<Subject>lambdaQuery().eq(Subject::getIsMain,YesNoEnum.YES))
+                if (subjectList == null) {
+                    if (CollectionUtils.isNotEmpty(staffGradeLeaderList) || CollectionUtils.isNotEmpty(staffClazzAdviserList)) {
+                        subjectList = subjectMapper.selectList(Wrappers.<Subject>lambdaQuery().eq(Subject::getIsMain, YesNoEnum.YES));
+                    } else if (CollectionUtils.isNotEmpty(staffLessonLeaderList)) {
+                        Map<Long, Subject> all = this.subjectMapper.selectList(Wrappers.<Subject>lambdaQuery().eq(Subject::getIsMain, YesNoEnum.YES))
                                 .stream().collect(Collectors.toMap(Subject::getId, Function.identity()));
-                        subjectList = staffLessonLeaderList.stream().map(item->all.get(item.getSubjectId())).filter(item->item != null).collect(Collectors.toList());
-                    }else if(CollectionUtils.isNotEmpty(staffLessonTeacherList)){
-                        Map<Long, Subject> all = this.subjectMapper.selectList(Wrappers.<Subject>lambdaQuery().eq(Subject::getIsMain,YesNoEnum.YES))
+                        subjectList = staffLessonLeaderList.stream().map(item -> all.get(item.getSubjectId())).filter(item -> item != null).collect(Collectors.toList());
+                    } else if (CollectionUtils.isNotEmpty(staffLessonTeacherList)) {
+                        Map<Long, Subject> all = this.subjectMapper.selectList(Wrappers.<Subject>lambdaQuery().eq(Subject::getIsMain, YesNoEnum.YES))
                                 .stream().collect(Collectors.toMap(Subject::getId, Function.identity()));
-                        subjectList = staffLessonTeacherList.stream().map(item->all.get(item.getSubjectId())).filter(item->item != null).collect(Collectors.toList());
+                        subjectList = staffLessonTeacherList.stream().map(item -> all.get(item.getSubjectId())).filter(item -> item != null).collect(Collectors.toList());
                     }
                 }
             }
@@ -368,16 +367,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (CollectionUtils.isNotEmpty(subjectList)) {
                 subjectList = subjectList
                         .stream()
-                        .collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(Subject::getId))), ArrayList::new));;
+                        .collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(Subject::getId))), ArrayList::new));
+                ;
             }
 
             user.setSubjectList(subjectList);
             user.setClazzList(clazzes);
 
-            List<Exam> examList = examMapper.selectList(Wrappers.<Exam>lambdaQuery().eq(Exam::getAcademicYearSemesterId,academicYearSemester.getId()));
+            List<Exam> examList = examMapper.selectList(Wrappers.<Exam>lambdaQuery().eq(Exam::getAcademicYearSemesterId, academicYearSemester.getId()));
             if (CollectionUtils.isNotEmpty(examList)) {
                 examList.sort((a, b) -> {
-                    if (!a.getIsTeacherSeen().equals(b.getIsTeacherSeen())) return YesNoEnum.NO.equals(a.getIsTeacherSeen()) ? 1 : -1;
+                    if (!a.getIsTeacherSeen().equals(b.getIsTeacherSeen()))
+                        return YesNoEnum.NO.equals(a.getIsTeacherSeen()) ? 1 : -1;
                     return b.getExamStartDate().compareTo(a.getExamStartDate());
                 });
             }
@@ -415,7 +416,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (entity.getRoleList() != null) {
             this.userRoleMapper.delete(Wrappers.<UserRole>query().eq("user_id", entity.getId()));
             List<UserRole> userRoleList = new ArrayList<>();
-            for (Role role: entity.getRoleList()) {
+            for (Role role : entity.getRoleList()) {
                 UserRole userRole = new UserRole();
                 userRole.setUserId(entity.getId());
                 userRole.setRoleId(role.getId());
@@ -435,7 +436,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (entity.getRoleList() != null) {
             this.userRoleMapper.delete(Wrappers.<UserRole>query().eq("user_id", entity.getId()));
             List<UserRole> userRoleList = new ArrayList<>();
-            for (Role role: entity.getRoleList()) {
+            for (Role role : entity.getRoleList()) {
                 UserRole userRole = new UserRole();
                 userRole.setUserId(entity.getId());
                 userRole.setRoleId(role.getId());
@@ -483,30 +484,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public UserVo wxLogin(String code,String agentid) {
+    public UserVo wxLogin(String code, String agentid) {
         String secret = null;
-        switch (agentid){
-            case "1000047": secret = zhibanSecret; break;
-            case "1000048": secret = courseSecret; break;
-            case "1000063": secret = njzzbSecret; break;
-            case "1000052": secret = chengguoSecret; break;
-            case "1000053": secret = benchSecret; break;
-            case "1000079": secret = totalDutySecret; break;
-            case "1000085": secret = oauthSecret; break;
-            default: throw new ApiCode.ApiException(-5,"未查询到agentid对应的secret");
+        switch (agentid) {
+            case "1000047":
+                secret = zhibanSecret;
+                break;
+            case "1000048":
+                secret = courseSecret;
+                break;
+            case "1000063":
+                secret = njzzbSecret;
+                break;
+            case "1000052":
+                secret = chengguoSecret;
+                break;
+            case "1000053":
+                secret = benchSecret;
+                break;
+            case "1000079":
+                secret = totalDutySecret;
+                break;
+            case "1000085":
+                secret = oauthSecret;
+                break;
+            default:
+                throw new ApiCode.ApiException(-5, "未查询到agentid对应的secret");
         }
-        String token = wxSendMessageService.getWxToken(secret,appId);
-        String userIdUrl = String.format("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=%s&code=%s&agentid=%s",token,code,agentid);
+        String token = wxSendMessageService.getWxToken(secret, appId);
+        String userIdUrl = String.format("https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=%s&code=%s&agentid=%s", token, code, agentid);
         JSONObject userIdJson = restTemplate.getForEntity(userIdUrl, JSONObject.class).getBody();
-        if(!userIdJson.get("errcode").toString().equals("0")){
-            throw new ApiCode.ApiException(-5,userIdJson.get("errmsg").toString());
+        if (!userIdJson.get("errcode").toString().equals("0")) {
+            throw new ApiCode.ApiException(-5, userIdJson.get("errmsg").toString());
         }
         String userId = userIdJson.get("UserId").toString();
 
-        String userInfoUrl = String.format("https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token=%s&userid=%s",token,userId);
+        String userInfoUrl = String.format("https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token=%s&userid=%s", token, userId);
         JSONObject userInfoJson = restTemplate.getForEntity(userInfoUrl, JSONObject.class).getBody();
-        if(!userInfoJson.get("errcode").toString().equals("0")){
-            throw new ApiCode.ApiException(-5,userInfoJson.get("errmsg").toString());
+        if (!userInfoJson.get("errcode").toString().equals("0")) {
+            throw new ApiCode.ApiException(-5, userInfoJson.get("errmsg").toString());
         }
         String username = userInfoJson.get("alias").toString();
         if (StringUtils.isNullOrEmpty(username)) {
@@ -531,8 +547,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public List<Clazz> mutateYear(Long academicYearSemesterId) {
         User user = (User) SecurityUtils.getSubject().getPrincipal();
-        if(user.getStaffId() == null || user.getStaffId() == 0)
-            throw new ApiCode.ApiException(-5,"用户非教职工，无法查看");
+        if (user.getStaffId() == null || user.getStaffId() == 0)
+            throw new ApiCode.ApiException(-5, "用户非教职工，无法查看");
         if (academicYearSemesterId == null || academicYearSemesterId.equals(user.getAcademicYearSemester().getId())) {
             return user.getClazzList();
         }
@@ -543,24 +559,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             clazzes = this.clazzMapper.selectList(wrapper);
         }
 
-        List<StaffGradeLeader> staffGradeLeaderList = staff.getStaffGradeLeaderList().stream().filter(i->YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
-        List<StaffLessonLeader> staffLessonLeaderList = staff.getStaffLessonLeaderList().stream().filter(i->YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
-        List<StaffLessonTeacher> staffLessonTeacherList = staff.getStaffLessonTeacherList().stream().filter(i->YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
-        List<StaffClazzAdviser> staffClazzAdviserList = staff.getStaffClazzAdviserList().stream().filter(i->YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
-        if(clazzes == null){
-            if(CollectionUtils.isNotEmpty(staffGradeLeaderList)){
+        List<StaffGradeLeader> staffGradeLeaderList = staff.getStaffGradeLeaderList().stream().filter(i -> YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
+        List<StaffLessonLeader> staffLessonLeaderList = staff.getStaffLessonLeaderList().stream().filter(i -> YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
+        List<StaffLessonTeacher> staffLessonTeacherList = staff.getStaffLessonTeacherList().stream().filter(i -> YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
+        List<StaffClazzAdviser> staffClazzAdviserList = staff.getStaffClazzAdviserList().stream().filter(i -> YesNoEnum.YES.equals(i.getIsCurrent())).collect(Collectors.toList());
+        if (clazzes == null) {
+            if (CollectionUtils.isNotEmpty(staffGradeLeaderList)) {
                 List<StaffGradeLeader> staffGradeLeaders = this.staffGradeLeaderMapper.selectList(Wrappers.<StaffGradeLeader>lambdaQuery().eq(StaffGradeLeader::getAcademicYearSemesterId, academicYearSemesterId).eq(StaffGradeLeader::getStaffId, staff.getId()));
                 if (CollectionUtils.isNotEmpty(staffGradeLeaders)) {
-                    wrapper.in(Clazz::getGradeId,staffGradeLeaders.stream().map(StaffGradeLeader::getGradeId).collect(Collectors.toList()));
+                    wrapper.in(Clazz::getGradeId, staffGradeLeaders.stream().map(StaffGradeLeader::getGradeId).collect(Collectors.toList()));
                     clazzes = this.clazzMapper.selectList(wrapper);
                 }
-            }else if(CollectionUtils.isNotEmpty(staffLessonLeaderList)){
+            } else if (CollectionUtils.isNotEmpty(staffLessonLeaderList)) {
                 List<StaffLessonLeader> staffGradeLeaders = this.staffLessonLeaderMapper.selectList(Wrappers.<StaffLessonLeader>lambdaQuery().eq(StaffLessonLeader::getAcademicYearSemesterId, academicYearSemesterId).eq(StaffLessonLeader::getStaffId, staff.getId()));
                 if (CollectionUtils.isNotEmpty(staffGradeLeaders)) {
-                    wrapper.in(Clazz::getGradeId,staffGradeLeaders.stream().map(StaffLessonLeader::getGradeId).collect(Collectors.toList()));
+                    wrapper.in(Clazz::getGradeId, staffGradeLeaders.stream().map(StaffLessonLeader::getGradeId).collect(Collectors.toList()));
                     clazzes = this.clazzMapper.selectList(wrapper);
                 }
-            }else if(CollectionUtils.isNotEmpty(staffLessonTeacherList)){
+            } else if (CollectionUtils.isNotEmpty(staffLessonTeacherList)) {
                 List<Long> list = this.clazzMapper.selectList(wrapper).stream().map(Clazz::getId).collect(Collectors.toList());
                 List<StaffLessonTeacher> staffLessonTeachers = this.staffLessonTeacherMapper.selectList(Wrappers.<StaffLessonTeacher>lambdaQuery().eq(StaffLessonTeacher::getStaffId, staff.getId()));
                 if (CollectionUtils.isNotEmpty(staffLessonTeachers)) {
@@ -571,7 +587,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         clazzes = this.clazzMapper.selectList(wrapper);
                     }
                 }
-            }else if(CollectionUtils.isNotEmpty(staffClazzAdviserList)) {
+            } else if (CollectionUtils.isNotEmpty(staffClazzAdviserList)) {
                 List<Long> list = this.clazzMapper.selectList(wrapper).stream().map(Clazz::getId).collect(Collectors.toList());
                 List<StaffClazzAdviser> staffLessonTeachers = this.staffClazzAdviserMapper.selectList(Wrappers.<StaffClazzAdviser>lambdaQuery().eq(StaffClazzAdviser::getStaffId, staff.getId()));
                 if (CollectionUtils.isNotEmpty(staffLessonTeachers)) {
@@ -588,7 +604,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public void sendVerifyCode(String username)  {
+    public void sendVerifyCode(String username) {
         User user = this.getBaseMapper().selectOne(Wrappers.<User>query().eq("username", username).or().eq("login_number", username));
 
         if (user == null) {
@@ -597,13 +613,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user.getIsDelete() == YesNoEnum.YES) {
             throw new ApiCode.ApiException(-2, "用户名已被禁用，请联系管理员！");
         }
-        if(user.getStaff() == null) {
+        if (user.getStaff() == null) {
             throw new ApiCode.ApiException(-2, "非职工，无需发送验证码！");
         }
 
         TokenDto tokenDto = TokenCacheConfig.getKey(user.getId().toString());
-        if (tokenDto != null && (tokenDto.getCurrentTime()+(60*1000)) > System.currentTimeMillis()) {
-            throw new ApiCode.ApiException(-5,"请间隔60s发送短信");
+        if (tokenDto != null && (tokenDto.getCurrentTime() + (60 * 1000)) > System.currentTimeMillis()) {
+            throw new ApiCode.ApiException(-5, "请间隔60s发送短信");
         }
 
         String code = StringUtils.getRandomNum(6);
@@ -612,22 +628,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         stringBuilder.append(code);
         stringBuilder.append("。十分钟内有效。");
         List<String> staffList = new ArrayList<>();
-        if(StringUtils.isNullOrEmpty(user.getStaff().getWxUsername())){
+        if (StringUtils.isNullOrEmpty(user.getStaff().getWxUsername())) {
             staffList.add(user.getStaff().getEmployeeNumber());
             staffList.add(user.getStaff().getPhone());
-            if(NameToPinyin.format(user.getStaff().getName()) != null ){
+            if (NameToPinyin.format(user.getStaff().getName()) != null) {
                 staffList.add(NameToPinyin.format(user.getStaff().getName()));
             }
-        }else{
+        } else {
             staffList.add(user.getStaff().getWxUsername());
         }
-        wxSendMessageService.sendTeacherMessage(stringBuilder.toString(),staffList);
+        wxSendMessageService.sendTeacherMessage(stringBuilder.toString(), staffList);
 
         tokenDto = new TokenDto();
         tokenDto.setCurrentTime(System.currentTimeMillis());
-        tokenDto.setExpireTime(10*60);
+        tokenDto.setExpireTime(10 * 60);
         tokenDto.setToken(code);
-        TokenCacheConfig.setKey(user.getId().toString(),tokenDto);
+        TokenCacheConfig.setKey(user.getId().toString(), tokenDto);
     }
 
     @Override
@@ -635,7 +651,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Integer removeUser(Long id) {
         User user = this.baseMapper.selectById(id);
         if (null == user) throw new ApiCode.ApiException(-1, "无效ID");
-        if (null != user.getStaff() || null != user.getStudent()) throw new ApiCode.ApiException(-1, "用户已经关联职工或学生，无法删除");
+        if (null != user.getStaff() || null != user.getStudent())
+            throw new ApiCode.ApiException(-1, "用户已经关联职工或学生，无法删除");
         this.userRoleMapper.delete(Wrappers.<UserRole>lambdaQuery().eq(UserRole::getUserId, id));
         return this.baseMapper.deleteById(id);
     }
@@ -662,5 +679,40 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return this.userRoleMapper.insert(userRole);
         }
         return 0;
+    }
+
+    /**
+     * HttpClient调取第三方接口实现自动登录
+     *
+     * @param realName
+     * @param phone
+     * @return
+     */
+    @Override
+    public String getEWorkSecretKey(String realName, String phone) {
+        if (realName.isEmpty() && phone.isEmpty()) {
+            throw new ApiCode.ApiException(-1, "用户真实名称或是手机号码不存在");
+        }
+        String eWorkSecretKey = HttpClientUtils.doGet(realName, phone);
+        JSONObject responseJson = JSON.parseObject(eWorkSecretKey);
+        String par1 = responseJson.getString("par1");
+        return par1;
+    }
+
+    /**
+     * 验证调取第三方登录接口是否能够成功
+     *
+     * @param phone
+     * @param par1
+     * @return
+     */
+    @Override
+    public String verifyLogin(String phone, String par1) {
+        if (phone.isEmpty() && par1.isEmpty()){
+            throw new ApiCode.ApiException(-1,"手机号码及密钥不存在");
+        }
+        String url = "http://dc.njzhzx.net/login2Zh?mobile="+phone+"&par1="+par1;
+        String post = HttpClientUtils.doPost(url, null);
+        return post;
     }
 }

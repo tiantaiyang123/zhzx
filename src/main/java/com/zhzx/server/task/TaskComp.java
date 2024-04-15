@@ -296,7 +296,7 @@ public class TaskComp {
     }
 
     /**
-     * 发送消息
+     * 发送消息(5分钟)
      */
     @Scheduled(cron = "0 0/5 * ? * ?")
     private void sendMessage() {

@@ -1,8 +1,9 @@
 /**
  * 项目：中华中学流程自动化管理平台
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.rest;
 
@@ -215,7 +216,7 @@ public class UserController {
      * </pre>
      */
     @ApiOperation("用户登陆接口")
-    @MessageInfo(name="普通登陆接口",title = "登录",content = "普通登陆接口")
+    @MessageInfo(name = "普通登陆接口", title = "登录", content = "普通登陆接口")
     @PostMapping("/login")
     public ApiResponse<Map> login(@RequestBody User user) throws Exception {
         if (StringUtils.isNullOrEmpty(user.getCode()) || StringUtils.isNullOrEmpty(user.getPassword()) || StringUtils.isNullOrEmpty(user.getUsername())) {
@@ -231,7 +232,7 @@ public class UserController {
     }
 
     @ApiOperation("用户登陆接口")
-    @MessageInfo(name="值班老师验证登陆接口",title = "登录",content = "值班老师验证登陆接口")
+    @MessageInfo(name = "值班老师验证登陆接口", title = "登录", content = "值班老师验证登陆接口")
     @PostMapping("/login-from-wx-url")
     public ApiResponse<Map> loginFromWxUrl(@RequestBody User user) throws UnsupportedEncodingException {
         Map<String, Object> result = new HashMap<>();
@@ -252,12 +253,12 @@ public class UserController {
      * </pre>
      */
     @ApiOperation("教职工登陆接口")
-    @MessageInfo(name="教职工登陆",title = "登录",content = "教职工登陆接口")
+    @MessageInfo(name = "教职工登陆", title = "登录", content = "教职工登陆接口")
     @PostMapping("/login/staff")
     public ApiResponse<Map> staffLogin(@RequestBody User user) throws UnsupportedEncodingException {
         Map<String, Object> result = new HashMap<>();
 //        UserVo loginUser = this.userService.login(user.getUsername(), user.getPassword());
-        UserVo loginUser = this.userService.loginV2(user.getUsername(), user.getPassword(),user.getCode(), YesNoEnum.NO);
+        UserVo loginUser = this.userService.loginV2(user.getUsername(), user.getPassword(), user.getCode(), YesNoEnum.NO);
         Staff staff = staffService.getById(loginUser.getUserInfo().getStaffId());
         if (staff == null) {
             return ApiResponse.fail(-5, "该用户不是教职工，无法登录！");
@@ -315,11 +316,11 @@ public class UserController {
     }
 
     @PostMapping("/wx/login")
-    @MessageInfo(name="企业微信登录",title = "登录",content = "企业微信登录")
+    @MessageInfo(name = "企业微信登录", title = "登录", content = "企业微信登录")
     @ApiOperation("企业微信获取用户名登录")
-    public ApiResponse<Map<String, Object>> wxLogin(@RequestParam String code,@RequestParam String agentid) throws UnsupportedEncodingException{
+    public ApiResponse<Map<String, Object>> wxLogin(@RequestParam String code, @RequestParam String agentid) throws UnsupportedEncodingException {
         Map<String, Object> result = new HashMap<>();
-        UserVo userVo = userService.wxLogin(code,agentid);
+        UserVo userVo = userService.wxLogin(code, agentid);
         result.put("userInfo", userVo);
         result.put("token", JWTUtils.sign(userVo.getUserInfo().getUsername(), userVo.getUserInfo().getPassword()));
         return ApiResponse.ok(result);
@@ -327,7 +328,7 @@ public class UserController {
 
     @PostMapping("/export-excel")
     @ApiOperation("企业微信用户名同步")
-    public ApiResponse<Boolean> test(@RequestParam("file") MultipartFile file) throws UnsupportedEncodingException{
+    public ApiResponse<Boolean> test(@RequestParam("file") MultipartFile file) throws UnsupportedEncodingException {
         try {
             // 读取 Excel
             XSSFWorkbook book = new XSSFWorkbook(file.getInputStream());
@@ -341,12 +342,12 @@ public class UserController {
                 String nickName = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(2));
                 QueryWrapper<Staff> studentQueryWrapper1 = new QueryWrapper<Staff>()
                         .eq("name", teacherName)
-                        .eq("employee_number",nickName);
+                        .eq("employee_number", nickName);
                 Staff staff = staffService.getOne(studentQueryWrapper1);
-                if(staff != null){
+                if (staff != null) {
                     staffService.update(Wrappers.<Staff>lambdaUpdate()
-                            .set(Staff::getWxUsername,teacherWxName)
-                            .eq(Staff::getId,staff.getId())
+                            .set(Staff::getWxUsername, teacherWxName)
+                            .eq(Staff::getId, staff.getId())
                     );
                 }
             }
@@ -358,7 +359,7 @@ public class UserController {
 
     @GetMapping("/send/verify-Code")
     @ApiOperation("发送验证码")
-    public ApiResponse sendVerifyCode(@RequestParam String username){
+    public ApiResponse sendVerifyCode(@RequestParam String username) {
         this.userService.sendVerifyCode(username);
         return ApiResponse.ok("消息已发送");
     }
@@ -368,5 +369,23 @@ public class UserController {
     public ApiResponse<Integer> allocStudentDuty(@PathVariable("id") Long id,
                                                  @RequestParam(name = "type") String type) {
         return ApiResponse.ok(this.userService.allocStudentDuty(id, type));
+    }
+
+    /**
+     * get请求
+     * 调取第三方接口获取登录密钥
+     */
+    @ApiOperation("调取e办公获取密钥")
+    @GetMapping(path = "/eWork/secretKey")
+    public ApiResponse<String> eWorkSecretKey(@RequestParam String realName,
+                                              @RequestParam String phone) {
+        return ApiResponse.ok(this.userService.getEWorkSecretKey(realName, phone));
+    }
+
+    @ApiOperation("验证登录是否成功")
+    @GetMapping("/eWork/verify/login")
+    public ApiResponse<String> verifyLogin(@RequestParam String phone,
+                                           @RequestParam String par1) {
+        return ApiResponse.ok(this.userService.verifyLogin(phone, par1));
     }
 }
