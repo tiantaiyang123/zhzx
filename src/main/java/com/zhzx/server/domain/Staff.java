@@ -2,9 +2,10 @@
  * 项目：中华中学管理平台
  * 模型分组：系统管理
  * 模型名称：教职工表
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.domain;
 
@@ -12,6 +13,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zhzx.server.enums.*;
 import com.zhzx.server.rest.res.ApiCode;
 import io.swagger.annotations.ApiModel;
@@ -159,21 +162,23 @@ public class Staff extends BaseDomain {
     /**
      * 职能
      */
+    @JsonProperty("wxUsername")
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     @TableField(value = "wx_username")
-    @ApiModelProperty(value = "微信账号",required = true)
+    @ApiModelProperty(value = "微信账号", required = true)
     private String wxUsername;
     /**
-     * 
+     *
      */
     @TableField(value = "create_time")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "", required = true)
     private java.util.Date createTime;
     /**
-     * 
+     *
      */
     @TableField(value = "update_time")
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "", required = true)
     private java.util.Date updateTime;
     /**

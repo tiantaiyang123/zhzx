@@ -1,8 +1,11 @@
 package com.zhzx.server.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.zhzx.server.domain.Comment;
 import com.zhzx.server.domain.FunctionDepartment;
 import com.zhzx.server.domain.Message;
+import com.zhzx.server.enums.MessageSystemEnum;
+import com.zhzx.server.enums.MessageTypeEnum;
 import com.zhzx.server.enums.YesNoEnum;
 import lombok.Data;
 

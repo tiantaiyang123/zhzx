@@ -196,7 +196,7 @@
         <if test="schoolyardId != null" >
             and dld.schoolyard_id = #{schoolyardId}
         </if>
-        order by dld.start_time
+        order by `time`
     </select>
 
     <select id="getLeaderDutyForm" resultType="com.zhzx.server.dto.LeaderDutyDto">

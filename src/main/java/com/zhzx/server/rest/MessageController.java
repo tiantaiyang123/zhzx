@@ -7,6 +7,8 @@
 
 package com.zhzx.server.rest;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -16,6 +18,8 @@ import com.zhzx.server.domain.Message;
 import com.zhzx.server.domain.StaffMessageRefuse;
 import com.zhzx.server.domain.User;
 import com.zhzx.server.dto.MessageDto;
+import com.zhzx.server.enums.MessageSystemEnum;
+import com.zhzx.server.enums.MessageTypeEnum;
 import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.rest.req.MessageParam;
 import com.zhzx.server.rest.res.ApiCode;
@@ -105,7 +109,7 @@ public class MessageController {
      */
     @GetMapping("/search/messageTaskIds")
     @ApiOperation("寻找当前用户能接受的消息任务id")
-    public ApiResponse<List<Long>> selectMessageTaskIds(@RequestParam(value = "staffId") Long staffId) {
+    public ApiResponse<Map> selectMessageTaskIds(@RequestParam(value = "staffId") Long staffId) {
         List<Long> messageTaskIds = new ArrayList<>();
         List<Message> list = messageService.list(Wrappers.<Message>lambdaQuery()
                 .eq(Message::getReceiverId, staffId)
@@ -116,7 +120,20 @@ public class MessageController {
         messageTaskIds = list.stream().map(Message::getMessageTaskId).collect(Collectors.toList());
         //去重
         List<Long> distinctMessageTaskIds = messageTaskIds.stream().distinct().collect(Collectors.toList());
-        return ApiResponse.ok(distinctMessageTaskIds);
+        HashMap<String, List<Long>> map = new HashMap();
+        List<Long> readNo = (List)list.stream().map(Message::getMessageTaskId).collect(Collectors.toList());
+        List<Long> distinctReadNo = (List)readNo.stream().distinct().collect(Collectors.toList());
+        map.put("readNo", distinctReadNo);
+        List<Message> ids = this.messageService.list(Wrappers.<Message>lambdaQuery()
+                .eq(Message::getReceiverId, staffId)
+                .eq(Message::getIsRead, YesNoEnum.YES)
+                .eq(Message::getIsSend, YesNoEnum.YES)
+                .ne(Message::getMessageTaskId, -1)
+                .ne(Message::getMessageTaskId, -2));
+        List<Long> read = (List)ids.stream().map(Message::getMessageTaskId).collect(Collectors.toList());
+        List<Long> distinctRead = (List)read.stream().distinct().collect(Collectors.toList());
+        map.put("read", read);
+        return ApiResponse.ok(map);
     }
 
 
@@ -150,8 +167,21 @@ public class MessageController {
             wrapper.orderBy(true, isAsc, obTemp[0]);
         });
         IPage authorityPage = new Page<>(pageNum, pageSize);
-        this.messageService.page(authorityPage, wrapper);
+        IPage page = this.messageService.page(authorityPage, wrapper);
         User user = (User) SecurityUtils.getSubject().getPrincipal();
+        List<Message> records = page.getRecords();
+        records.forEach(message -> {
+            if (message.getMessageTaskId().equals(-1)) {
+                message.setMessageTypeEnum(MessageTypeEnum.DUTY); // 值班
+                message.setMessageSystemEnum(MessageSystemEnum.INNER);
+            } else if (message.getMessageTaskId().equals(-2)) {
+                message.setMessageTypeEnum(MessageTypeEnum.NORMAL_RESULT); // 普通消息_成果
+                message.setMessageSystemEnum(MessageSystemEnum.TIR_WX_WXC);
+            } else if (message.getMessageTaskId() > 0) {
+                message.setMessageTypeEnum(MessageTypeEnum.OFFICE); // 办公
+                message.setMessageSystemEnum(MessageSystemEnum.TIR_WX_WXC);
+            }
+        });
         List<StaffMessageRefuse> staffMessageRefuseList = staffMessageRefuseService.list(Wrappers.<StaffMessageRefuse>lambdaQuery()
                 .eq(StaffMessageRefuse::getStaffId, user.getStaffId())
                 .eq(StaffMessageRefuse::getStatus, YesNoEnum.YES)

@@ -21,7 +21,8 @@ import java.util.List;
 public interface StaffMapper extends StaffBaseMapper {
 
 
-    List<Staff> getListNoDuty(@Param("time") Date date, @Param("dutyType") String dutyType);
+    List<Staff> getListNoDutyONE(@Param("time") Date date, @Param("dutyType") String dutyType);
+    List<Staff> getListNoDutyTWO(@Param("time") Date date, @Param("dutyType") String dutyType);
 
     List<Staff> listSimpleFull(@Param("ew") QueryWrapper<Staff> wrapper);
 }

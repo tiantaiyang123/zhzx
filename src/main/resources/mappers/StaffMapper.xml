@@ -14,7 +14,8 @@
         select * from sys_staff ${ew.customSqlSegment} LIMIT 1
     </select>
     <!-- 根据Wrapper查询 -->
-    <select id="getListNoDuty" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.BaseResultMap">
+    <!--一阶段不重复老师，老师存在值班后，替换时不存在该老师-->
+    <select id="getListNoDutyONE" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.BaseResultMap">
         select ss.* from sys_staff ss
         where ss.id not in (
             select
@@ -23,6 +24,11 @@
             where to_days(dtd.start_time) = to_days(#{time}) and dtd.duty_type = #{dutyType}
             and exists (select * from day_teacher_duty_clazz where teacher_duty_id=dtd.id)
         ) and ss.personnel_situation = 'TEACHER' and ss.is_delete = 'NO'
+    </select>
+    <!--二阶段没限制，当前老师值班后依旧能够替其他老师值班-->
+    <select id="getListNoDutyTWO" resultMap="com.zhzx.server.repository.base.StaffBaseMapper.BaseResultMap">
+        select * from sys_staff
+        where personnel_situation = 'TEACHER' and is_delete = 'NO'
     </select>
 
     <resultMap id="ResultMap" type="com.zhzx.server.domain.Staff" extends="com.zhzx.server.repository.base.StaffBaseMapper.BaseResultMap">

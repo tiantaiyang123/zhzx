@@ -118,8 +118,9 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
                 .and(w -> w.eq("username", entity.getPhone()).or().eq("login_number", entity.getEmployeeNumber()));
         List<User> users = this.userMapper.selectList(userWrapper);
         if (users.size() != 0)
-            throw new ApiCode.ApiException(-1, "手机号码或工号已存在");
+            throw new ApiCode.ApiException(-1, "用户名及登录编号已存在");
 
+        //更新一遍了
         if (updateAllFields) {
             this.updateAllFieldsById(entity);
         } else {
@@ -288,7 +289,12 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
 
     @Override
     public List<Staff> getListNoDuty(Date date, TeacherDutyTypeEnum dutyType) {
-        return this.baseMapper.getListNoDuty(date, dutyType.toString());
+        if (dutyType.equals(TeacherDutyTypeEnum.STAGE_TWO)){
+            return this.baseMapper.getListNoDutyTWO(date,dutyType.toString());
+        }else if (dutyType.equals(TeacherDutyTypeEnum.STAGE_ONE)){
+            return this.baseMapper.getListNoDutyONE(date, dutyType.toString());
+        }
+        return null;
     }
 
     @Resource

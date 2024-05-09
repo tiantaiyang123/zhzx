@@ -10,6 +10,8 @@ package com.zhzx.server.domain;
 
 import java.io.Serializable;
 
+import com.zhzx.server.enums.MessageSystemEnum;
+import com.zhzx.server.enums.MessageTypeEnum;
 import com.zhzx.server.rest.res.ApiCode;
 import lombok.*;
 import java.util.List;
@@ -153,6 +155,10 @@ public class Message extends BaseDomain {
     @ApiModelProperty(value = "", required = true)
     private java.util.Date updatedTime;
 
+    @TableField(exist = false)
+    private MessageTypeEnum messageTypeEnum;
+    @TableField(exist = false)
+    private MessageSystemEnum messageSystemEnum;
     /**
      * 设置默认值
      */
