@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class MessageCombineDto {
@@ -20,4 +21,5 @@ public class MessageCombineDto {
     @ApiModelProperty(value = "0消息1待办")
     private String mesOrWork;
     private String id;
+    private List<Integer> ids;
 }

@@ -167,21 +167,8 @@ public class MessageController {
             wrapper.orderBy(true, isAsc, obTemp[0]);
         });
         IPage authorityPage = new Page<>(pageNum, pageSize);
-        IPage page = this.messageService.page(authorityPage, wrapper);
+        this.messageService.page(authorityPage, wrapper);
         User user = (User) SecurityUtils.getSubject().getPrincipal();
-        List<Message> records = page.getRecords();
-        records.forEach(message -> {
-            if (message.getMessageTaskId().equals(-1)) {
-                message.setMessageTypeEnum(MessageTypeEnum.DUTY); // 值班
-                message.setMessageSystemEnum(MessageSystemEnum.INNER);
-            } else if (message.getMessageTaskId().equals(-2)) {
-                message.setMessageTypeEnum(MessageTypeEnum.NORMAL_RESULT); // 普通消息_成果
-                message.setMessageSystemEnum(MessageSystemEnum.TIR_WX_WXC);
-            } else if (message.getMessageTaskId() > 0) {
-                message.setMessageTypeEnum(MessageTypeEnum.OFFICE); // 办公
-                message.setMessageSystemEnum(MessageSystemEnum.TIR_WX_WXC);
-            }
-        });
         List<StaffMessageRefuse> staffMessageRefuseList = staffMessageRefuseService.list(Wrappers.<StaffMessageRefuse>lambdaQuery()
                 .eq(StaffMessageRefuse::getStaffId, user.getStaffId())
                 .eq(StaffMessageRefuse::getStatus, YesNoEnum.YES)

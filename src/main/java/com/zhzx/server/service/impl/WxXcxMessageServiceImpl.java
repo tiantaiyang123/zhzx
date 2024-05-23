@@ -116,19 +116,19 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
     @Override
     public Object updateIsReadApp(MessageCombineDto messageCombineDto) {
         String messageSystemEnum = messageCombineDto.getMessageSystemEnum();
-        if (null == messageCombineDto.getId() || StringUtils.isNullOrEmpty(messageSystemEnum)) {
+        if ( messageCombineDto.getIds().isEmpty() || StringUtils.isNullOrEmpty(messageSystemEnum)) {
             throw new ApiCode.ApiException(-1, "字段缺失");
         }
-        if (MessageSystemEnum.INNER.toString().equals(messageSystemEnum)) {
+        if (MessageSystemEnum.INNER.toString().equals(messageSystemEnum)&&!messageCombineDto.getIds().isEmpty()) {
             // 除了站外消息 全部更新为已读
             this.messageMapper.update(null, Wrappers.<Message>lambdaUpdate()
                     .set(Message::getIsRead, YesNoEnum.YES)
-                    .eq(Message::getId, messageCombineDto.getId())
+                    .in(Message::getId, messageCombineDto.getIds())
                     .le(Message::getMessageTaskId, 0));
-        } else if (MessageSystemEnum.TIR_WX_WXC.toString().equals(messageSystemEnum)) {
+        } else if (MessageSystemEnum.TIR_WX_WXC.toString().equals(messageSystemEnum)&&!messageCombineDto.getIds().isEmpty()) {
             this.baseMapper.update(null, Wrappers.<WxXcxMessage>lambdaUpdate()
                     .set(WxXcxMessage::getIsRead, YesNoEnum.YES)
-                    .eq(WxXcxMessage::getId, messageCombineDto.getId()));
+                    .in(WxXcxMessage::getId, messageCombineDto.getIds()));
         }
         return null;
     }
@@ -142,21 +142,21 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
                         .eq(Message::getReceiverId, messageCombineVo.getStaffId())
                         .eq(Message::getIsRead, YesNoEnum.NO)
         );
-        map.put("qt", messageInnerCount);
+        map.put("jw", messageInnerCount);
 
-        Integer jw = 0, xx = 0;
+        Integer qt = 0, xx = 0;
         List<Settings> settingsList = this.settingsMapper.selectList(
                 Wrappers.<Settings>lambdaQuery()
                         .likeRight(Settings::getCode, "APP\\_MESSAGE\\_CLASSIFY\\_")
         );
         if (CollectionUtils.isNotEmpty(settingsList)) {
-            String jwSetting = null, xxSetting = null;
+            String qtSetting = null, xxSetting = null;
             for (int i = 0; i < Math.min(2, settingsList.size()); ++i) {
                 Settings settings = settingsList.get(i);
                 if (settings.getCode().endsWith("XX")) {
                     xxSetting = settings.getParams();
                 } else if (settings.getCode().endsWith("JW")) {
-                    jwSetting = settings.getParams();
+                    qtSetting = settings.getParams();
                 }
             }
 
@@ -166,12 +166,12 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
                             .eq(WxXcxMessage::getUserLoginName, messageCombineVo.getStaffEName())
                             .eq(WxXcxMessage::getIsRead, YesNoEnum.NO)
             );
-            if (!StringUtils.isNullOrEmpty(jwSetting) || !StringUtils.isNullOrEmpty(xxSetting)) {
+            if (!StringUtils.isNullOrEmpty(qtSetting) || !StringUtils.isNullOrEmpty(xxSetting)) {
                 for (WxXcxMessage wxXcxMessage : wxXcxMessageList) {
                     String messageCreateDepartment = wxXcxMessage.getMessageCreateDepartment();
                     if (!StringUtils.isNullOrEmpty(messageCreateDepartment)) {
-                        if (null != jwSetting && jwSetting.contains(messageCreateDepartment)) {
-                            jw ++;
+                        if (null != qtSetting && qtSetting.contains(messageCreateDepartment)) {
+                            qt ++;
                         }
                         if (null != xxSetting && xxSetting.contains(messageCreateDepartment)) {
                             xx ++;
@@ -182,7 +182,7 @@ public class WxXcxMessageServiceImpl extends ServiceImpl<WxXcxMessageMapper, WxX
         }
 
         map.put("xx", xx);
-        map.put("jw", jw);
+        map.put("qt", qt);
 
         return map;
     }

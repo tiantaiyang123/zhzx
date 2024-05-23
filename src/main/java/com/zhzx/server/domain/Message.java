@@ -155,10 +155,6 @@ public class Message extends BaseDomain {
     @ApiModelProperty(value = "", required = true)
     private java.util.Date updatedTime;
 
-    @TableField(exist = false)
-    private MessageTypeEnum messageTypeEnum;
-    @TableField(exist = false)
-    private MessageSystemEnum messageSystemEnum;
     /**
      * 设置默认值
      */

@@ -713,6 +713,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         String url = "http://dc.njzhzx.net/login2Zh?mobile="+phone+"&par1="+par1;
         String post = HttpClientUtils.doPost(url, null);
-        return post;
+        JSONObject response = JSON.parseObject(post);
+        Integer code = (Integer) response.get("code");
+        if (code==0){
+            return "http://dc.njzhzx.net";
+        }else {
+            return "http://dc.njzhzx.net/login";
+        }
     }
 }
