@@ -2,6 +2,7 @@
  * 项目：中华中学管理平台
  * 模型分组：系统管理
  * 模型名称：公开课表
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
  */
@@ -25,4 +26,9 @@ public interface PublicCourseMapper extends PublicCourseBaseMapper {
 
 
     void updateTeacherId(Long academicYearSemesterId, Long gradeId);
+
+    /**
+     * 根据日期删除所有之前导入的公开课
+     */
+    void delPublicCourseByImport(Long academicYearSemesterId, Long gradeId, List<String> dates);
 }

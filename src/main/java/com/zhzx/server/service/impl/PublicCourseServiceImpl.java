@@ -51,6 +51,9 @@ public class PublicCourseServiceImpl extends ServiceImpl<PublicCourseMapper, Pub
     @Resource
     private ClazzService clazzService;
 
+    @Resource
+    private PublicCourseMapper publicCourseMapper;
+
     @Override
     public int updateAllFieldsById(PublicCourse entity) {
         return this.getBaseMapper().updateAllFieldsById(entity);
@@ -147,12 +150,8 @@ public class PublicCourseServiceImpl extends ServiceImpl<PublicCourseMapper, Pub
             if (sb.length() != 0) {
                 throw new ApiCode.ApiException(-1, sb.toString());
             }
-            String applyStr = dateSet.stream().map(item -> "to_days('" + item +"')").collect(Collectors.joining(" , "));
-            QueryWrapper<PublicCourse> publicCourseQueryWrapper = new QueryWrapper<PublicCourse>()
-                    .eq("academic_year_semester_id", academicYearSemesterId)
-                    .eq("grade_id", gradeId)
-                    .apply("to_days(start_time)" + "in" + "({0})",applyStr);
-            this.remove(publicCourseQueryWrapper);
+            List<String> dates = dateSet.stream().collect(Collectors.toList());
+            publicCourseMapper.delPublicCourseByImport(academicYearSemesterId,gradeId,dates);
             this.saveBatch(publicCourses, publicCourses.size());
             this.getBaseMapper().updateTeacherId(academicYearSemesterId, gradeId);
         } catch (IOException | InvalidFormatException e) {
@@ -162,5 +161,23 @@ public class PublicCourseServiceImpl extends ServiceImpl<PublicCourseMapper, Pub
         }finally {
             file.delete();
         }
+    }
+
+    public static String trimQuotes(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+
+        // 去除开头的字符
+        while (str.startsWith("'")) {
+            str = str.substring(1);
+        }
+
+        // 去除结尾的字符
+        while (str.endsWith("'")) {
+            str = str.substring(0, str.length() - 1);
+        }
+
+        return str;
     }
 }
