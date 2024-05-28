@@ -158,7 +158,7 @@ public class PublicCourseController {
     @ApiOperation("分页查询")
     public ApiResponse<IPage<PublicCourse>> selectByPage(
             PublicCourseParam param,
-            @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
+            @RequestParam(value = "orderByClause", defaultValue = "id asc") String orderByClause,
             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
@@ -170,7 +170,8 @@ public class PublicCourseController {
             wrapper.orderBy(true, isAsc, obTemp[0]);
         });
         IPage<PublicCourse> page = new Page<>(pageNum, pageSize);
-        return ApiResponse.ok(this.publicCourseService.page(page, wrapper));
+        IPage<PublicCourse> iPage = this.publicCourseService.page(page, wrapper);
+        return ApiResponse.ok(iPage);
     }
 
     @GetMapping("/import-excel")

@@ -2,6 +2,7 @@
  * 项目：中华中学管理平台
  * 模型分组：系统管理
  * 模型名称：公开课表
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
  */
@@ -29,6 +30,7 @@ import com.zhzx.server.service.SchoolyardService;
 import com.zhzx.server.util.CellUtils;
 import com.zhzx.server.util.DateUtils;
 import com.zhzx.server.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -42,6 +44,7 @@ import com.zhzx.server.repository.base.PublicCourseBaseMapper;
 import com.zhzx.server.domain.PublicCourse;
 
 @Service
+@Slf4j
 public class PublicCourseServiceImpl extends ServiceImpl<PublicCourseMapper, PublicCourse> implements PublicCourseService {
 
     @Value("${web.upload-path}")
@@ -75,8 +78,8 @@ public class PublicCourseServiceImpl extends ServiceImpl<PublicCourseMapper, Pub
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void importExcel(Long academicYearSemesterId,Long gradeId, String fileUrl) {
-        if (StringUtils.isNullOrEmpty(fileUrl)){
+    public void importExcel(Long academicYearSemesterId, Long gradeId, String fileUrl) {
+        if (StringUtils.isNullOrEmpty(fileUrl)) {
             throw new ApiCode.ApiException(-1, "没有上传文件！");
         }
         String[] items = fileUrl.split("/");
@@ -93,10 +96,10 @@ public class PublicCourseServiceImpl extends ServiceImpl<PublicCourseMapper, Pub
             // 公开课列表
             List<PublicCourse> publicCourses = new ArrayList<>();
             // 获取校区列表
-            Map<String,List<Schoolyard>> schoolyardListMap = schoolyardService.list().stream().collect(Collectors.groupingBy(Schoolyard::getName));
+            Map<String, List<Schoolyard>> schoolyardListMap = schoolyardService.list().stream().collect(Collectors.groupingBy(Schoolyard::getName));
             List<Clazz> clazzList = clazzService.list(Wrappers.<Clazz>lambdaQuery()
-                    .eq(Clazz::getGradeId,gradeId)
-                    .eq(Clazz::getAcademicYearSemesterId,academicYearSemesterId)
+                    .eq(Clazz::getGradeId, gradeId)
+                    .eq(Clazz::getAcademicYearSemesterId, academicYearSemesterId)
             );
             // 读取单元格数据
             PublicCourse publicCourse = null;
@@ -112,27 +115,27 @@ public class PublicCourseServiceImpl extends ServiceImpl<PublicCourseMapper, Pub
                     continue;
                 }
                 List<Schoolyard> schoolyardList = schoolyardListMap.get(CellUtils.getCellValue(rowValue.getCell(6)).trim());
-                if(schoolyardList == null){
+                if (schoolyardList == null) {
                     sb.append("第").append(rowIndex + 1).append("行: ").append("校区：").append(CellUtils.getCellValue(rowValue.getCell(6))).append("不存在").append("\r\n");
                     continue;
                 }
                 Long schoolyardId = schoolyardList.get(0).getId();
                 publicCourse.setSchoolyardId(schoolyardId);
-                publicCourse.setStartTime(DateUtils.parse(dateCell,"yyyy-MM-dd"));
+                publicCourse.setStartTime(DateUtils.parse(dateCell, "yyyy-MM-dd"));
                 //将分割符切换为逗号
                 String sortOrder = CellUtils.getCellValue(rowValue.getCell(2));
-                sortOrder = sortOrder.substring(1,sortOrder.length()-1)
-                        .replace("-",",");
+                sortOrder = sortOrder.substring(1, sortOrder.length() - 1)
+                        .replace("-", ",");
                 publicCourse.setSortOrder(sortOrder);
                 publicCourse.setCourseName(CellUtils.getCellValue(rowValue.getCell(5)));
                 publicCourse.setGradeId(gradeId);
                 //查询class id
                 String clazzName = CellUtils.getCellValue(rowValue.getCell(4));
                 // 将班级拆分成和数据库一致
-                List<String> clazzNameList = Arrays.stream(clazzName.substring(2, clazzName.length()-1)
+                List<String> clazzNameList = Arrays.stream(clazzName.substring(2, clazzName.length() - 1)
                         .replace("、", ",").split(",")).map(item -> item + "班").collect(Collectors.toList());
-                String clazzIds = clazzList.stream().filter(item -> clazzNameList.contains(item.getName()) && item.getSchoolyardId().equals(schoolyardId)).map(item->item.getId().toString()).collect(Collectors.joining(","));
-                if(StringUtils.isNullOrEmpty(clazzIds)){
+                String clazzIds = clazzList.stream().filter(item -> clazzNameList.contains(item.getName()) && item.getSchoolyardId().equals(schoolyardId)).map(item -> item.getId().toString()).collect(Collectors.joining(","));
+                if (StringUtils.isNullOrEmpty(clazzIds)) {
                     sb.append("第").append(rowIndex + 1).append("行: ").append("班级：").append(CellUtils.getCellValue(rowValue.getCell(4))).append("未匹配到").append("\r\n");
                     continue;
                 }
@@ -151,14 +154,16 @@ public class PublicCourseServiceImpl extends ServiceImpl<PublicCourseMapper, Pub
                 throw new ApiCode.ApiException(-1, sb.toString());
             }
             List<String> dates = dateSet.stream().collect(Collectors.toList());
-            publicCourseMapper.delPublicCourseByImport(academicYearSemesterId,gradeId,dates);
+            log.info("------->>>>>>>需要删除的日期是-->{}", dates);
+            int i = publicCourseMapper.delPublicCourseByImport(academicYearSemesterId, gradeId, dates);
+            log.info("--->记录数是:{}", i);
             this.saveBatch(publicCourses, publicCourses.size());
             this.getBaseMapper().updateTeacherId(academicYearSemesterId, gradeId);
         } catch (IOException | InvalidFormatException e) {
             throw new ApiCode.ApiException(-1, "导入数据失败！");
         } catch (ParseException p) {
             throw new ApiCode.ApiException(-1, "时间解析失败");
-        }finally {
+        } finally {
             file.delete();
         }
     }

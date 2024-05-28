@@ -10,6 +10,7 @@ import com.zhzx.server.repository.ClazzMapper;
 import com.zhzx.server.repository.ClazzTeachingLogSubjectsMapper;
 import com.zhzx.server.repository.NightStudyDutyClazzMapper;
 import com.zhzx.server.rest.res.ApiResponse;
+import com.zhzx.server.task.PublicCourseTaskComp;
 import com.zhzx.server.util.DateUtils;
 import com.zhzx.server.util.JsonUtils;
 import com.zhzx.server.vo.*;
@@ -175,4 +176,20 @@ public class ExcelTest {
     public void testTask(){
         this.staffService.updateLessonTeacher();
     }
+
+    @Resource
+    private PublicCourseTaskComp publicCourseTaskComp;
+    /**
+     * 测试定时任务
+     */
+    @Test
+    public void tesTaskPublicCourses(){
+        this.publicCourseTaskComp.sendPublicCourse();
+    }
+
+    @Test
+    public void testTaskTomorrow(){
+        this.publicCourseTaskComp.afterPublicCourses();
+    }
+
 }

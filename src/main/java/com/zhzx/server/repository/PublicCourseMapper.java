@@ -30,5 +30,5 @@ public interface PublicCourseMapper extends PublicCourseBaseMapper {
     /**
      * 根据日期删除所有之前导入的公开课
      */
-    void delPublicCourseByImport(Long academicYearSemesterId, Long gradeId, List<String> dates);
+    int delPublicCourseByImport(Long academicYearSemesterId, Long gradeId, List<String> dates);
 }
