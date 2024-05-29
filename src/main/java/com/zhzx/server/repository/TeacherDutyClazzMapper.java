@@ -42,4 +42,9 @@ public interface TeacherDutyClazzMapper extends TeacherDutyClazzBaseMapper {
      * app中根据班级的集合循环更新day_teacher_duty_clazz表中的数据
      */
     Integer updateByClazzIds(@Param("newId")Long newId,@Param("clazzIds")List<Long> clazzIds,@Param("oldId")Long oldId);
+
+    /**
+     * 更改值班老师的id
+     */
+    Integer updateTeacherDutyClazzByClassId(@Param("classId")Long classId,@Param("id")Long id,@Param("teacherDutyId")Long teacherDutyId);
 }

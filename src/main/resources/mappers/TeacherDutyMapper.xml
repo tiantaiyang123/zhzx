@@ -1,73 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zhzx.server.repository.TeacherDutyMapper">
-    <resultMap id="TeacherNightRoutineResultMap" type="com.zhzx.server.dto.TeacherDutyDto" extends="com.zhzx.server.repository.base.TeacherDutyBaseMapper.BaseResultMap">
+    <resultMap id="TeacherNightRoutineResultMap" type="com.zhzx.server.dto.TeacherDutyDto"
+               extends="com.zhzx.server.repository.base.TeacherDutyBaseMapper.BaseResultMap">
         <association column="teacher_id" property="teacher" javaType="com.zhzx.server.domain.Staff"
-                     select="com.zhzx.server.repository.StaffMapper.selectByIdSimple" />
-        <collection property="teacherDutyClazzList" columnPrefix="sc_"  resultMap="TeacherNightRoutineResultMap_class">
+                     select="com.zhzx.server.repository.StaffMapper.selectByIdSimple"/>
+        <collection property="teacherDutyClazzList" columnPrefix="sc_" resultMap="TeacherNightRoutineResultMap_class">
             <constructor>
                 <arg column="teacherDutyClazzList"/>
             </constructor>
         </collection>
     </resultMap>
 
-    <resultMap id="TeacherNightRoutineResultMap_class" type="com.zhzx.server.dto.NightDutyClassDto" >
-        <id column="teacherDutyClassId" jdbcType="BIGINT" property="teacherDutyClassId" />
-        <result column="nightStudyId" jdbcType="BIGINT" property="nightStudyId" />
-        <result column="is_comfirm" jdbcType="BIGINT" property="isConfirm" />
-        <result column="gradeName" jdbcType="VARCHAR" property="gradeName" />
-        <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName" />
-        <result column="phone" jdbcType="VARCHAR" property="phone" />
-        <result column="clazzName" jdbcType="VARCHAR" property="clazzName" />
-        <result column="clazzRemark" jdbcType="VARCHAR" property="clazzRemark" />
-        <result column="clazzId" jdbcType="VARCHAR" property="clazzId" />
-        <result column="teacherName" jdbcType="VARCHAR" property="teacherName" />
-        <result column="shouldStudentCount" jdbcType="BIGINT" property="shouldStudentCount" />
-        <result column="actualStudentCount" jdbcType="BIGINT" property="actualStudentCount" />
-        <result column="allStudentCount" jdbcType="BIGINT" property="allStudentCount" />
-        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
-        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
-        <collection property="nightStudyAttendances" columnPrefix="snsa_"  resultMap="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.ResultMap">
+    <resultMap id="TeacherNightRoutineResultMap_class" type="com.zhzx.server.dto.NightDutyClassDto">
+        <id column="teacherDutyClassId" jdbcType="BIGINT" property="teacherDutyClassId"/>
+        <result column="nightStudyId" jdbcType="BIGINT" property="nightStudyId"/>
+        <result column="is_comfirm" jdbcType="BIGINT" property="isConfirm"/>
+        <result column="gradeName" jdbcType="VARCHAR" property="gradeName"/>
+        <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="clazzName" jdbcType="VARCHAR" property="clazzName"/>
+        <result column="clazzRemark" jdbcType="VARCHAR" property="clazzRemark"/>
+        <result column="clazzId" jdbcType="VARCHAR" property="clazzId"/>
+        <result column="teacherName" jdbcType="VARCHAR" property="teacherName"/>
+        <result column="shouldStudentCount" jdbcType="BIGINT" property="shouldStudentCount"/>
+        <result column="actualStudentCount" jdbcType="BIGINT" property="actualStudentCount"/>
+        <result column="allStudentCount" jdbcType="BIGINT" property="allStudentCount"/>
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
+        <collection property="nightStudyAttendances" columnPrefix="snsa_"
+                    resultMap="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.ResultMap">
             <constructor>
                 <arg column="nightStudyAttendances"/>
             </constructor>
         </collection>
-        <collection column="nightStudyId" property="commentDtoList" select="queryCommentById" />
+        <collection column="nightStudyId" property="commentDtoList" select="queryCommentById"/>
     </resultMap>
 
     <select id="queryCommentById" resultMap="com.zhzx.server.repository.CommentMapper.ResultCommentDtoMap">
-        select
-        dc.id ,dc.item_name  ,dc.content ,dc.classify,dc.create_time,sfd.name as gd_name,sfd.parent_id as gd_parent_id
+        select dc.id,
+               dc.item_name,
+               dc.content,
+               dc.classify,
+               dc.create_time,
+               sfd.name      as gd_name,
+               sfd.parent_id as gd_parent_id
         from day_comment dc
-        left join day_comment_process dcp on dc.id = dcp.comment_id
-        left join day_comment_task dct on dcp.id = dct.comment_process_id
-        left join sys_function_department sfd on sfd.id = dct.function_department_id
-        where daily_routine_id = #{nightStudyId} and classify = 'DAY_NIGHT_STUDY'
+                 left join day_comment_process dcp on dc.id = dcp.comment_id
+                 left join day_comment_task dct on dcp.id = dct.comment_process_id
+                 left join sys_function_department sfd on sfd.id = dct.function_department_id
+        where daily_routine_id = #{nightStudyId}
+          and classify = 'DAY_NIGHT_STUDY'
     </select>
 
     <!-- 根据主键查询 -->
-    <select id="selectById" parameterType="java.io.Serializable" resultMap="com.zhzx.server.repository.base.TeacherDutyBaseMapper.ResultMap">
-        select * from day_teacher_duty where id = #{id}
+    <select id="selectById" parameterType="java.io.Serializable"
+            resultMap="com.zhzx.server.repository.base.TeacherDutyBaseMapper.ResultMap">
+        select *
+        from day_teacher_duty
+        where id = #{id}
     </select>
     <!-- 根据Wrapper查询 -->
     <select id="selectOne" resultMap="com.zhzx.server.repository.base.TeacherDutyBaseMapper.ResultMap">
-        select * from day_teacher_duty ${ew.customSqlSegment} LIMIT 1
+        select *
+        from day_teacher_duty ${ew.customSqlSegment} LIMIT 1
     </select>
     <select id="nightRoutine" resultMap="TeacherNightRoutineResultMap">
         select dtd.id,dtd.schoolyard_id,
-        dtd.teacher_id  ,
+        dtd.teacher_id ,
         dtd.start_time,dtd.end_time,dtd.duty_type,dtd.duty_mode,
-        dns.id as sc_nightStudyId,dtdc.id as sc_teacherDutyClassId,dtdc.is_comfirm as  sc_is_comfirm,
+        dns.id as sc_nightStudyId,dtdc.id as sc_teacherDutyClassId,dtdc.is_comfirm as sc_is_comfirm,
         (
-          case when dtd.duty_type = 'STAGE_ONE' then if(dns.should_student_count = 0,sc.night_stage_one_num,dns.should_student_count)
-          else if(dns.should_student_count = 0,sc.night_stage_two_num,dns.should_student_count)  end
+        case when dtd.duty_type = 'STAGE_ONE' then if(dns.should_student_count =
+        0,sc.night_stage_one_num,dns.should_student_count)
+        else if(dns.should_student_count = 0,sc.night_stage_two_num,dns.should_student_count) end
         )as sc_shouldStudentCount,
         dns.actual_student_count as sc_actualStudentCount,
         sc.clazz_level as sc_clazzRemark,
-        sc.name as sc_clazzName ,sc.id as sc_clazzId,sg.name as sc_gradeName, sc.head_teacher as sc_teacherName,ss.phone as sc_phone,sc.student_count as sc_allStudentCount,
+        sc.name as sc_clazzName ,sc.id as sc_clazzId,sg.name as sc_gradeName, sc.head_teacher as sc_teacherName,ss.phone
+        as sc_phone,sc.student_count as sc_allStudentCount,
         snsa.id as sc_snsa_id,snsa.register_date as sc_snsa_register_date,snsa.student_id as sc_snsa_student_id,
         snsa.stage as sc_snsa_stage,snsa.should_num as sc_snsa_should_num,snsa.actual_num as sc_snsa_actual_num,
-        snsa.reason as sc_snsa_reason,snsa.summarize as sc_snsa_summarize,snsa.sign as sc_snsa_sign,snsa.classify as sc_snsa_classify
+        snsa.reason as sc_snsa_reason,snsa.summarize as sc_snsa_summarize,snsa.sign as sc_snsa_sign,snsa.classify as
+        sc_snsa_classify
 
         from day_teacher_duty dtd
         left join day_teacher_duty_clazz dtdc on dtd.id = dtdc.teacher_duty_id
@@ -75,7 +90,8 @@
         left join sys_clazz sc on dtdc.clazz_id = sc.id
         left join sys_staff ss on sc.head_teacher = ss.name
         left join sys_grade sg on sc.grade_id = sg.id
-        left join std_night_study_attendance snsa on to_days(snsa.register_date) = to_days(#{time}) and sc.id = snsa.clazz_id and dtd.duty_type = snsa.stage
+        left join std_night_study_attendance snsa on to_days(snsa.register_date) = to_days(#{time}) and sc.id =
+        snsa.clazz_id and dtd.duty_type = snsa.stage
         where 1=1
         <if test="leaderId != null">
             and dtd.teacher_id = #{leaderId}
@@ -92,7 +108,7 @@
         <if test="leaderDutyTypeEnum != null">
             and dtd.duty_type in
             <foreach item="item" collection="leaderDutyTypeEnum" separator="," open="(" close=")" index="">
-                       #{item, jdbcType=VARCHAR}
+                #{item, jdbcType=VARCHAR}
             </foreach>
         </if>
         order by dtd.start_time asc,dtdc.clazz_id asc
@@ -123,42 +139,46 @@
     <select id="getFormList" resultType="com.zhzx.server.vo.ClazzVo">
 
         <foreach collection="timeList" item="item" index="index" separator="union all">
-            select sc.name as `name`,sg.name as gradeName,sc.id as id,#{item} as `time`,a.name as schoolyardName,sg.id as gradeId,
+            select sc.name as `name`,sg.name as gradeName,sc.id as id,#{item} as `time`,a.name as schoolyardName,sg.id
+            as gradeId,
             (select ss.`name` from sys_staff ss where ss.id = (
-                select
-                  dtd.teacher_id
-                from day_teacher_duty_clazz dtdc
-                left join day_teacher_duty dtd  on dtd.id = dtdc.teacher_duty_id
-                where sc.id = dtdc.clazz_id and to_days(dtd.start_time) = to_days(#{item}) and dtd.duty_type = 'STAGE_ONE')
-                limit 1
+            select
+            dtd.teacher_id
+            from day_teacher_duty_clazz dtdc
+            left join day_teacher_duty dtd on dtd.id = dtdc.teacher_duty_id
+            where sc.id = dtdc.clazz_id and to_days(dtd.start_time) = to_days(#{item}) and dtd.duty_type = 'STAGE_ONE')
+            limit 1
             ) as stageOneTeacher,
             (select ss.`name` from sys_staff ss where ss.id = (
-                select
-                dtd.teacher_id
-                from day_teacher_duty_clazz dtdc
-                left join day_teacher_duty dtd  on dtd.id = dtdc.teacher_duty_id
-                where sc.id = dtdc.clazz_id and to_days(dtd.start_time) = to_days(#{item}) and dtd.duty_type = 'STAGE_TWO')
-                limit 1
+            select
+            dtd.teacher_id
+            from day_teacher_duty_clazz dtdc
+            left join day_teacher_duty dtd on dtd.id = dtdc.teacher_duty_id
+            where sc.id = dtdc.clazz_id and to_days(dtd.start_time) = to_days(#{item}) and dtd.duty_type = 'STAGE_TWO')
+            limit 1
             ) as stageTwoTeacher,
             (select ss.`name` from sys_staff ss where ss.id = (
-                select
-                dtd.teacher_id
-                from day_teacher_duty_clazz dtdc
-                left join day_teacher_duty dtd  on dtd.id = dtdc.teacher_duty_id
-                where sc.id = dtdc.clazz_id and to_days(dtd.start_time) = to_days(#{item}) and dtd.duty_type = 'GRADE_TOTAL_DUTY')
-                limit 1
+            select
+            dtd.teacher_id
+            from day_teacher_duty_clazz dtdc
+            left join day_teacher_duty dtd on dtd.id = dtdc.teacher_duty_id
+            where sc.id = dtdc.clazz_id and to_days(dtd.start_time) = to_days(#{item}) and dtd.duty_type =
+            'GRADE_TOTAL_DUTY')
+            limit 1
             ) as gradeDutyTeacher,
             (select ss.`name` from sys_staff ss where ss.id = (
-                select
-                 dtd.teacher_id
-                from day_teacher_duty dtd
-                where to_days(dtd.start_time) = to_days(#{item}) and dtd.duty_type = 'TOTAL_DUTY' and dtd.schoolyard_id=sc.schoolyard_id)
-                limit 1
+            select
+            dtd.teacher_id
+            from day_teacher_duty dtd
+            where to_days(dtd.start_time) = to_days(#{item}) and dtd.duty_type = 'TOTAL_DUTY' and
+            dtd.schoolyard_id=sc.schoolyard_id)
+            limit 1
             ) as totalDutyTeacher
             from sys_clazz sc
             left join sys_grade sg on sc.grade_id = sg.id
             left join sys_schoolyard a on a.id=sc.schoolyard_id
-            where sc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where says.is_default = "YES" LIMIT 1  )
+            where sc.academic_year_semester_id = (select says.id from sys_academic_year_semester says where
+            says.is_default = "YES" LIMIT 1 )
             <if test="gradeId != null">
                 and sg.id = #{gradeId}
             </if>
@@ -169,26 +189,65 @@
     </select>
 
     <select id="getTotalDutyList" resultType="com.zhzx.server.dto.TeacherDutyDto">
-        select DISTINCT ss.name as teacherName, sg.name as gradeName,dtd.duty_type as dutyType,a.name as schoolyardName
+        select DISTINCT ss.name       as teacherName,
+                        sg.name       as gradeName,
+                        dtd.duty_type as dutyType,
+                        a.name        as schoolyardName
         from day_teacher_duty dtd
-        left join day_teacher_duty_clazz dtdc on dtd.id = dtdc.teacher_duty_id
-        left join sys_schoolyard a on a.id=dtd.schoolyard_id
-        left join sys_clazz sc on dtdc.clazz_id = sc.id
-        left join sys_grade sg on sc.grade_id = sg.id
-        left join sys_staff ss on ss.id = dtd.teacher_id
+                 left join day_teacher_duty_clazz dtdc on dtd.id = dtdc.teacher_duty_id
+                 left join sys_schoolyard a on a.id = dtd.schoolyard_id
+                 left join sys_clazz sc on dtdc.clazz_id = sc.id
+                 left join sys_grade sg on sc.grade_id = sg.id
+                 left join sys_staff ss on ss.id = dtd.teacher_id
         where to_days(dtd.start_time) = to_days(#{time})
-        and dtd.duty_type in ( 'GRADE_TOTAL_DUTY','TOTAL_DUTY')
+          and dtd.duty_type in ('GRADE_TOTAL_DUTY', 'TOTAL_DUTY')
     </select>
 
-    <delete id="removeByTime" >
-        delete day_teacher_duty_clazz, day_night_study
+    <delete id="removeByTime">
+        delete
+        day_teacher_duty_clazz, day_night_study
         from day_teacher_duty
         left join day_teacher_duty_clazz  on day_teacher_duty.id = day_teacher_duty_clazz.teacher_duty_id
         left join day_night_study on day_night_study.teacher_duty_clazz_id=day_teacher_duty_clazz.id
-        where to_days(day_teacher_duty.start_time) = to_days(#{dutyTime}) and
-        (day_teacher_duty_clazz.clazz_id in (
-          select id from sys_clazz sc where sc.grade_id = #{gradeId} and sc.academic_year_semester_id = #{academicYearSemesterId} and sc.schoolyard_id = #{schoolyardId}
-        ) or duty_type = "TOTAL_DUTY")
+        where to_days(day_teacher_duty.start_time) = to_days(
+        #{dutyTime}
+        )
+        and
+        (
+        day_teacher_duty_clazz
+        .
+        clazz_id
+        in
+        (
+        select
+        id
+        from
+        sys_clazz
+        sc
+        where
+        sc
+        .
+        grade_id
+        =
+        #{gradeId}
+        and
+        sc
+        .
+        academic_year_semester_id
+        =
+        #{academicYearSemesterId}
+        and
+        sc
+        .
+        schoolyard_id
+        =
+        #{schoolyardId}
+        )
+        or
+        duty_type
+        =
+        "TOTAL_DUTY"
+        )
     </delete>
 
     <select id="getByTimeAndClazzId" resultMap="com.zhzx.server.repository.base.TeacherDutyBaseMapper.ResultMap">
@@ -207,10 +266,10 @@
         from day_teacher_duty dtd
         left join day_teacher_duty_clazz dtdc on dtdc.teacher_duty_id = dtd.id
         where dtdc.clazz_id in
-          <foreach collection="clazzIds" item="clazzId" separator="," open="(" close=")">
-              #{clazzId}
-          </foreach>
-          and to_days(dtd.start_time ) = to_days(#{time})
+        <foreach collection="clazzIds" item="clazzId" separator="," open="(" close=")">
+            #{clazzId}
+        </foreach>
+        and to_days(dtd.start_time ) = to_days(#{time})
         <if test="dutyType != null">
             and dtd.duty_type = #{dutyType}
         </if>
@@ -258,33 +317,40 @@
             and sc.id = ${clazzId}
         </if>
     </select>
-    <resultMap id="TeacherNightRoutineResultMap_PAGEDETAIL" type="com.zhzx.server.dto.NightDutyClassDto" >
-        <result column="nightStudyId" jdbcType="BIGINT" property="nightStudyId" />
-        <result column="teacherDutyClassId" jdbcType="BIGINT" property="teacherDutyClassId" />
-        <result column="is_comfirm" jdbcType="BIGINT" property="isConfirm" />
-        <result column="gradeName" jdbcType="VARCHAR" property="gradeName" />
-        <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName" />
-        <result column="schoolyardIdd" jdbcType="BIGINT" property="schoolyardIdd" />
-        <result column="phone" jdbcType="VARCHAR" property="phone" />
-        <result column="clazzName" jdbcType="VARCHAR" property="clazzName" />
-        <result column="clazzId" jdbcType="VARCHAR" property="clazzId" />
-        <result column="teacherName" jdbcType="VARCHAR" property="teacherName" />
-        <result column="shouldStudentCount" jdbcType="BIGINT" property="shouldStudentCount" />
-        <result column="actualStudentCount" jdbcType="BIGINT" property="actualStudentCount" />
-        <result column="allStudentCount" jdbcType="BIGINT" property="allStudentCount" />
-        <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
-        <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
-        <collection property="nightStudyAttendances" column="{startTime=start_time,stageP=stage,clazzIdP=clazzId}"  select="selectNightAttendance" />
-        <collection column="nightStudyId" property="commentDtoList" select="queryCommentById" />
+    <resultMap id="TeacherNightRoutineResultMap_PAGEDETAIL" type="com.zhzx.server.dto.NightDutyClassDto">
+        <result column="nightStudyId" jdbcType="BIGINT" property="nightStudyId"/>
+        <result column="teacherDutyClassId" jdbcType="BIGINT" property="teacherDutyClassId"/>
+        <result column="is_comfirm" jdbcType="BIGINT" property="isConfirm"/>
+        <result column="gradeName" jdbcType="VARCHAR" property="gradeName"/>
+        <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName"/>
+        <result column="schoolyardIdd" jdbcType="BIGINT" property="schoolyardIdd"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="clazzName" jdbcType="VARCHAR" property="clazzName"/>
+        <result column="clazzId" jdbcType="VARCHAR" property="clazzId"/>
+        <result column="teacherName" jdbcType="VARCHAR" property="teacherName"/>
+        <result column="shouldStudentCount" jdbcType="BIGINT" property="shouldStudentCount"/>
+        <result column="actualStudentCount" jdbcType="BIGINT" property="actualStudentCount"/>
+        <result column="allStudentCount" jdbcType="BIGINT" property="allStudentCount"/>
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
+        <collection property="nightStudyAttendances" column="{startTime=start_time,stageP=stage,clazzIdP=clazzId}"
+                    select="selectNightAttendance"/>
+        <collection column="nightStudyId" property="commentDtoList" select="queryCommentById"/>
     </resultMap>
-    <select id="selectNightAttendance" resultMap="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.ResultMap">
-        select * from std_night_study_attendance
-        where to_days(register_date)=to_days(#{startTime}) and clazz_id = #{clazzIdP} and stage = #{stageP}
+    <select id="selectNightAttendance"
+            resultMap="com.zhzx.server.repository.base.NightStudyAttendanceBaseMapper.ResultMap">
+        select *
+        from std_night_study_attendance
+        where to_days(register_date) = to_days(#{startTime})
+          and clazz_id = #{clazzIdP}
+          and stage = #{stageP}
     </select>
     <select id="pageDetail" resultMap="TeacherNightRoutineResultMap_PAGEDETAIL">
-        select dtd.start_time ,dtd.end_time ,ss.name as teacherName,dns.id as nightStudyId,a.name as schoolyardName,a.id as schoolyardIdd,
+        select dtd.start_time ,dtd.end_time ,ss.name as teacherName,dns.id as nightStudyId,a.name as schoolyardName,a.id
+        as schoolyardIdd,
         sc.name as clazzName ,sg.name as gradeName,sc.id as clazzId,dtd.duty_type as stage,
-        if(dns.should_student_count=0, if(#{dutyType}='STAGE_ONE', sc.night_stage_one_num, sc.night_stage_two_num),dns.should_student_count) as shouldStudentCount,
+        if(dns.should_student_count=0, if(#{dutyType}='STAGE_ONE', sc.night_stage_one_num,
+        sc.night_stage_two_num),dns.should_student_count) as shouldStudentCount,
         dns.actual_student_count as actualStudentCount
         from day_teacher_duty_clazz dtdc
         left join sys_clazz sc on dtdc.clazz_id = sc.id
@@ -320,27 +386,28 @@
     <select id="getByTimeDutyType" resultMap="com.zhzx.server.repository.base.TeacherDutyBaseMapper.ResultMap">
         select *
         from day_teacher_duty
-        where
-        to_days(start_time) <![CDATA[ = ]]> to_days(#{startTime})
-        and duty_type = #{dutyType}
-        and teacher_id = #{teacherId}
-        limit 1
+        where to_days(start_time) <![CDATA[ = ]]> to_days(#{startTime})
+          and duty_type = #{dutyType}
+          and teacher_id = #{teacherId} limit 1
     </select>
 
     <select id="selectTeacherDutyGradeTotalDto" resultType="com.zhzx.server.dto.TeacherDutyGradeTotalDto">
-        select b.*,d.id AS gradeId
+        select b.*, d.id AS gradeId
         from (
-            select a.*
-            from day_teacher_duty a
-            where a.duty_type = 'GRADE_TOTAL_DUTY' and to_days(a.start_time) = to_days(#{time}) and a.schoolyard_id = ${schoolyardId}
-        ) b left join day_teacher_duty_clazz c on c.teacher_duty_id=b.id
-        left join sys_clazz d on c.clazz_id=d.id
-        where d.grade_id=${gradeId}
-        limit 1
+                 select a.*
+                 from day_teacher_duty a
+                 where a.duty_type = 'GRADE_TOTAL_DUTY'
+                   and to_days(a.start_time) = to_days(#{time})
+                   and a.schoolyard_id = ${schoolyardId}
+             ) b
+                 left join day_teacher_duty_clazz c on c.teacher_duty_id = b.id
+                 left join sys_clazz d on c.clazz_id = d.id
+        where d.grade_id = ${gradeId} limit 1
     </select>
 
-    <resultMap id="TeacherDutyGradeTotal" type="com.zhzx.server.dto.TeacherDutyGradeTotalDto" extends="com.zhzx.server.repository.base.TeacherDutyBaseMapper.ResultMap">
-        <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName" />
+    <resultMap id="TeacherDutyGradeTotal" type="com.zhzx.server.dto.TeacherDutyGradeTotalDto"
+               extends="com.zhzx.server.repository.base.TeacherDutyBaseMapper.ResultMap">
+        <result column="schoolyardName" jdbcType="VARCHAR" property="schoolyardName"/>
         <collection property="teacherDutyGradeTotalClazzList" column="id" select="queryTeacherDutyGradeTotalClazzList">
             <constructor>
                 <arg column="teacherDutyGradeTotalClazzList"/>
@@ -350,8 +417,9 @@
     <select id="getTeacherDutyGradeTotalDto" resultMap="TeacherDutyGradeTotal">
         select *
         from day_teacher_duty
-        where duty_type = #{type} and to_days(start_time) = to_days(#{time}) and teacher_id = ${staffId}
-        limit 1
+        where duty_type = #{type}
+          and to_days(start_time) = to_days(#{time})
+          and teacher_id = ${staffId} limit 1
     </select>
     <select id="getTeacherDutyGradeTotalDtoList" resultMap="TeacherDutyGradeTotal">
         select b.*,a.name as schoolyardName
@@ -365,20 +433,23 @@
             and to_days(start_time) <![CDATA[ <= ]]> to_days(#{timeTo})
         </if>
     </select>
-    <select id="queryTeacherDutyGradeTotalClazzList" resultMap="com.zhzx.server.repository.base.TeacherDutyClazzBaseMapper.ResultMap">
+    <select id="queryTeacherDutyGradeTotalClazzList"
+            resultMap="com.zhzx.server.repository.base.TeacherDutyClazzBaseMapper.ResultMap">
         select *
         from day_teacher_duty_clazz
         where teacher_duty_id = ${value}
     </select>
-    <update id="updateByTime" >
-        update day_teacher_duty set duty_mode = #{dutyMode}
-        where to_days(start_time) = to_days(#{time}) and duty_type = 'GRADE_TOTAL_DUTY'
-        and teacher_id=(select id from sys_staff where name=#{gradeDutyTeacher})
+    <update id="updateByTime">
+        update day_teacher_duty
+        set duty_mode = #{dutyMode}
+        where to_days(start_time) = to_days(#{time})
+          and duty_type = 'GRADE_TOTAL_DUTY'
+          and teacher_id = (select id from sys_staff where name = #{gradeDutyTeacher})
     </update>
 
     <select id="selectListWithClazz" resultMap="TeacherNightRoutineResultMap">
         select dtd.id,dtd.schoolyard_id,
-        dtd.teacher_id  ,
+        dtd.teacher_id ,
         dtd.start_time,dtd.end_time,dtd.duty_type,dtd.duty_mode,
         dtdc.id as sc_teacherDutyClassId,
         sc.name as sc_clazzName ,sc.id as sc_clazzId,sg.name as sc_gradeName
@@ -401,4 +472,32 @@
             and (dtd.duty_type = 'TOTAL_DUTY' or sc.grade_id=#{gradeId})
         </if>
     </select>
+
+
+    <select id="selectByClassId" resultMap="com.zhzx.server.repository.base.TeacherDutyBaseMapper.BaseResultMap">
+        SELECT dtd.*
+        FROM day_teacher_duty dtd
+        JOIN day_teacher_duty_clazz dtdc ON dtd.id = dtdc.teacher_duty_id
+        <where>
+            <if test="classId!=null">
+                dtdc.clazz_id=#{classId}
+            </if>
+            <if test="dutyType!=null">
+                AND dtd.duty_type=#{dutyType}
+            </if>
+            <if test="startTime!=null">
+                AND start_time &gt;=#{startTime}
+            </if>
+            <if test="endTime!=null">
+                AND end_time &lt;=#{endTime}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertReturnId" parameterType="com.zhzx.server.domain.TeacherDuty" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO`day_teacher_duty`(`schoolyard_id`, `teacher_id`, `start_time`, `end_time`, `duty_type`,`duty_mode`)
+         VALUES ( #{schoolyardId}, #{teacherId}, #{startTime}, #{endTime}, #{dutyType}, 'NORMAL')
+
+    </insert>
+
 </mapper>

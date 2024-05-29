@@ -6,6 +6,9 @@
 
 package com.zhzx.server.util;
 
+import com.zhzx.server.enums.GradeEnum;
+import com.zhzx.server.enums.StudentNightDutyTypeEnum;
+
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -127,4 +130,26 @@ public abstract class StringUtils {
         }
         return "winner!";
     }
+
+    public static String gradeName(Long gradeId){
+        if (gradeId==1){
+            return GradeEnum.ONE.getName();
+        }else if (gradeId==2){
+            return GradeEnum.TWO.getName();
+        }else if (gradeId==3){
+            return GradeEnum.THREE.getName();
+        }
+        return null;
+    }
+
+    public static String schoolyardName(Long schoolyardId){
+        String str = "";
+        if (schoolyardId==1){
+             str="兴隆校区";
+        }else if (schoolyardId==2){
+             str="雨花校区";
+        }
+        return str;
+    }
+
 }

@@ -67,4 +67,10 @@
         </foreach>
     </update>
 
+    <update id="updateTeacherDutyClazzByClassId">
+        UPDATE day_teacher_duty_clazz
+        SET teacher_duty_id = #{teacherDutyId}
+        WHERE clazz_id = #{classId} and id=#{id}
+    </update>
+
 </mapper>

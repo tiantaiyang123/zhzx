@@ -2,6 +2,7 @@
  * 项目：中华中学流程自动化管理平台
  * 模型分组：一日常规管理
  * 模型名称：教师值班表
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
  */
@@ -19,10 +20,7 @@ import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.zhzx.server.domain.Label;
 import com.zhzx.server.domain.*;
 import com.zhzx.server.dto.*;
-import com.zhzx.server.enums.RoutineEnum;
-import com.zhzx.server.enums.TeacherDutyModeEnum;
-import com.zhzx.server.enums.TeacherDutyTypeEnum;
-import com.zhzx.server.enums.YesNoEnum;
+import com.zhzx.server.enums.*;
 import com.zhzx.server.repository.*;
 import com.zhzx.server.repository.base.TeacherDutyBaseMapper;
 import com.zhzx.server.rest.res.ApiCode;
@@ -41,6 +39,7 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1006,6 +1005,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 
     /**
      * 更新值班老师逻辑变更
+     *
      * @param nightDutyClassDto
      * @return
      */
@@ -1148,7 +1148,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
 //        teacherDutyClazz.setClazzId(nightDutyClassDto.getClazzId());
 //        teacherDutyClazzMapper.insert(teacherDutyClazz);
 // 帮替一个所有班级
-        teacherDutyClazzMapper.updateByClazzIds(teacherDuty1.getId(),teacherDutyClazz.getClazzIds(),teacherDutyClazz.getTeacherDutyId());
+        teacherDutyClazzMapper.updateByClazzIds(teacherDuty1.getId(), teacherDutyClazz.getClazzIds(), teacherDutyClazz.getTeacherDutyId());
         //全部更新，实际上应该是根据选择的班级进行更新
         /*teacherDutyClazzMapper.update(new TeacherDutyClazz(), Wrappers.<TeacherDutyClazz>lambdaUpdate()
                 .set(TeacherDutyClazz::getTeacherDutyId, teacherDuty1.getId())
@@ -1440,6 +1440,140 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         }
 
         return book;
+    }
+
+
+    /**
+     * 查询指定日期之内的老师
+     *
+     * @param schoolyardId
+     * @param time
+     * @param classId
+     * @param stage
+     * @return
+     */
+    @Override
+    public String searchOneTeacher(Long schoolyardId, Long gradeId, Date time, Long classId, TeacherDutyTypeEnum stage) {
+        String str = new String();
+        SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日");
+        String format = sdf.format(time);
+        String gradeName = StringUtils.gradeName(gradeId);
+        str = format + "-" + StringUtils.schoolyardName(schoolyardId) + "-" + gradeName + "-" + stage.getName() + "-";
+        //查询当前用户的登录信息(管理员角色)
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        log.info("登录用户的信息是---->{}", user);
+        List<Role> roles = user.getRoleList();
+        List<String> roleName = roles.stream() // 将roles集合转化为流
+                .map(Role::getName) // 提取每个Role的name属性
+                .filter(org.apache.commons.lang3.StringUtils::isNotEmpty) // 过滤掉空的name
+                .collect(Collectors.toList());
+        if (!roleName.contains("ROLE_ADMIN")) {
+            return str = "您暂无当前操作的权限";
+        }
+
+        Date endTime = DateUtils.parse(DateUtils.format(time).replace("00:00:00", "23:59:59"));
+        //首先根据时间、校区、阶段将这个时间内的所有老师都拿出来
+        List<TeacherDuty> teacherDuties = this.teacherDutyMapper.selectList(Wrappers.<TeacherDuty>lambdaQuery()
+                .eq(TeacherDuty::getSchoolyardId, schoolyardId)
+                .eq(TeacherDuty::getDutyType, stage)
+                .gt(TeacherDuty::getStartTime, time)
+                .lt(TeacherDuty::getEndTime, endTime)
+        );
+        if (CollectionUtils.isNotEmpty(teacherDuties)) {
+            //将id收集起来
+            List<Long> ids = teacherDuties.stream().map(TeacherDuty::getId).collect(Collectors.toList());
+            List<TeacherDutyClazz> clazzes = this.teacherDutyClazzMapper.selectList(Wrappers.<TeacherDutyClazz>lambdaQuery()
+                    .eq(TeacherDutyClazz::getClazzId, classId)
+                    .in(TeacherDutyClazz::getTeacherDutyId, ids));
+            if (CollectionUtils.isNotEmpty(clazzes)) {
+                Clazz clazz = this.clazzMapper.selectById(clazzes.get(0).getClazzId());
+                TeacherDuty teacherDuty = this.teacherDutyMapper.selectById(clazzes.get(0).getTeacherDutyId());
+                if (teacherDuty != null && clazz != null) {
+                    str += clazz.getName() + "的值班教师-";
+                    Staff staff = this.staffMapper.selectById(teacherDuty.getTeacherId());
+                    if (staff != null) {
+                        str += staff.getName();
+                    }
+                }
+            }
+        }
+        return str;
+    }
+
+
+    /**
+     * 变更老师
+     *
+     * @param schoolyardId
+     * @param gradeId
+     * @param time
+     * @param classId
+     * @param stage
+     * @param name
+     * @return
+     */
+    @Override
+    public Integer updateOneTeacher(NightDutyClassDto dto) {
+        log.info("request param-->{}", dto);
+        Long schoolyardId = null;
+        Long classId = null;
+        Date time = null;
+        TeacherDutyTypeEnum stage = null;
+        String name = null;
+        if (dto != null) {
+            classId = dto.getClazzId();
+            time = dto.getTime();
+            stage = dto.getTeacherDutyTypeEnum();
+            name = dto.getTeacherName();
+            schoolyardId = dto.getSchoolyardIdd();
+        }
+        Date endTime = DateUtils.parse(DateUtils.format(time).replace("00:00:00", "23:59:59"));
+
+
+        //原先绑定的教师
+        TeacherDuty duty = this.teacherDutyMapper.selectByClassId(classId, time, endTime, stage);
+
+        if (duty != null) {
+            //根据老师的名称查找老师的教职工的id
+            Staff staff = this.staffMapper.selectOne(Wrappers.<Staff>lambdaQuery().eq(Staff::getName, name));
+            if (staff != null) {
+                //查班级和值班老师的关联表
+                TeacherDutyClazz teacherDutyClazz = this.teacherDutyClazzMapper.selectOne(Wrappers.<TeacherDutyClazz>lambdaQuery()
+                        .eq(TeacherDutyClazz::getTeacherDutyId, duty.getId())
+                        .eq(TeacherDutyClazz::getClazzId, classId));
+                if (teacherDutyClazz != null) {
+                    //查看教职工原先是否存在
+                    TeacherDuty teacherDuty1 = this.teacherDutyMapper.selectOne(Wrappers.<TeacherDuty>lambdaQuery()
+                            .eq(TeacherDuty::getTeacherId, staff.getId())
+                            .eq(TeacherDuty::getSchoolyardId, schoolyardId)
+                            .eq(TeacherDuty::getDutyType, stage)
+                            .gt(TeacherDuty::getStartTime, time)
+                            .lt(TeacherDuty::getEndTime, endTime)
+                    );
+                    if (teacherDuty1 != null) {
+                        //比对原先绑定的id
+                        if (teacherDutyClazz.getTeacherDutyId() != teacherDuty1.getId()) {
+                            Integer integer = this.teacherDutyClazzMapper.updateTeacherDutyClazzByClassId(classId, teacherDutyClazz.getId(), teacherDuty1.getId());
+                            return integer;
+                        }
+                    } else {
+                        TeacherDuty teacherDuty = new TeacherDuty();
+                        teacherDuty.setTeacherId(staff.getId());
+                        teacherDuty.setSchoolyardId(schoolyardId);
+                        teacherDuty.setDutyType(stage);
+                        teacherDuty.setStartTime(duty.getStartTime());
+                        teacherDuty.setEndTime(duty.getEndTime());
+                        Integer insert = this.teacherDutyMapper.insertReturnId(teacherDuty);
+                        Integer integer = this.teacherDutyClazzMapper.updateTeacherDutyClazzByClassId(classId, teacherDutyClazz.getId(), teacherDuty.getId());
+                        return integer;
+                    }
+                }
+            } else {
+                return 1002;
+            }
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")

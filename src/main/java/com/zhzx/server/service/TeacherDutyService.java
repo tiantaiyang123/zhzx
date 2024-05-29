@@ -66,4 +66,9 @@ public interface TeacherDutyService extends IService<TeacherDuty> {
     XSSFWorkbook exportExcelWorkAmount(Long schoolyardId, Long gradeId, Date startTime, Date endTime);
 
     XSSFWorkbook exportExcel(Long schoolyardId, Long gradeId, Date timeFrom, Date timeTo);
+
+    String searchOneTeacher(Long schoolyardId,Long gradeId, Date time, Long classId,TeacherDutyTypeEnum stage);
+
+    Integer updateOneTeacher(NightDutyClassDto nightDutyClassDto);
+
 }

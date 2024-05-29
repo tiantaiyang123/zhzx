@@ -1,8 +1,9 @@
 /**
  * 项目：中华中学流程自动化管理平台
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.rest;
 
@@ -13,6 +14,7 @@ import com.zhzx.server.domain.Staff;
 import com.zhzx.server.domain.TeacherDuty;
 import com.zhzx.server.dto.NightDutyClassDto;
 import com.zhzx.server.dto.TeacherServerFormDto;
+import com.zhzx.server.enums.TeacherDutyTypeEnum;
 import com.zhzx.server.enums.YesNoEnum;
 import com.zhzx.server.rest.req.TeacherDutyParam;
 import com.zhzx.server.rest.res.ApiResponse;
@@ -144,18 +146,18 @@ public class TeacherDutyController {
     /**
      * 分页查询
      *
-     * @param param 查询参数
-     * @param pageNum pageNum
+     * @param param    查询参数
+     * @param pageNum  pageNum
      * @param pageSize pageSize
      * @return int
      */
     @GetMapping("/search")
     @ApiOperation("分页查询")
     public ApiResponse<IPage<TeacherDuty>> selectByPage(
-        TeacherDutyParam param,
-        @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
-        @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-        @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+            TeacherDutyParam param,
+            @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
+            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         QueryWrapper<TeacherDuty> wrapper = param.toQueryWrapper();
         String[] temp = orderByClause.split("[,;]");
@@ -188,25 +190,25 @@ public class TeacherDutyController {
      */
     @GetMapping("/get/teacherDuty/form")
     @ApiOperation("查询教师值班表")
-    public ApiResponse<Page<Map<String,Object>>> getTeacherDutyForm(@RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
-                                                                    @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                                                                    @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-                                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeFrom",required = false) Date timeFrom,
-                                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeTo",required = false) Date timeTo,
-                                                                    @RequestParam(value = "teacherDutyName",required = false) String teacherDutyName,
-                                                                    @RequestParam(value = "gradeId",required = false) Long gradeId,
-                                                                    @RequestParam(value = "fromApp",required = false, defaultValue = "NO") YesNoEnum fromApp) {
+    public ApiResponse<Page<Map<String, Object>>> getTeacherDutyForm(@RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
+                                                                     @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                                                     @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
+                                                                     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeFrom", required = false) Date timeFrom,
+                                                                     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeTo", required = false) Date timeTo,
+                                                                     @RequestParam(value = "teacherDutyName", required = false) String teacherDutyName,
+                                                                     @RequestParam(value = "gradeId", required = false) Long gradeId,
+                                                                     @RequestParam(value = "fromApp", required = false, defaultValue = "NO") YesNoEnum fromApp) {
 
-        return ApiResponse.ok(this.teacherDutyService.getTeacherDutyFormV2(pageNum,pageSize,timeFrom,timeTo,teacherDutyName,gradeId, schoolyardId, fromApp));
+        return ApiResponse.ok(this.teacherDutyService.getTeacherDutyFormV2(pageNum, pageSize, timeFrom, timeTo, teacherDutyName, gradeId, schoolyardId, fromApp));
     }
 
     @GetMapping("/export-excel")
     @ApiOperation("导出教师值班表")
     public void exportExcel(HttpServletResponse response, HttpServletRequest request,
-                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeFrom",required = false) Date timeFrom,
-                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeTo",required = false) Date timeTo,
-                                      @RequestParam(value = "gradeId",required = false) Long gradeId,
-                                      @RequestParam(value = "schoolyardId",required = false) Long schoolyardId) throws Exception {
+                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeFrom", required = false) Date timeFrom,
+                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeTo", required = false) Date timeTo,
+                            @RequestParam(value = "gradeId", required = false) Long gradeId,
+                            @RequestParam(value = "schoolyardId", required = false) Long schoolyardId) throws Exception {
         XSSFWorkbook book = this.teacherDutyService.exportExcel(schoolyardId, gradeId, timeFrom, timeTo);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String fileName = "值班表" + sdf.format(new Date()) + ".xlsx";
@@ -244,9 +246,9 @@ public class TeacherDutyController {
     @GetMapping("/get/teacherDuty/picture")
     @ApiOperation("查询教师值班表(图片)")
     public void getTeacherDutyPicture(HttpServletResponse response, HttpServletRequest request,
-                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeFrom",required = false) Date timeFrom,
-                                      @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeTo",required = false) Date timeTo,
-                                      @RequestParam(value = "gradeId",required = false) Long gradeId) throws Exception {
+                                      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeFrom", required = false) Date timeFrom,
+                                      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeTo", required = false) Date timeTo,
+                                      @RequestParam(value = "gradeId", required = false) Long gradeId) throws Exception {
         BufferedImage image = this.teacherDutyService.getImage(timeFrom, timeTo, gradeId);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String fileName = "值班表(" + sdf.format(new Date()) + ").jpg";
@@ -275,15 +277,15 @@ public class TeacherDutyController {
      */
     @GetMapping("/import/teacher/duty")
     @ApiOperation("值班老师导入")
-    public ApiResponse<String> importTeacherDuty( @RequestParam(value = "schoolyardId") Long schoolyardId,
-                                                  @RequestParam(value = "academicYearSemesterId") Long academicYearSemesterId,
-                                                  @RequestParam(value = "gradeId") Long gradeId,
-                                                  @RequestParam(value = "fileUrl") String fileUrl) {
-        return ApiResponse.ok(this.teacherDutyService.importTeacherDuty(schoolyardId,academicYearSemesterId,gradeId,fileUrl));
+    public ApiResponse<String> importTeacherDuty(@RequestParam(value = "schoolyardId") Long schoolyardId,
+                                                 @RequestParam(value = "academicYearSemesterId") Long academicYearSemesterId,
+                                                 @RequestParam(value = "gradeId") Long gradeId,
+                                                 @RequestParam(value = "fileUrl") String fileUrl) {
+        return ApiResponse.ok(this.teacherDutyService.importTeacherDuty(schoolyardId, academicYearSemesterId, gradeId, fileUrl));
     }
+
     /**
      * 值班老师帮替值班 ---- app端老师帮人代班
-     *
      */
     @PostMapping("/update/teacher/duty")
     @ApiOperation("值班老师帮替值班")
@@ -293,7 +295,6 @@ public class TeacherDutyController {
 
     /**
      * 值班老师取消带班
-     *
      */
     @PostMapping("/cancel/teacher/duty")
     @ApiOperation("值班老师取消带班")
@@ -303,7 +304,6 @@ public class TeacherDutyController {
 
     /**
      * 值班老师取消带班
-     *
      */
     @GetMapping("/cancel/teacher/list")
     @ApiOperation("值班老师取消值班可选老师列表")
@@ -318,10 +318,10 @@ public class TeacherDutyController {
      */
     @GetMapping("/get/teacherDuty/byStaffId")
     @ApiOperation("根据教师查询值班")
-    public ApiResponse<List<TeacherServerFormDto>> getTeacherDutyByStaffId(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeFrom",required = false) Date timeFrom,
-                                                                    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "timeTo",required = false) Date timeTo) {
+    public ApiResponse<List<TeacherServerFormDto>> getTeacherDutyByStaffId(@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeFrom", required = false) Date timeFrom,
+                                                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "timeTo", required = false) Date timeTo) {
 
-        return ApiResponse.ok(this.teacherDutyService.getTeacherDutyByStaffId(timeFrom,timeTo));
+        return ApiResponse.ok(this.teacherDutyService.getTeacherDutyByStaffId(timeFrom, timeTo));
     }
 
     @GetMapping("/work-amount/export-excel")
@@ -330,8 +330,8 @@ public class TeacherDutyController {
     public void exportExcel(
             @RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
             @RequestParam(value = "gradeId", required = false) Long gradeId,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "startTime", required = false) Date startTime,
-            @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam(value = "endTime",required = false) Date endTime,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "startTime", required = false) Date startTime,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "endTime", required = false) Date endTime,
             HttpServletResponse response, HttpServletRequest request
     ) {
         XSSFWorkbook book = this.teacherDutyService.exportExcelWorkAmount(schoolyardId, gradeId, startTime, endTime);
@@ -355,5 +355,32 @@ public class TeacherDutyController {
         out.close();
         book.close();
     }
+
+    /**
+     * 返回查询到的原来值班的信息
+     */
+    @GetMapping("/old-teacher-message")
+    @ApiOperation("原先值班的教师返回")
+    public ApiResponse<String> getTeacherDuty(@RequestParam(value = "schoolyardId", required = false) Long schoolyardId,
+                                              @RequestParam(value = "gradeId", required = false) Long gradeId,
+                                              @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(value = "time", required = false) Date time,
+                                              @RequestParam(value = "classId", required = false) Long classId,
+                                              @RequestParam(value = "stage", required = false) TeacherDutyTypeEnum stage) {
+        String oneTeacher = this.teacherDutyService.searchOneTeacher(schoolyardId, gradeId, time, classId, stage);
+        return ApiResponse.ok(oneTeacher);
+    }
+
+    /**
+     * 更新值班的信息
+     *
+     * @return
+     */
+    @PostMapping("/update/teacher-message")
+    @ApiOperation("变更值班老师的")
+    public ApiResponse<Integer> updateTeacherDutyByName(@RequestBody NightDutyClassDto nightDutyClassDto) {
+        Integer integer = this.teacherDutyService.updateOneTeacher(nightDutyClassDto);
+        return ApiResponse.ok(integer);
+    }
+
 
 }

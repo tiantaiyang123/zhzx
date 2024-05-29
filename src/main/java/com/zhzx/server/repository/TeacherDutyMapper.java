@@ -103,4 +103,11 @@ public interface TeacherDutyMapper extends TeacherDutyBaseMapper {
                                              @Param("gradeId") Long gradeId,
                                              @Param("startTime") Date startTime,
                                              @Param("endTime") Date endTime);
+
+    TeacherDuty selectByClassId(@Param("classId") Long classId,
+                                @Param("startTime") Date startTime,
+                                @Param("endTime") Date endTime,
+                                @Param("dutyType") TeacherDutyTypeEnum dutyType);
+    Integer insertReturnId(TeacherDuty teacherDuty);
+
 }

@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.MonthDay;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -124,12 +126,14 @@ public class PublicCourseTaskComp {
     /**
      * 查询明天公开课的信息当天下午三点进行推送
      */
-    //@Scheduled(cron = "0 0 15 * * ? *")
+    //@Scheduled(cron = "0 0 15 * * ?")
     public void afterPublicCourses() {
         //当前的日期
         LocalDate currentDate = LocalDate.now();
         //明天的日期
         LocalDate tomorrow = currentDate.plusDays(1);
+        String format = MonthDay.from(tomorrow).format(DateTimeFormatter.ofPattern("MM月dd日"));
+        StringBuilder time = new StringBuilder(format);
         String dayOfWeekInChinese = DateUtils.dayOfWeekInChinese(tomorrow);
 
         Staff staff = staffMapper.selectById(619);
@@ -142,8 +146,8 @@ public class PublicCourseTaskComp {
 
         List<PublicCourse> publicCourses = publicCourseMapper.selectList(Wrappers.<PublicCourse>lambdaQuery().
                 eq(PublicCourse::getStartTime, tomorrow));
-        log.info("当天的公开课信息是:" + publicCourses.toString());
-        StringBuilder publicMes = new StringBuilder("test 公开课01: ");
+        log.info("明天的公开课信息是:" + publicCourses.toString());
+        StringBuilder publicMes = new StringBuilder(time+" 公开课: ");
         StringBuilder builder = new StringBuilder();
         if (CollectionUtils.isNotEmpty(publicCourses)) {
             for (PublicCourse publicCourse : publicCourses) {
@@ -163,7 +167,7 @@ public class PublicCourseTaskComp {
                 if (publicCourse != null) {
                     builder.append("开课时间:" + currentDate+" "+dayOfWeekInChinese + "\r\n")
                             .append("学科:" + publicCourse.getSubjectName() + "\r\n")
-                            .append("节次:" + publicCourse.getSortOrder() + "\r\n")
+                            .append("节次:第" + publicCourse.getSortOrder()+"节" + "\r\n")
                             .append("开课教师:" + publicCourse.getTeacherName() + "\r\n")
                             .append("开课的班级:" + publicCourse.getClazzName() + "\r\n")
                             .append("开课课题:"+publicCourse.getCourseName()+"\r\n")
