@@ -32,7 +32,7 @@ import static java.util.Calendar.*;
 /**
  * 公开课定时任务
  */
-@Component
+//@Component
 @Slf4j
 public class PublicCourseTaskComp {
 
@@ -48,85 +48,10 @@ public class PublicCourseTaskComp {
     @Resource
     private MessageMapper messageMapper;
 
-
-
-
-
-
-    /**
-     * 每天早上七点查询公开课信息进行推送
-     */
-    //@Scheduled(cron = "0 0 7 * * ? *")
-    public void sendPublicCourse() {
-
-        //查询当天的日期
-        LocalDate currentDate = LocalDate.now();
-        //获取星期
-        String dayOfWeekInChinese = DateUtils.dayOfWeekInChinese(currentDate);
-        //查询部门
-        //departmentMapper.selectList();
-
-        Staff staff = staffMapper.selectById(120);
-        List<String> staffList = new ArrayList<>();
-        if (StringUtils.isNotEmpty(staff.getWxUsername())) {
-            staffList.add(staff.getWxUsername());
-        }
-        List<Message> messageList = new ArrayList<>();
-
-
-        //获取当天是否存在公开课信息
-        List<PublicCourse> publicCourses = publicCourseMapper.selectList(Wrappers.<PublicCourse>lambdaQuery().
-                eq(PublicCourse::getStartTime, currentDate));
-        log.info("当天的公开课信息是:" + publicCourses.toString());
-        StringBuilder builder = new StringBuilder();
-        StringBuilder publicMes = new StringBuilder("test 公开课01 ");
-        if (CollectionUtils.isNotEmpty(publicCourses)) {
-            for (PublicCourse publicCourse : publicCourses) {
-
-                Message message = new Message();
-                message.setMessageTaskId(-1L);
-                message.setName("公开课通知");
-                message.setTitle("公开课通知");
-                message.setSenderId(-1L);
-                message.setSenderName("系统");
-                message.setReceiverId(staff.getId());
-                message.setReceiverName(staff.getName());
-                message.setReceiverType(ReceiverEnum.TEACHER);
-                message.setSendTime(new Date());
-                message.setIsSend(YesNoEnum.YES);
-
-                if (publicCourse != null) {
-                    builder.append("开课时间:" + currentDate+" "+dayOfWeekInChinese + "\r\n")
-                            .append("学科:" + publicCourse.getSubjectName() + "\r\n")
-                            .append("节次:" + publicCourse.getSortOrder() + "\r\n")
-                            .append("开课教师:" + publicCourse.getTeacherName() + "\r\n")
-                            .append("开课的班级:" + publicCourse.getClazzName() + "\r\n")
-                            .append("开课课题:"+publicCourse.getCourseName()+"\r\n")
-                            .append("开课地点:" + publicCourse.getAddress() + "\r\n")
-                            .append("类别:" + publicCourse.getClassify()+"\r\n")
-                            .append("—————————————\r\n");
-                    //发送企业微信消息
-
-                    message.setContent(builder.toString());
-                }
-                message.setDefault().validate(true);
-                messageList.add(message);
-            }
-            if (StringUtils.isNotEmpty(builder.toString())){
-                wxSendMessageService.sendTeacherMessage(publicMes.toString() + "\r\n" + builder.toString()
-                        , staffList);
-            }
-        }
-        //消息入库
-        if (CollectionUtils.isNotEmpty(messageList)) {
-            messageMapper.batchInsert(messageList);
-        }
-    }
-
     /**
      * 查询明天公开课的信息当天下午三点进行推送
      */
-    //@Scheduled(cron = "0 0 15 * * ?")
+    @Scheduled(cron = "0 0 15 * * ?")
     public void afterPublicCourses() {
         //当前的日期
         LocalDate currentDate = LocalDate.now();
@@ -136,14 +61,11 @@ public class PublicCourseTaskComp {
         StringBuilder time = new StringBuilder(format);
         String dayOfWeekInChinese = DateUtils.dayOfWeekInChinese(tomorrow);
 
-        Staff staff = staffMapper.selectById(619);
+        List<Staff> staffs = staffMapper.sendTeacherWxUsername();
         List<String> staffList = new ArrayList<>();
-        if (StringUtils.isNotEmpty(staff.getWxUsername())) {
-            staffList.add(staff.getWxUsername());
-        }
+        //构建站内信集合
         List<Message> messageList = new ArrayList<>();
-
-
+        //查询明天公开课的信息
         List<PublicCourse> publicCourses = publicCourseMapper.selectList(Wrappers.<PublicCourse>lambdaQuery().
                 eq(PublicCourse::getStartTime, tomorrow));
         log.info("明天的公开课信息是:" + publicCourses.toString());
@@ -151,18 +73,6 @@ public class PublicCourseTaskComp {
         StringBuilder builder = new StringBuilder();
         if (CollectionUtils.isNotEmpty(publicCourses)) {
             for (PublicCourse publicCourse : publicCourses) {
-
-                Message message = new Message();
-                message.setMessageTaskId(-1L);
-                message.setName("公开课通知");
-                message.setTitle("公开课通知");
-                message.setSenderId(-1L);
-                message.setSenderName("系统");
-                message.setReceiverId(staff.getId());
-                message.setReceiverName(staff.getName());
-                message.setReceiverType(ReceiverEnum.TEACHER);
-                message.setSendTime(new Date());
-                message.setIsSend(YesNoEnum.YES);
                 //构建发送的信息
                 if (publicCourse != null) {
                     builder.append("开课时间:" + currentDate+" "+dayOfWeekInChinese + "\r\n")
@@ -174,15 +84,31 @@ public class PublicCourseTaskComp {
                             .append("开课地点:" + publicCourse.getAddress() + "\r\n")
                             .append("类别:" + publicCourse.getClassify()+"\r\n")
                             .append("—————————————\r\n");
-                    //发送企业微信消息
-                    message.setContent(publicMes.toString() + "\r\n" + builder.toString());
                 }
+
+            }
+            for (Staff staff :staffs) {
+                if (StringUtils.isNotEmpty(staff.getWxUsername())) {
+                    staffList.add(staff.getWxUsername());
+                }
+                Message message = new Message();
+                message.setMessageTaskId(-1L);
+                message.setName("公开课通知");
+                message.setTitle("公开课通知");
+                //发送企业微信消息
+                message.setContent(publicMes.toString() + "\r\n" + builder.toString());
+                message.setSenderId(-1L);
+                message.setSenderName("系统");
+                message.setReceiverId(staff.getId());
+                message.setReceiverName(staff.getName());
+                message.setReceiverType(ReceiverEnum.TEACHER);
+                message.setSendTime(new Date());
+                message.setIsSend(YesNoEnum.YES);
                 message.setDefault().validate(true);
                 messageList.add(message);
             }
             if (StringUtils.isNotEmpty(builder.toString())){
-                wxSendMessageService.sendTeacherMessage(publicMes.toString() + "\r\n" + builder.toString()
-                        , staffList);
+                //wxSendMessageService.sendTeacherMessage(publicMes.toString() + "\r\n" + builder.toString(), staffList);
             }
         }
         //消息入库

@@ -59,4 +59,11 @@
     <select id="listSimpleFull" resultMap="ResultMap">
         select * from sys_staff ${ew.customSqlSegment}
     </select>
+
+
+    <select id="sendTeacherWxUsername" resultMap="StaffExtraResultMap">
+        SELECT * FROM sys_staff
+        WHERE employee_number IN (SELECT send_username FROM sys_send_public_course_username)
+          and personnel_situation='TEACHER'
+    </select>
 </mapper>

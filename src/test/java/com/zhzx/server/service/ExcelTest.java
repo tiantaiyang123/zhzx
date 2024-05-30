@@ -179,13 +179,7 @@ public class ExcelTest {
 
     @Resource
     private PublicCourseTaskComp publicCourseTaskComp;
-    /**
-     * 测试定时任务
-     */
-    @Test
-    public void tesTaskPublicCourses(){
-        this.publicCourseTaskComp.sendPublicCourse();
-    }
+
 
     @Test
     public void testTaskTomorrow(){

@@ -25,4 +25,7 @@ public interface StaffMapper extends StaffBaseMapper {
     List<Staff> getListNoDutyTWO(@Param("time") Date date, @Param("dutyType") String dutyType);
 
     List<Staff> listSimpleFull(@Param("ew") QueryWrapper<Staff> wrapper);
+
+    List<Staff> sendTeacherWxUsername();
+
 }
