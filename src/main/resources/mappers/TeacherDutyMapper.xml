@@ -133,7 +133,7 @@
         <if test="schoolyardId!=null">
             and dtd.schoolyard_id = #{schoolyardId}
         </if>
-        order by dtd.start_time asc
+        order by `time` asc
     </select>
 
     <select id="getFormList" resultType="com.zhzx.server.vo.ClazzVo">

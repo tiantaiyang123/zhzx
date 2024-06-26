@@ -118,10 +118,16 @@ public class Staff extends BaseDomain {
     @ApiModelProperty(value = "职称", required = true)
     private String title;
     /**
+     * 一卡通编号
+     */
+    @TableField(value = "card_identifier")
+    @ApiModelProperty(value = "一卡通编号", required = true)
+    private String cardIdentifier;
+    /**
      * 一卡通号
      */
     @TableField(value = "card_number")
-    @ApiModelProperty(value = "一卡通号", required = true)
+    @ApiModelProperty(value = "一卡通序列号", required = true)
     private String cardNumber;
     /**
      * 身份证号

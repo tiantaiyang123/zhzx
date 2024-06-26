@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zhzx.server.domain.*;
 import com.zhzx.server.enums.StudentTypeEnum;
+import com.zhzx.server.msdomain.AccountInfo;
+import com.zhzx.server.msrepository.AccountInfoMapper;
 import com.zhzx.server.repository.ClazzMapper;
 import com.zhzx.server.repository.ClazzTeachingLogSubjectsMapper;
 import com.zhzx.server.repository.NightStudyDutyClazzMapper;
@@ -58,7 +60,7 @@ public class ExcelTest {
     private StudentService studentService;
 
     @Test
-    public void selectInfoByPage(){
+    public void selectInfoByPage() {
         IPage<StudentInfoVo> page = new Page<>(1, 10);
         StudentParamVo studentParamVo = new StudentParamVo();
         studentParamVo.setClazzName("10班");
@@ -73,7 +75,7 @@ public class ExcelTest {
     }
 
     @Test
-    public void textCourse(){
+    public void textCourse() {
         AcademicYearSemester academicYearSemester = academicYearSemesterService.getCurrentYearSemester(null);
         if (academicYearSemester == null) return;
         // 获得课程表最后更新日期
@@ -133,7 +135,7 @@ public class ExcelTest {
     @Test
     public void testExportExcel() throws IOException, InvalidFormatException {
         examResultService.exportExcel("01", 1L, examService.getById(1L));
-   //      gradeService.exportExcel();
+        //      gradeService.exportExcel();
 //        courseService.importExcel(1L, 1L, "http://localhost:8088/upload/20220123/demo.xlsx");
     }
 
@@ -145,14 +147,14 @@ public class ExcelTest {
     @Test
     public void testListAudit() {
         IPage<ClazzTeachingLogSubjectsVo> page = new Page<>(1, 10);
-        page = clazzTeachingLogSubjectsMapper.listAuditPage(page, null,null,null,null,null, null, null, null);
+        page = clazzTeachingLogSubjectsMapper.listAuditPage(page, null, null, null, null, null, null, null, null);
         int ccc = 0;
     }
 
     @Test
     public void testListWeekLog() {
         IPage<ClazzTeachingLogSubjectsVo> page = new Page<>(1, 10);
-        List<ClazzTeachingLog> clazzTeachingLogList = clazzTeachingLogService.listWeekLog(null,null,null,1L,1);
+        List<ClazzTeachingLog> clazzTeachingLogList = clazzTeachingLogService.listWeekLog(null, null, null, 1L, 1);
         int ccc = 0;
     }
 
@@ -165,7 +167,7 @@ public class ExcelTest {
     @Test
     public void testGetNightStudyDutyClazzList() {
         // List<NightStudyDutyClazzVo> nightStudyDutyClazzList = nightStudyDutyClazzMapper.getDutyClazzList(2L);
-     //   NightStudyInfoVo nightStudyInfoVo = leaderDutyService.getNightStudyInfo(null, "2022-01-13");
+        //   NightStudyInfoVo nightStudyInfoVo = leaderDutyService.getNightStudyInfo(null, "2022-01-13");
         int cc = 0;
     }
 
@@ -173,7 +175,7 @@ public class ExcelTest {
     private StaffService staffService;
 
     @Test
-    public void testTask(){
+    public void testTask() {
         this.staffService.updateLessonTeacher();
     }
 
@@ -182,8 +184,21 @@ public class ExcelTest {
 
 
     @Test
-    public void testTaskTomorrow(){
+    public void testTaskTomorrow() {
         this.publicCourseTaskComp.afterPublicCourses();
     }
+
+    /**
+     * 测试sqlserver
+     */
+    @Resource
+    private AccountInfoMapper accountInfoMapper;
+
+    @Test
+    public void testGetPIN() {
+        AccountInfo accountInfo = accountInfoMapper.selectOneByPIN("320107196704030331");
+        //System.out.println(accountInfo);
+    }
+
 
 }

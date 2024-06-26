@@ -21,4 +21,7 @@ public interface AccountInfoMapper extends BaseMapper<AccountInfo> {
     Map<String, Object> getInfo(@Param("cPhysicalNo") Long cPhysicalNo,
                                 @Param("mobile") String mobile,
                                 @Param("idNumber") String idNumber);
+
+    AccountInfo selectOneByPIN(@Param("PIN")String PIN);
+
 }

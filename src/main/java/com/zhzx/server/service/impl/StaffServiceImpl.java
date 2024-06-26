@@ -26,6 +26,7 @@ import com.zhzx.server.util.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements StaffService {
+
+    @Autowired
+    private StaffMapper staffMapper;
 
     @Resource
     public UserMapper userMapper;
@@ -404,5 +408,15 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
 //                this.clazzMapper.update(null, Wrappers.<Clazz>lambdaUpdate().eq(Clazz::getId, k).set(Clazz::getClazzDivision, v.stream().distinct().collect(Collectors.joining(","))));
 //            }
 //        });
+    }
+
+    /**
+     * 批量更新
+     * @param ids
+     * @return
+     */
+    @Override
+    public Integer batchUpdateById(List<Staff> ids) {
+        return staffMapper.batchUpdateById(ids);
     }
 }

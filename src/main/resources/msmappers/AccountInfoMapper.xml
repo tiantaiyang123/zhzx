@@ -4,16 +4,16 @@
 
     <select id="getInfo" resultType="map">
         select top 1 *
---         [账号] AS id,
---         [编号] AS orderNumber,
---         [姓名] AS name,
---         [身份] AS type,
---         [性别] AS sex,
---         [标志] AS flag,
---         [预撤户] AS ych,
---         C_PhysicalNo AS cPhysicalNo,
---         Mobile AS mobile,
---         PIN AS idNumber
+        -- [账号] AS id,
+        -- [编号] AS orderNumber,
+        -- [姓名] AS name,
+        -- [身份] AS type,
+        -- [性别] AS sex,
+        -- [标志] AS flag,
+        -- [预撤户] AS ych,
+        -- C_PhysicalNo AS cPhysicalNo,
+        -- Mobile AS mobile,
+        -- PIN AS idNumber
         from dbo.ViewAccounts
         <where>
             <if test="cPhysicalNo != null">
@@ -24,6 +24,19 @@
             </if>
             <if test="idNumber != null and idNumber != ''">
                 and PIN=#{idNumber}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectOneByPIN" resultType="com.zhzx.server.msdomain.AccountInfo">
+        select [编号] AS orderNumber,[姓名] AS `name`,
+        [部门] as department,[性别] AS sex,
+        PIN as idNumber,C_PhysicalNo as cPhysicalNo,
+        [预撤户] AS ych,[标志] AS flag
+        from ViewAccounts
+        <where>
+            <if test="PIN!=null and PIN!=' '">
+                idNumber = #{PIN}
             </if>
         </where>
     </select>

@@ -1,26 +1,40 @@
 /**
  * 项目：中华中学流程自动化管理平台
+ *
  * @Author: xiongwei
  * @Date: 2021-08-12 10:10:00
-*/
+ */
 
 package com.zhzx.server.rest;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zhzx.server.domain.CardIdentifier;
 import com.zhzx.server.enums.TeacherDutyTypeEnum;
+import com.zhzx.server.util.MD5Utils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import com.zhzx.server.rest.res.ApiCode;
@@ -129,6 +143,46 @@ public class StaffController {
         return ApiResponse.ok(this.staffService.update(entity, param.toQueryWrapper()));
     }
 
+    @PostMapping("/batch-update/card-identifier")
+    @ApiOperation("批量更新")
+    public ApiResponse<Integer> batchUpdateCardIdentifier() {
+        List<Staff> list = staffService.list();
+        if (CollectionUtils.isNotEmpty(list)) {
+            String input = "zhzxykt@ListAll208369";
+            String token = MD5Utils.getMD5Hash(input);
+            String url = "http://dc1.njzhzx.net:8106/oaapps/getinfo-ykt.php?act=ListAll&idcard=208369&token=" + token;
+            JSONArray array=null;
+            try {
+                HttpClient client = new HttpClient();
+                GetMethod get = new GetMethod(url);
+                client.executeMethod(get);
+                String response = get.getResponseBodyAsString();
+                if (StringUtils.isNotEmpty(response)){
+                   array = JSON.parseArray(response);
+                }
+            } catch (IOException e) {
+               throw new ApiCode.ApiException(10001,e.getMessage());
+            }
+            for (Staff sta : list) {
+                if (CollectionUtils.isNotEmpty(array)){
+                    for (int i = 0; i < array.size(); i++) {
+                        JSONObject object = JSON.parseObject(array.get(i).toString());
+                        if (sta.getCardNumber().equals(object.getString("UserYktNumber"))
+                        &&sta.getIdNumber().equals(object.getString("UserIDcard"))){
+                            sta.setCardIdentifier(object.getString("UserBH"));
+                        }
+                    }
+                }
+
+            }
+            list.stream()
+                    .filter(staff -> Objects.nonNull(staff.getCardIdentifier())) // 过滤条件
+                    .collect(Collectors.toList());
+        }
+
+        return ApiResponse.ok(staffService.batchUpdateById(list));
+    }
+
     /**
      * 批量删除
      *
@@ -144,18 +198,18 @@ public class StaffController {
     /**
      * 分页查询
      *
-     * @param param 查询参数
-     * @param pageNum pageNum
+     * @param param    查询参数
+     * @param pageNum  pageNum
      * @param pageSize pageSize
      * @return int
      */
     @GetMapping("/search")
     @ApiOperation("分页查询")
     public ApiResponse<IPage<Staff>> selectByPage(
-        StaffParam param,
-        @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
-        @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-        @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+            StaffParam param,
+            @RequestParam(value = "orderByClause", defaultValue = "id desc") String orderByClause,
+            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         QueryWrapper<Staff> wrapper = param.toQueryWrapper();
         String[] temp = orderByClause.split("[,;]");
@@ -190,9 +244,9 @@ public class StaffController {
 
     @GetMapping("/get/list/no/duty")
     @ApiOperation("查询今天没有值班的老师")
-    public ApiResponse<List<Staff>> getListNoDuty(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")@RequestParam Date date,
-                                              @RequestParam TeacherDutyTypeEnum dutyType) {
+    public ApiResponse<List<Staff>> getListNoDuty(@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam Date date,
+                                                  @RequestParam TeacherDutyTypeEnum dutyType) {
 
-        return ApiResponse.ok(this.staffService.getListNoDuty(date,dutyType));
+        return ApiResponse.ok(this.staffService.getListNoDuty(date, dutyType));
     }
 }

@@ -23,6 +23,12 @@ public class AccountInfo extends BaseDomain {
     private Long id;
 
     /**
+     * 部门
+     */
+    @TableField(value = "[部门]")
+    private String department;
+
+    /**
      * 编号
      */
     @TableField(value = "[编号]")

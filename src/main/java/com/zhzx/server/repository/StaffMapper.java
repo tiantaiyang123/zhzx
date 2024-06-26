@@ -28,4 +28,6 @@ public interface StaffMapper extends StaffBaseMapper {
 
     List<Staff> sendTeacherWxUsername();
 
+    Integer batchUpdateById(List<Staff> ids);
+
 }

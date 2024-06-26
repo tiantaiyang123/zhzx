@@ -37,4 +37,7 @@ public interface StaffService extends IService<Staff> {
     List<Staff> getListNoDuty(Date date, TeacherDutyTypeEnum dutyType);
 
     void updateLessonTeacher();
+
+    Integer batchUpdateById(List<Staff> ids);
+
 }
