@@ -1458,7 +1458,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
         SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日");
         String format = sdf.format(time);
         String gradeName = StringUtils.gradeName(gradeId);
-        str = format + "-" + StringUtils.schoolyardName(schoolyardId) + "-" + gradeName + "-" + stage.getName() + "-";
+        str = format+" ";
         //查询当前用户的登录信息(管理员角色)
         Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
@@ -1490,7 +1490,7 @@ public class TeacherDutyServiceImpl extends ServiceImpl<TeacherDutyMapper, Teach
                 Clazz clazz = this.clazzMapper.selectById(clazzes.get(0).getClazzId());
                 TeacherDuty teacherDuty = this.teacherDutyMapper.selectById(clazzes.get(0).getTeacherDutyId());
                 if (teacherDuty != null && clazz != null) {
-                    str += clazz.getName() + "的值班教师-";
+                    str += "值班教师: ";
                     Staff staff = this.staffMapper.selectById(teacherDuty.getTeacherId());
                     if (staff != null) {
                         str += staff.getName();

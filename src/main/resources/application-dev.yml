@@ -19,7 +19,7 @@ spring:
     host: 47.96.107.184
     database: 1
     port: 6379
-    password: chenghe666666
+    password: goodits@123
     timeout: 10000
     lettuce:
       pool:

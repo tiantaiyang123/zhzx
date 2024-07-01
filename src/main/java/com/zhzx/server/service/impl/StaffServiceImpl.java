@@ -185,7 +185,7 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
         if (fileUrl == null || fileUrl == "")
             throw new ApiCode.ApiException(-1, "没有上传文件！");
         String[] items = fileUrl.split("/");
-        File file = new File(uploadPath + "\\" + items[items.length - 2] + "\\" + items[items.length - 1]);
+        File file = new File(uploadPath + File.separator + items[items.length - 2] + File.separator + items[items.length - 1]);
         if (!file.exists())
             throw new ApiCode.ApiException(-1, "文件不存在！");
         try {
@@ -204,14 +204,16 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
                 String department = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(0));
                 String employeeNumber = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(1));
                 String name = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(2));
-                String phone = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(3));
-                String gender = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(4));
-                String education = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(5));
-                String title = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(6));
-                String cardNumber = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(7));
-                String idNumber = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(8));
-                String compilationSituation = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(9));
-                String personnelSituation = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(10));
+                String gender = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(3));
+                String wxUsername = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(4));
+                String phone = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(5));
+                String education = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(6));
+                String title = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(7));
+                String cardNumber = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(8));
+                String cardIdentifier = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(9));
+                String idNumber = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(10));
+                String compilationSituation = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(11));
+                String personnelSituation = CellUtils.getCellValue(sheet.getRow(rowIndex).getCell(12));
                 if (StringUtils.isNullOrEmpty(employeeNumber)) {
                     errText += "\t工号不能为空";
                 }
@@ -241,6 +243,8 @@ public class StaffServiceImpl extends ServiceImpl<StaffMapper, Staff> implements
                     staff.setEmployeeNumber(employeeNumber);
                     staff.setName(name);
                     staff.setPhone(phone);
+                    staff.setWxUsername(wxUsername);
+                    staff.setCardIdentifier(cardIdentifier);
                     staff.setGender((StringUtils.isNullOrEmpty(gender) ? "" : gender).equals("男") ? GenderEnum.M : GenderEnum.W);
                     staff.setEducation(StringUtils.isNullOrEmpty(education) ? "" : education);
                     staff.setTitle(StringUtils.isNullOrEmpty(title) ? "" : title);

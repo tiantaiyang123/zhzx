@@ -83,7 +83,7 @@
             <if test="orderByClause != null">
                 order by ${orderByClause}
             </if>
-            group by to_days(register_date)
+            group by register_date
         ) a
 
     </select>
